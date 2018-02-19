@@ -1,9 +1,33 @@
 // @flow
 
-import Graph from "jsnetworkx";
-
 import P5Type from "../types/p5";
-import type {Node as tNode} from "../types/Graph";
+
+
+type Graph = {
+    nodes: Node[];
+    edges: Edge[];
+};
+
+type Node = {
+
+    x: number;
+    y: number;
+    z: number;
+
+    created: ?Date;
+    author: ?string;
+};
+
+type Edge = {
+
+    x: number,
+    y: number,
+    z: number,
+
+    created: ?Date,
+    author: ?string
+
+};
 
 
 class GraphManager {
@@ -24,10 +48,15 @@ class GraphManager {
         No arguments.
         */
         // Create a new graph object
-        this.graph = new Graph();
+        let graph: Graph = {
+            nodes: [],
+            edges: []
+        };
+
+        this.graph = graph;
     }
 
-    addNode(node: tNode) {
+    addNode(node: Node) {
         /*
         Add a new node to the graph.
 
@@ -38,7 +67,7 @@ class GraphManager {
             None
         */
         node.created = node.created || new Date();
-        this.graph.addNode(node);
+        this.graph.nodes.push(node);
     }
 
 }
@@ -101,12 +130,12 @@ export default class Trace {
     mouseClicked(): void {
         let p = this.p;
 
-        this.graphManager.addNode({
-            x: p.mouseX,
-            y: p.mouseY,
-            z: 100,
-            screenX: p.mouseX,
-            screenY: p.mouseY,
-        });
+        // this.graphManager.addNode({
+        //     x: p.mouseX,
+        //     y: p.mouseY,
+        //     z: 100,
+        //     screenX: p.mouseX,
+        //     screenY: p.mouseY,
+        // });
     }
 }
