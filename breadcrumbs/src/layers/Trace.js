@@ -1,21 +1,29 @@
 // @flow
 
+import * as graphlib from "graphlib";
+import uuidv4 from "uuid/v4";
+
 import P5Type from "../types/p5";
 
 
-type Graph = {
-    nodes: Node[];
-    edges: Edge[];
-};
+class Node {
 
-type Node = {
-
+    id: string;
     x: number;
     y: number;
     z: number;
 
     created: ?Date;
     author: ?string;
+
+    constructor(opts) {
+        this.x = opts.x;
+        this.y = opts.y;
+        this.z = opts.z;
+        this.created = opts.created || new Date();
+        this.author = opts.author || undefined;
+        this.id = opts.id || uuidv4();
+    }
 };
 
 type Edge = {
@@ -35,11 +43,11 @@ class GraphManager {
     The GraphManager class is an internal class that abstracts the modifications
     to an underlying graph object, stored in GraphManager#graph. This class
     handles reads and writes to the graph; this base implementation leverages
-    the jsnetworkx library (http://jsnetworkx.org/).
+    the graphlib library (https://github.com/cpettitt/graphlib/wiki).
     */
 
-    // The underlying jsnetworkx.Graph object
-    graph: Graph;
+    // The underlying graphlib.Graph object
+    graph: graphlib.Graph;
 
     constructor() {
         /*
@@ -47,13 +55,7 @@ class GraphManager {
 
         No arguments.
         */
-        // Create a new graph object
-        let graph: Graph = {
-            nodes: [],
-            edges: []
-        };
-
-        this.graph = graph;
+        this.graph = new graphlib.Graph();
     }
 
     addNode(node: Node) {
@@ -67,7 +69,8 @@ class GraphManager {
             None
         */
         node.created = node.created || new Date();
-        this.graph.nodes.push(node);
+        node.author = node.author || undefined;
+        this.graph.setNode(node.id, node);
     }
 
 }
