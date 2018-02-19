@@ -118,6 +118,13 @@ export default class BossDB {
                 0, 0,
                 this.p.width, this.p.height
             );
+            // Draw a line on the left side of the screen to indicate progress
+            // through the block.
+            let progress = this.p.height * (
+                (this.currentZ - this.range.z[0]) /
+                (this.range.z[1] - this.range.z[0])
+            );
+            this.p.line(0, progress, 10, progress);
         }
     }
 }

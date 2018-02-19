@@ -68,8 +68,6 @@ class GraphManager {
         Returns:
             None
         */
-        node.created = node.created || new Date();
-        node.author = node.author || undefined;
         this.graph.setNode(node.id, node);
     }
 
@@ -133,12 +131,12 @@ export default class Trace {
     mouseClicked(): void {
         let p = this.p;
 
-        // this.graphManager.addNode({
-        //     x: p.mouseX,
-        //     y: p.mouseY,
-        //     z: 100,
-        //     screenX: p.mouseX,
-        //     screenY: p.mouseY,
-        // });
+        this.graphManager.addNode(new Node({
+            x: p.mouseX,
+            y: p.mouseY,
+            z: 100,
+            screenX: p.mouseX,
+            screenY: p.mouseY,
+        }));
     }
 }
