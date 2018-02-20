@@ -14,9 +14,14 @@ export type P5Type = {
 
     // Drawing
     background: (r: number, g: ?number, b: ?number, a: ?number) => void,
+    fill: (r: number, g: ?number, b: ?number, a: ?number) => void,
+
     line: Function,
 
+    ellipse: (number, number, number, number) => void,
+
     stroke: Function,
+    noStroke: () => void,
     strokeWeight: Function,
 
     image: Function,
@@ -29,9 +34,16 @@ export type P5Type = {
     windowResized: Function,
     mousePressed: Function,
     keyTyped: Function,
-    mouseWheel: Function,
     key: string,
+    // Mouse:
+    mouseWheel: Function,
+    mouseX: number,
+    mouseY: number,
+    RIGHT: number,
 
     // Image
-    loadImage: Function
+    loadImage: Function,
+
+    // Geometry
+    dist: (x0: number, y0: number, x1: number, y1: number) => number
 };

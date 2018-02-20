@@ -3,7 +3,7 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import P5Type from "../types/p5";
+import type { P5Type } from "../types/p5";
 
 
 class Node {
