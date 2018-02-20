@@ -7,9 +7,12 @@ import BossDB from "./layers/BossDB";
 import Crosshairs from "./layers/Crosshairs";
 import Trace from "./layers/Trace";
 
-import P5Type from "./types/p5";
+import type { P5Type } from "./types/p5";
 
 // import p5 from 'p5';
+
+
+
 
 let p5 = window.p5;
 
@@ -144,24 +147,40 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                 p.resizeCanvas(500, 500);
             }
 
-            p.mouseClicked = function() {
+            p.mousePressed = function() {
                 for (const key in self.layers) {
-                    if (!!self.layers[key].mouseClicked) {
-                        self.layers[key].mouseClicked();
+                    if (!!self.layers[key].mousePressed) {
+                        self.layers[key].mousePressed();
                     }
                 }
+                return false;
             }
 
             p.keyTyped = function() {
                 let key = p.key;
-                if (key == "t") {
-                    self.layers.crosshairs.toggleVisibility();
-                }
-                else if (key == "w") {
-                    self.layers.bossdb.zUp();
-                }
-                else if (key == "s") {
-                    self.layers.bossdb.zDown();
+
+                switch (key) {
+                    case "t":
+                        self.layers.crosshairs.toggleVisibility();
+                        break;
+
+                    case "w":
+                        self.layers.bossdb.zUp();
+                        break;
+
+                    case "s":
+                        self.layers.bossdb.zDown();
+                        break;
+
+                    case "c":
+                        self.layers.trace.severTrace();
+                        break;
+
+                    case " ":
+                        self.layers.trace.dropNode();
+                        break;
+                    default:
+                        break;
                 }
             }
 

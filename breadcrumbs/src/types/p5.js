@@ -1,14 +1,19 @@
-type P5Type = {
+// @flow
+
+export type P5Type = {
 
     width: number,
     height: number,
 
-    createCanvas: Function,
-    resizeCanvas: Function,
+    windowWidth: number,
+    windowHeight: number,
+
+    createCanvas: (width: number, height: number) => Object,
+    resizeCanvas: (width: number, height: number) => Object,
     createGraphics: Function,
 
     // Drawing
-    background: Function,
+    background: (r: number, g: ?number, b: ?number, a: ?number) => void,
     line: Function,
 
     stroke: Function,
@@ -17,11 +22,15 @@ type P5Type = {
     image: Function,
 
     // Core
-    setup: Function,
-    draw: Function,
+    setup: () => void,
+    draw: () => void,
 
     // Events
     windowResized: Function,
+    mousePressed: Function,
+    keyTyped: Function,
+    mouseWheel: Function,
+    key: string,
 
     // Image
     loadImage: Function
