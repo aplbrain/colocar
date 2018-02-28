@@ -5,13 +5,20 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5";
 
+import {
+    LINE_COLOR
+} from "../colors";
+
 
 class Node {
 
     id: string;
+    // Dataspace Position
     x: number;
     y: number;
     z: number;
+
+    // UIspace position
     screenX: number;
     screenY: number;
 
@@ -163,14 +170,20 @@ export default class Trace {
         if (!this.visible) { return; }
 
         let p = this.p;
-        p.fill(0, 230, 250, 100);
         p.noStroke();
 
         for (let n of this.graphManager.getNodes()) {
-            if (p.dist(n.screenX, n.screenY, p.mouseX, p.mouseY) < 50) {
+            let dist = p.dist(n.screenX, n.screenY, p.mouseX, p.mouseY);
+            if (dist < 50) {
                 // TODO: Check for closeness of frame
                 // TODO: Highlight active node
+                p.fill(...LINE_COLOR, 150 - (2 * dist));
                 p.ellipse(n.screenX, n.screenY, 10, 10);
+            }
+            if (n.id == this.graphManager.activeNode) {
+                let d = 15 + (5 * (Math.sin(new Date()/250)+1));
+                p.fill(250, 150, 0, 200-5*d);
+                p.ellipse(n.screenX, n.screenY, d, d);
             }
         }
 
