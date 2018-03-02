@@ -1,4 +1,5 @@
 // @flow
+
 import type { P5Type } from "../types/p5";
 
 
@@ -56,6 +57,6 @@ export default class Crosshairs {
     }
 
     toggleVisibility(visible?: boolean): void {
-        this.visible = !this.visible;
+        this.visible = visible || !this.visible;
     }
 }

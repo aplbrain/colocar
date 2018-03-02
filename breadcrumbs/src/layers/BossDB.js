@@ -45,7 +45,7 @@ export default class BossDB {
             `xy/${self.res}/`
         );
 
-        if (!!self._cache[z]) {
+        if (self._cache[z]) {
             self.img = self._cache[z];
         } else {
             let slug = (
@@ -56,7 +56,7 @@ export default class BossDB {
             this.img = self.p.loadImage(
                 url + slug,
                 () => { self.ready = true; },
-                (err) => { console.error(err) },
+                (err) => { console.error(err); },
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }
@@ -78,7 +78,7 @@ export default class BossDB {
                 this._cache[z - 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err) => { console.error(err) },
+                    (err) => { console.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }
@@ -93,7 +93,7 @@ export default class BossDB {
                 this._cache[z + 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err) => { console.error(err) },
+                    (err) => { console.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }

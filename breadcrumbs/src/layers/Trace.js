@@ -25,7 +25,16 @@ class Node {
     created: ?Date;
     author: ?string;
 
-    constructor(opts) {
+    constructor(opts: {
+        x: number,
+        y: number,
+        z: number,
+        screenX: number,
+        screenY: number,
+        created?: Date,
+        author?: string,
+        id?: string
+    }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
@@ -35,18 +44,18 @@ class Node {
         this.author = opts.author || undefined;
         this.id = opts.id || uuidv4();
     }
-};
+}
 
-type Edge = {
+// type Edge = {
 
-    x: number,
-    y: number,
-    z: number,
+//     x: number,
+//     y: number,
+//     z: number,
 
-    created: ?Date,
-    author: ?string
+//     created: ?Date,
+//     author: ?string
 
-};
+// };
 
 
 class GraphManager {
@@ -60,6 +69,9 @@ class GraphManager {
     // The underlying graphlib.Graph object
     graph: graphlib.Graphd;
     activeNode: ?string;
+
+    getLines: () => Array<[Node, Node]>;
+    getNodes: () => Node[];
 
     constructor() {
         /*
@@ -91,11 +103,10 @@ class GraphManager {
         addNode.
         */
         this.graph.setNode(node.id, node);
-        if (!!this.activeNode) {
+        if (this.activeNode) {
             this.graph.setEdge(node.id, this.activeNode);
         }
         this.activeNode = node.id;
-        console.log(this);
     }
 
     unsetActiveNode() {
@@ -103,7 +114,6 @@ class GraphManager {
         Unset the active node in the trace. This effectively "severs" the
         trace -- good for starting a new branch.
         */
-        console.log("unsetting")
         this.activeNode = undefined;
     }
 
@@ -111,7 +121,7 @@ class GraphManager {
         /*
         Returns a list of nodes from the graph.
         */
-        return this.graph.nodes().map(n => this.graph.node(n))
+        return this.graph.nodes().map((n: string) => this.graph.node(n));
     }
 
     getLines() {
@@ -144,7 +154,7 @@ export default class Trace {
     // Whether to render the layer. Can be changed in realtime
     visible: boolean;
 
-    constructor(opts: Object) {
+    constructor(opts: { p: P5Type }) {
         /*
         Create a new Trace. This should be done in the `setup` of the p5
         instance, which takes place in App.js.
@@ -191,7 +201,7 @@ export default class Trace {
         p.stroke(255, 0, 0, 100);
         for (let n of this.graphManager.getLines()) {
             // if (n.z) { // TODO: Check for closeness of frame
-                p.line(n[0].screenX, n[0].screenY, n[1].screenX, n[1].screenY)
+            p.line(n[0].screenX, n[0].screenY, n[1].screenX, n[1].screenY);
             // }
         }
     }

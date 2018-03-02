@@ -132,7 +132,7 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
 
                 self.config = {
                     renderCrosshairs: true,
-                }
+                };
             };
 
             p.draw = function() {
@@ -143,16 +143,16 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
 
             p.windowResized = function() {
                 p.resizeCanvas(500, 500);
-            }
+            };
 
             p.mousePressed = function() {
                 for (const key in self.layers) {
-                    if (!!self.layers[key].mousePressed) {
+                    if (self.layers[key].mousePressed) {
                         self.layers[key].mousePressed();
                     }
                 }
                 return false;
-            }
+            };
 
             p.keyTyped = function() {
                 let key = p.key;
@@ -180,7 +180,7 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                 default:
                     break;
                 }
-            }
+            };
 
             p.mouseWheel = function(ev) {
                 if (ev.delta > 0) {
@@ -188,7 +188,7 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                 } else {
                     self.layers.bossdb.zDown();
                 }
-            }
+            };
         };
     }
 
