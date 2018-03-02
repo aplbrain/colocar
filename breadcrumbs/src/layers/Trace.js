@@ -51,14 +51,14 @@ type Edge = {
 
 class GraphManager {
     /*
-    The GraphManager class is an internal class that abstracts the modifications
+    The GraphManager class is an internal class that abstracts modifications
     to an underlying graph object, stored in GraphManager#graph. This class
     handles reads and writes to the graph; this base implementation leverages
     the graphlib library (https://github.com/cpettitt/graphlib/wiki).
     */
 
     // The underlying graphlib.Graph object
-    graph: graphlib.Graph;
+    graph: graphlib.Graphd;
     activeNode: ?string;
 
     constructor() {
