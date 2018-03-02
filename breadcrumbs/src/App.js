@@ -12,8 +12,6 @@ import type { P5Type } from "./types/p5";
 // import p5 from 'p5';
 
 
-
-
 let p5 = window.p5;
 
 p5.prototype.loadImage = function (path, successCallback, failureCallback, headers) {
@@ -33,7 +31,7 @@ p5.prototype.loadImage = function (path, successCallback, failureCallback, heade
             res.blob().then(b => {
                 // Start loading the image:
                 img.src = URL.createObjectURL(b);
-            })
+            });
         } else {
             console.error(res);
         }
@@ -160,27 +158,27 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                 let key = p.key;
 
                 switch (key) {
-                    case "t":
-                        self.layers.crosshairs.toggleVisibility();
-                        break;
+                case "t":
+                    self.layers.crosshairs.toggleVisibility();
+                    break;
 
-                    case "w":
-                        self.layers.bossdb.zUp();
-                        break;
+                case "w":
+                    self.layers.bossdb.zUp();
+                    break;
 
-                    case "s":
-                        self.layers.bossdb.zDown();
-                        break;
+                case "s":
+                    self.layers.bossdb.zDown();
+                    break;
 
-                    case "c":
-                        self.layers.trace.severTrace();
-                        break;
+                case "c":
+                    self.layers.trace.severTrace();
+                    break;
 
-                    case " ":
-                        self.layers.trace.dropNode();
-                        break;
-                    default:
-                        break;
+                case " ":
+                    self.layers.trace.dropNode();
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -195,13 +193,14 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
     }
 
     componentDidMount() {
-        var myp5 = new p5(this.sketch);
+        // var myp5 = new p5(this.sketch);
+        new p5(this.sketch);
     }
 
     render() {
         return (
             <div id={ this._id }></div>
-        )
+        );
     }
 }
 
