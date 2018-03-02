@@ -16,13 +16,13 @@ export type P5Type = {
     background: (r: number, g: ?number, b: ?number, a: ?number) => void,
     fill: (r: number, g: ?number, b: ?number, a: ?number) => void,
 
-    line: Function,
+    line: (x0: number, y0: number, x1: number, y1: number) => void,
 
     ellipse: (number, number, number, number) => void,
 
-    stroke: Function,
+    stroke: (r: number, g: ?number, b: ?number, a: ?number) => void,
     noStroke: () => void,
-    strokeWeight: Function,
+    strokeWeight: (number) => void,
 
     image: Function,
 

@@ -1,10 +1,2 @@
 [ignore]
-*/node_modules/
-
-[include]
-
-[libs]
-
-[lints]
-
-[options]
+.*/node_modules/config-chain/test/broken.json

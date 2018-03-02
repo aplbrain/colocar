@@ -1,5 +1,5 @@
 // @flow
-import P5Type from "../types/p5";
+import type { P5Type } from "../types/p5";
 
 
 export default class Crosshairs {
@@ -8,7 +8,7 @@ export default class Crosshairs {
     margin: number;
     visible: boolean;
 
-    constructor(opts: Object) {
+    constructor(opts: { p: P5Type, margin?: number }) {
         this.p = opts.p;
         this.margin = opts.margin || 10;
         this.visible = true;
