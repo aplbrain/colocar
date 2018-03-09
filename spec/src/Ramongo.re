@@ -59,6 +59,7 @@ type nodeType =
   | Axon
   | Region
   | Synapse
+  | StartingSynapse
   | PreSynapse
   | PostSynapse
   | CellBody
@@ -91,6 +92,7 @@ type question = {
     application: application,
     assignee: userID,
     volume: volumeID,
+    comments: list(string)
 };
 
 type node = {
