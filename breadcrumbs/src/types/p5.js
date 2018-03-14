@@ -11,6 +11,7 @@ export type P5Type = {
     createCanvas: (width: number, height: number) => Object,
     resizeCanvas: (width: number, height: number) => Object,
     createGraphics: Function,
+    frameRate: (number) => void,
 
     // Drawing
     background: (r: number, g: ?number, b: ?number, a: ?number) => void,
@@ -43,6 +44,7 @@ export type P5Type = {
 
     // Image
     loadImage: Function,
+    Image: any,
 
     // Geometry
     dist: (x0: number, y0: number, x1: number, y1: number) => number

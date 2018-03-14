@@ -1,6 +1,9 @@
 // @flow
 
 import React, { Component } from 'react';
+import Visualizer from 'apl-substrate/components/Visualizer';
+import Layer from 'apl-substrate/components/Layer';
+
 import './App.css';
 
 import BossDB from "./layers/BossDB";
@@ -12,14 +15,14 @@ import type { P5Type } from "./types/p5";
 // import p5 from 'p5';
 
 
-let p5 = window.p5;
+let p5: P5Type = window.p5;
 
-p5.prototype.loadImage = function (path, successCallback, failureCallback, headers) {
+p5.prototype.loadImage = function (path: string, successCallback: Function, failureCallback: Function, headers: Object) {
     p5._validateParameters('loadImage', arguments);
     var img = new Image();
     var pImg = new p5.Image(1, 1, this);
 
-    var self = this;
+    let self = this;
 
     let URL = window.URL || window.webkitURL;
     headers = headers || {};
@@ -77,38 +80,98 @@ class App extends Component<AppProps> {
 
     render() {
         return (
-            <div>
-                <P5SynapseHunter />
+            <div style={{ height: "100vh", overflow: "hidden" }}>
+                <P5Breadcrumbs />
             </div>
         );
     }
 }
 
 
-type P5SynapseHunterProps = {};
+class AxisLayer extends Layer {
+
+    requestInit(scene) {
+        this.children.push(scene.add(new window.THREE.AxesHelper(5)));
+    }
+}
 
 
-class P5SynapseHunter extends Component<P5SynapseHunterProps> {
+class GraphLayer extends Layer {
+    constructor(opts) {
+        super(opts);
+        this.graph = {
+            nodes: [],
+            edges: []
+        };
+    }
 
-    _id: string;
+    setGraph(g) {
+        this.graph = g;
+        this.requestInit();
+    }
+
+    requestInit(scene) {
+        if (scene) { this.scene = scene; }
+        scene = scene || this.scene;
+
+        for (let n of this.children) {
+            scene.remove(n);
+        }
+        this.children = [];
+
+        for (let n of this.graph.nodes) {
+            let newNode = new window.THREE.Mesh(
+                new window.THREE.SphereGeometry(0.1, 2, 2),
+                new window.THREE.MeshBasicMaterial({color: 0xc0ffee})
+            );
+            newNode.position.set(n.value.x/50, n.value.y/50, (n.value.z - 100) / 5);
+            this.children.push(scene.add(newNode));
+        }
+    }
+}
+
+
+type P5BreadcrumbsProps = {};
+
+class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
+
+    p5ID: string;
+    substrateID: string;
     sketch: any;
     config: Object;
     ghostLayer: number;
     layers: Object;
     p: P5Type;
     renderOrder: Array<string>;
+    V: Object;
+
+    frameUp: Function;
 
     constructor(props) {
         super(props);
         let self = this;
-        self._id = `p5-container-${Math.round(100 * Math.random())}`;
+        self.p5ID = `p5-container-${Math.round(100 * Math.random())}`;
+        self.substrateID = `substrate-container-${Math.round(100 * Math.random())}`;
 
+
+        // Set up substrate scene
+        self.V = new Visualizer({
+            targetElement: self.substrateID,
+            renderLayers: {
+                axis: new AxisLayer(),
+                graph: new GraphLayer()
+            }
+        });
+
+        // Set up p5 sketch
         self.sketch = (p: P5Type) => {
 
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowHeight, p.windowHeight);
-                canvas.parent(self._id);
+                canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
+
+                p.frameRate(10);
                 self.layers = {
                     crosshairs: new Crosshairs({p}),
                     bossdb: new BossDB({
@@ -124,6 +187,9 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                     }),
                     trace: new Trace({p})
                 };
+
+                self.layers.trace.setFrame(self.layers.bossdb.currentZ);
+
                 self.renderOrder = [
                     'bossdb',
                     'trace',
@@ -163,15 +229,23 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
                     break;
 
                 case "w":
-                    self.layers.bossdb.zUp();
+                    self.frameUp();
                     break;
 
                 case "s":
-                    self.layers.bossdb.zDown();
+                    self.frameDown();
                     break;
 
                 case "c":
                     self.layers.trace.severTrace();
+                    break;
+
+                case "x":
+                    self.layers.trace.deleteActiveNode();
+                    break;
+
+                case "v":
+                    self.layers.trace.toggleVisibility();
                     break;
 
                 case " ":
@@ -184,22 +258,45 @@ class P5SynapseHunter extends Component<P5SynapseHunterProps> {
 
             p.mouseWheel = function(ev) {
                 if (ev.delta > 0) {
-                    self.layers.bossdb.zUp();
+                    self.frameUp();
                 } else {
-                    self.layers.bossdb.zDown();
+                    self.frameDown();
                 }
             };
         };
     }
 
+    frameUp(): void {
+        this.layers.bossdb.zUp();
+        this.layers.trace.setFrame(this.layers.bossdb.currentZ);
+    }
+    frameDown(): void {
+        this.layers.bossdb.zDown();
+        this.layers.trace.setFrame(this.layers.bossdb.currentZ);
+        this.V.renderLayers.graph.setGraph(this.layers.trace.getGraph());
+    }
+
     componentDidMount() {
-        // var myp5 = new p5(this.sketch);
         new p5(this.sketch);
+        this.V.triggerRender();
+        window.V = this.V;
+        this.V.resize();
     }
 
     render() {
         return (
-            <div id={ this._id }></div>
+            <div style={{
+                display: "inline-grid",
+                gridGap: "5px",
+                gridTemplateColumns: "100vh 20vw auto",
+            }}>
+                <div id={ this.p5ID }></div>
+                <div
+                    style={{
+                        position: "relative",
+                    }} id={ this.substrateID }></div>
+                <div></div>
+            </div>
         );
     }
 }

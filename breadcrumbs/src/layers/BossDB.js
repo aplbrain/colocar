@@ -102,11 +102,11 @@ export default class BossDB {
         }
     }
 
-    zUp() {
+    zUp(): void {
         this.setImage(this.currentZ + 1);
     }
 
-    zDown() {
+    zDown(): void {
         this.setImage(this.currentZ - 1);
     }
 
