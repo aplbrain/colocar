@@ -1,22 +1,45 @@
 // @flow
 
+import type { P5Type, P5Image } from "../types/p5";
+
+
+type BossDBParams = {
+    p: P5Type,
+    bossURI: string,
+    center: { x: number, y: number, z: number },
+    range: {
+        x: [number, number],
+        y: [number, number],
+        z: [number, number]
+    },
+    res: number,
+
+    shouldPreload?: boolean,
+    shouldCache?: boolean,
+};
+
+
 export default class BossDB {
 
-    img: any;
+    img: P5Image;
     ready: boolean;
-    p: any;
+    p: P5Type;
     bossURI: string;
-    center: Object;
-    range: Object;
+    center: { x: number, y: number, z: number };
+    range: {
+        x: [number, number],
+        y: [number, number],
+        z: [number, number]
+    };
     res: number;
 
     currentZ: number;
 
     _shouldPreload: boolean;
     _shouldCache: boolean;
-    _cache: Object;
+    _cache: { [number]: P5Image };
 
-    constructor(opts: Object) {
+    constructor(opts: BossDBParams) {
         let self = this;
         self.ready = false;
         self.p = opts.p;
@@ -56,7 +79,7 @@ export default class BossDB {
             this.img = self.p.loadImage(
                 url + slug,
                 () => { self.ready = true; },
-                (err) => { console.error(err); },
+                (err: Object) => { console.error(err); },
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }

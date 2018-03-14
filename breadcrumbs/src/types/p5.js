@@ -1,5 +1,9 @@
 // @flow
 
+export type P5Image = {
+
+};
+
 export type P5Type = {
 
     width: number,
@@ -25,7 +29,6 @@ export type P5Type = {
     noStroke: () => void,
     strokeWeight: (number) => void,
 
-    image: Function,
 
     // Core
     setup: () => void,
@@ -43,8 +46,9 @@ export type P5Type = {
     RIGHT: number,
 
     // Image
-    loadImage: Function,
-    Image: any,
+    loadImage: (string, Function, Function, Object) => P5Image,
+    Image: P5Image,
+    image: (Object, number, number, number, number) => void,
 
     // Geometry
     dist: (x0: number, y0: number, x1: number, y1: number) => number
