@@ -101,7 +101,7 @@ export default class BossDB {
                 this._cache[z - 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err) => { console.error(err); },
+                    (err: Error) => { console.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }
@@ -116,7 +116,7 @@ export default class BossDB {
                 this._cache[z + 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err) => { console.error(err); },
+                    (err: Error) => { console.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }
@@ -147,6 +147,7 @@ export default class BossDB {
                 (this.currentZ - this.range.z[0]) /
                 (this.range.z[1] - this.range.z[0])
             );
+            this.p.stroke(0, 255, 0);
             this.p.line(0, progress, 10, progress);
         }
     }

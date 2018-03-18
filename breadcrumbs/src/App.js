@@ -273,6 +273,9 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
     frameDown(): void {
         this.layers.bossdb.zDown();
         this.layers.trace.setFrame(this.layers.bossdb.currentZ);
+    }
+
+    setGraph(): void {
         this.V.renderLayers.graph.setGraph(this.layers.trace.getGraph());
     }
 
