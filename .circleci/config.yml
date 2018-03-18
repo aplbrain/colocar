@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "breadcrumbs/package.json" }}
 
       # run tests!
       - run: cd breadcrumbs && yarn run eslint -c .eslintrc.js ./
