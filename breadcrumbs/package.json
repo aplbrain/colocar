@@ -15,11 +15,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test": "bash ./run-tests.sh"
   },
   "devDependencies": {
     "ajv": "^6.2.0",
+    "babel-eslint": "^8.2.2",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-react": "^7.7.0",
     "flow-bin": "^0.64.0"
