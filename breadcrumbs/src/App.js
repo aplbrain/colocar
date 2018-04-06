@@ -12,11 +12,16 @@ import Trace from "./layers/Trace";
 
 import type { P5Type } from "./types/p5";
 
-// import p5 from 'p5';
 
+// Though it would be better to use the p5 yarn-installable module, we need
+// to load images with authentication headers. So unfortunately, we need to
+// use a version of p5 that we can mutate.
 
-let p5: P5Type = window.p5;
+// import p5 from 'p5';         // Uncomment if using module
+let p5: P5Type = window.p5;     // Uncomment if using <script> tag in html
 
+// Modify the native `loadImage` function in p5.
+// https://github.com/processing/p5.js/issues/2634
 p5.prototype.loadImage = function (path: string, successCallback: Function, failureCallback: Function, headers: Object) {
     p5._validateParameters('loadImage', arguments);
     var img = new Image();
@@ -89,6 +94,9 @@ class App extends Component<AppProps> {
 
 
 class AxisLayer extends Layer {
+    /*
+    AxisLayer renders a tri-tone XYZ axis at the origin of the scene.
+    */
 
     requestInit(scene) {
         this.children.push(scene.add(new window.THREE.AxesHelper(5)));
@@ -97,6 +105,10 @@ class AxisLayer extends Layer {
 
 
 class GraphLayer extends Layer {
+    /*
+    GraphLayer renders a graph in the scene, in conventional JSON format:
+        { nodes: [], edges: [] }
+    */
     constructor(opts) {
         super(opts);
         this.graph = {
@@ -106,6 +118,12 @@ class GraphLayer extends Layer {
     }
 
     setGraph(g) {
+        /*
+        Set the graph to be rendered. Also triggers a rerender
+
+        Arguments:
+            g: JSON-format graph
+        */
         this.graph = g;
         this.requestInit();
     }
@@ -114,17 +132,24 @@ class GraphLayer extends Layer {
         if (scene) { this.scene = scene; }
         scene = scene || this.scene;
 
+        // Remove all existing nodes
         for (let n of this.children) {
             scene.remove(n);
         }
         this.children = [];
 
+        // Add each node from the new graph to the scene
         for (let n of this.graph.nodes) {
             let newNode = new window.THREE.Mesh(
                 new window.THREE.SphereGeometry(0.1, 2, 2),
                 new window.THREE.MeshBasicMaterial({color: 0xc0ffee})
             );
-            newNode.position.set(n.value.x/50, n.value.y/50, (n.value.z - 100) / 5);
+            // TODO: This anisotropy value should be dynamic
+            newNode.position.set(
+                n.value.x/50,
+                n.value.y/50,
+                (n.value.z - 100) / 5
+            );
             this.children.push(scene.add(newNode));
         }
     }
@@ -150,9 +175,10 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
     constructor(props) {
         super(props);
         let self = this;
+
+        // Pick two random IDs to use for p5 and substrate DOM containers
         self.p5ID = `p5-container-${Math.round(100 * Math.random())}`;
         self.substrateID = `substrate-container-${Math.round(100 * Math.random())}`;
-
 
         // Set up substrate scene
         self.V = new Visualizer({
@@ -171,12 +197,18 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
+                // We don't need much in the way of framerate, and this saves
+                // some RAM/CPU
                 p.frameRate(10);
+
+                // Create the layers that will be rendered in the p5 scene.
                 self.layers = {
+                    // Crosshairs that can be toggled with [T]
                     crosshairs: new Crosshairs({p}),
+                    // The electron microscopy imagery layer
                     bossdb: new BossDB({
                         p,
-                        bossURI: `kasthuri2015/em/cc/`,
+                        bossURI: `kasthuri2015/em/cc/`,    // TODO: hardcoded
                         res: 1,
                         center: {x: 1700, y: 1700, z: 100},
                         range: {
@@ -185,11 +217,14 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
                             z: [75, 120],
                         }
                     }),
+                    // The graph itself, as created by the user
                     trace: new Trace({p})
                 };
 
                 self.layers.trace.setFrame(self.layers.bossdb.currentZ);
 
+                // Set the order in which to render the layers. Removing layers
+                // from this array will cause them to not be rendered!
                 self.renderOrder = [
                     'bossdb',
                     'trace',
@@ -202,6 +237,7 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
             };
 
             p.draw = function() {
+                // Draw every layer, in order:
                 for (let key of self.renderOrder) {
                     self.layers[key].draw();
                 }
@@ -212,6 +248,8 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
             };
 
             p.mousePressed = function() {
+                // For each layer; if there is an appropriate function for
+                // mouse press events, run it
                 for (const key in self.layers) {
                     if (self.layers[key].mousePressed) {
                         self.layers[key].mousePressed();
@@ -221,34 +259,43 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
             };
 
             p.keyTyped = function() {
+                // TODO: Un-hardcode these
                 let key = p.key;
 
                 switch (key) {
                 case "t":
+                    // Toggle visibility of the crosshairs
                     self.layers.crosshairs.toggleVisibility();
                     break;
 
                 case "w":
+                    // Increase a frame in Z
                     self.frameUp();
                     break;
 
                 case "s":
+                    // Decrease a frame in Z
                     self.frameDown();
                     break;
 
                 case "c":
+                    // "Cut" the trace so the next click will start a new graph
                     self.layers.trace.severTrace();
                     break;
 
                 case "x":
+                    // Delete the currently active node
                     self.layers.trace.deleteActiveNode();
                     break;
 
                 case "v":
+                    // Toggle the visibility of the trace layer (useful for
+                    // getting to hard-to-see small processes)
                     self.layers.trace.toggleVisibility();
                     break;
 
                 case " ":
+                    // Add a new node to the trace at the current mouse pos
                     self.layers.trace.dropNode();
                     break;
                 default:
