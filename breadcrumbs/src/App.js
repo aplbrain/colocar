@@ -1,8 +1,6 @@
 // @flow
 
 import React, { Component } from 'react';
-import Visualizer from 'apl-substrate/components/Visualizer';
-import Layer from 'apl-substrate/components/Layer';
 
 import './App.css';
 
@@ -92,76 +90,11 @@ class App extends Component<AppProps> {
     }
 }
 
-
-class AxisLayer extends Layer {
-    /*
-    AxisLayer renders a tri-tone XYZ axis at the origin of the scene.
-    */
-
-    requestInit(scene) {
-        this.children.push(scene.add(new window.THREE.AxesHelper(5)));
-    }
-}
-
-
-class GraphLayer extends Layer {
-    /*
-    GraphLayer renders a graph in the scene, in conventional JSON format:
-        { nodes: [], edges: [] }
-    */
-    constructor(opts) {
-        super(opts);
-        this.graph = {
-            nodes: [],
-            edges: []
-        };
-    }
-
-    setGraph(g) {
-        /*
-        Set the graph to be rendered. Also triggers a rerender
-
-        Arguments:
-            g: JSON-format graph
-        */
-        this.graph = g;
-        this.requestInit();
-    }
-
-    requestInit(scene) {
-        if (scene) { this.scene = scene; }
-        scene = scene || this.scene;
-
-        // Remove all existing nodes
-        for (let n of this.children) {
-            scene.remove(n);
-        }
-        this.children = [];
-
-        // Add each node from the new graph to the scene
-        for (let n of this.graph.nodes) {
-            let newNode = new window.THREE.Mesh(
-                new window.THREE.SphereGeometry(0.1, 2, 2),
-                new window.THREE.MeshBasicMaterial({color: 0xc0ffee})
-            );
-            // TODO: This anisotropy value should be dynamic
-            newNode.position.set(
-                n.value.x/50,
-                n.value.y/50,
-                (n.value.z - 100) / 5
-            );
-            this.children.push(scene.add(newNode));
-        }
-    }
-}
-
-
 type P5BreadcrumbsProps = {};
 
 class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
 
     p5ID: string;
-    substrateID: string;
     sketch: any;
     config: Object;
     ghostLayer: number;
@@ -178,17 +111,6 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
 
         // Pick two random IDs to use for p5 and substrate DOM containers
         self.p5ID = `p5-container-${Math.round(100 * Math.random())}`;
-        self.substrateID = `substrate-container-${Math.round(100 * Math.random())}`;
-
-        // Set up substrate scene
-        self.V = new Visualizer({
-            targetElement: self.substrateID,
-            renderLayers: {
-                axis: new AxisLayer(),
-                graph: new GraphLayer()
-            }
-        });
-
         // Set up p5 sketch
         self.sketch = (p: P5Type) => {
 
@@ -323,14 +245,10 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
     }
 
     setGraph(): void {
-        this.V.renderLayers.graph.setGraph(this.layers.trace.getGraph());
     }
 
     componentDidMount() {
         new p5(this.sketch);
-        this.V.triggerRender();
-        window.V = this.V;
-        this.V.resize();
     }
 
     render() {
@@ -341,11 +259,6 @@ class P5Breadcrumbs extends Component<P5BreadcrumbsProps> {
                 gridTemplateColumns: "100vh 20vw auto",
             }}>
                 <div id={ this.p5ID }></div>
-                <div
-                    style={{
-                        position: "relative",
-                    }} id={ this.substrateID }></div>
-                <div></div>
             </div>
         );
     }
