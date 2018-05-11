@@ -13,7 +13,6 @@ type BossDBParams = {
         z: [number, number]
     },
     res: number,
-
     shouldPreload?: boolean,
     shouldCache?: boolean,
 };
@@ -61,6 +60,9 @@ export default class BossDB {
     setImage(z: number) {
         let self = this;
         self.currentZ = z;
+
+        //!!!TEMP
+        return;
 
         let url = (
             `https://api.theboss.io/v1/image/` +
