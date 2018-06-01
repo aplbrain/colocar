@@ -38,7 +38,6 @@ export default class TraceManager {
 
     mousePressed(): void {
         // If right click, select a node under the cursor:
-<<<<<<< HEAD
         if (this.p.mouseButton === this.p.RIGHT) {
             // Get the closest node and set it as active:
             // TODO: Filter in here
@@ -62,10 +61,6 @@ export default class TraceManager {
                 let n = closeNodes[0];
                 this.prevNode = n;
             }
-=======
-        if (this.p.mouseButton == this.p.RIGHT) {
-            console.log(this.p.mouseX);
->>>>>>> eaad57794cd84702acc952dfc59d6a2baf4b4877
         } else {
             this.drawHinting = true;
         }
