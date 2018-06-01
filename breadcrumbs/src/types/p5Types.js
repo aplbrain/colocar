@@ -43,11 +43,14 @@ export type P5Type = {
     mouseDragged: Function,
 
     keyTyped: Function,
+    keyPressed: Function,
     key: string,
     // Mouse:
     mouseWheel: Function,
     mouseX: number,
     mouseY: number,
+    pmouseX: number,
+    pmouseY: number,
     RIGHT: number,
 
     // Image

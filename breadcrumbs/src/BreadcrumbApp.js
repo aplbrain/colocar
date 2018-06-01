@@ -34,7 +34,7 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
-}
+};
 
 export default class BreadcrumbApp extends Component {
 
