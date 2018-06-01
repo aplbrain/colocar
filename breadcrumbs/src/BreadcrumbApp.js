@@ -169,6 +169,12 @@ export default class BreadcrumbApp extends Component {
                 case 46:
                     self.deleteActiveNode();
                     break;
+                case 49:
+                    self.markBookmark();
+                    break;
+                case 50:
+                    self.popBookmark();
+                    break;
                 default:
                     break;
                 }
@@ -276,6 +282,16 @@ export default class BreadcrumbApp extends Component {
 
     markDendrite(): void {
         this.layers.traceManager.markDendrite();
+    }
+
+    markBookmark(): void {
+        this.layers.traceManager.markBookmark();
+    }
+    popBookmark(): void {
+        let {x, y, z} = this.layers.traceManager.popBookmark();
+        this.layers.imageManager.setZ(z);
+        // this.layers.imageManager.setY(y);
+        // this.layers.imageManager.setX(x);
     }
 
     deleteActiveNode(): void {

@@ -17,6 +17,7 @@ const AXON_RADIUS = 10;
 const DENDRITE_RADIUS = 10;
 const DEFAULT_RADIUS = 5;
 
+
 export default class TraceManager {
 
     p: any;
@@ -126,6 +127,31 @@ export default class TraceManager {
     }
     markDendrite(): void {
         this.g.node(this.prevNode.id).type = "postsynaptic";
+    }
+    markBookmark(): void {
+        if (this.g.node(this.prevNode.id).type === "bookmark") {
+            this.g.node(this.prevNode.id).type = undefined;
+        } else {
+            this.g.node(this.prevNode.id).type = "bookmark";
+        }
+    }
+
+    popBookmark(): {x: number, y: number, z: number} {
+        let bmarks = this.nodeStack.reverse().filter(n => n.type === "bookmark");
+        if (!bmarks.length) {
+            // If you have set no bookmarks, return current XYZ
+            return {
+                x: this.prevNode.x,
+                y: this.prevNode.y,
+                z: this.prevNode.z,
+            };
+        } else {
+            return {
+                x: bmarks[0].x,
+                y: bmarks[0].y,
+                z: bmarks[0].z,
+            };
+        }
     }
 
     deleteActiveNode(): void {
