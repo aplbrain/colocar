@@ -1,9 +1,21 @@
 // @flow
+
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
+import type ImageManager from "./ImageManager";
 
+const AXON_COLOR = { r: 255, g: 0, b: 0 };
+const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
+const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
+const EDGE_COLOR = { r: 60, g: 170, b: 60 };
+
+
+const AXON_RADIUS = 10;
+const DENDRITE_RADIUS = 10;
+const DEFAULT_RADIUS = 5;
 
 export default class TraceManager {
 
@@ -102,6 +114,13 @@ export default class TraceManager {
         this.drawHinting = false;
     }
 
+    markAxon(): void {
+        this.g.node(this.prevNode.id).type = "presynaptic";
+    }
+    markDendrite(): void {
+        this.g.node(this.prevNode.id).type = "postsynaptic";
+    }
+
     // Denormalize the node to scale it to the correct position.
     // Returns SCREEN position
     transformCoords(x: number, y: number) {
@@ -128,9 +147,11 @@ export default class TraceManager {
 
         this.p.noStroke();
         // Draw all the nodes and edges in the previous layers.
-        for (let j = 0; j < this.im.currentZ; j++) {
+        for (let j = 0; j < this.im.maxZ(); j++) {
             // Make "far away" nodes and edges fade into the distance.
             let diminishingFactor = (j + 1) / (this.im.currentZ + 1);
+            // TODO: I'm exhausted but this is dumb, do better
+            if (diminishingFactor > 1) { diminishingFactor = 1/diminishingFactor; }
 
             // edges
             this.p.strokeWeight(3 * diminishingFactor);
@@ -144,16 +165,22 @@ export default class TraceManager {
 
             // nodes
             this.p.noStroke();
-            this.p.fill(`rgba(255, 0, 0, ${diminishingFactor * .5})`);
             for (let i = 0; i < this.nodesByLayer[j].length; i++) {
                 let node = this.g.node(this.nodesByLayer[j][i]);
+                let color = DEFAULT_COLOR;
+                if (node.type === "presynaptic") {
+                    color = AXON_COLOR;
+                } else if (node.type === "postsynaptic") {
+                    color = DENDRITE_COLOR;
+                }
+                this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
                 let transformedNode = this.transformCoords(node.x, node.y);
                 this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor * 10, diminishingFactor * 10);
             }
         }
 
         this.p.strokeWeight(3);
-        this.p.stroke("#000");
+        this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
         // Draw all the edges with a node in the current layer.
         for (let i = 0; i < this.edgesByLayer[this.im.currentZ].length; i++) {
             let edge = this.edgesByLayer[this.im.currentZ][i];
@@ -164,22 +191,31 @@ export default class TraceManager {
             this.p.line(transformedNodeV.x, transformedNodeV.y, transformedNodeW.x, transformedNodeW.y);
         }
 
-        this.p.fill("#F00");
-        this.p.noStroke();
-        // Draw all the nodes in the current layer.
-        for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
-            let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
-            let transformedNode = this.transformCoords(node.x, node.y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
-        }
-
         // Draw the currently active node
-        this.p.fill("#FF0");
+        this.p.fill(ACTIVE_NODE_COLOR.r, ACTIVE_NODE_COLOR.g, ACTIVE_NODE_COLOR.b);
         this.p.noStroke();
         if (this.prevNode) {
             // TODO: Fade with depth
             let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
+            this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
+        }
+
+        this.p.noStroke();
+        // Draw all the nodes in the current layer.
+        for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
+            let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
+            let color = DEFAULT_COLOR;
+            let radius = DEFAULT_RADIUS;
+            if (node.type === "presynaptic") {
+                color = AXON_COLOR;
+                radius = AXON_RADIUS;
+            } else if (node.type === "postsynaptic") {
+                color = DENDRITE_COLOR;
+                radius = DENDRITE_RADIUS;
+            }
+            this.p.fill(color.r, color.g, color.b);
+            let transformedNode = this.transformCoords(node.x, node.y);
+            this.p.ellipse(transformedNode.x, transformedNode.y, radius, radius);
         }
     }
 
@@ -191,6 +227,7 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
+    type: ?string;
     author: ?string;
     created: ?Date;
 
@@ -200,12 +237,14 @@ class NodeMeta {
         z: number,
         author?: string,
         created?: Date,
+        type?: string,
         id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
         this.author = opts.author || undefined;
+        this.type = opts.type || undefined;
         this.created = opts.created || new Date();
         this.id = opts.id || uuidv4();
     }

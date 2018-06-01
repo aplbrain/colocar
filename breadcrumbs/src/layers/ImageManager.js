@@ -1,9 +1,9 @@
 // @flow
 
-import type { P5Type, P5Image } from "./types/p5Types";
+import type { P5Type, P5Image } from "../types/p5Types";
 
-let panIncrement: number = 50
-let scaleIncrement: number = .1
+let panIncrement: number = 50;
+let scaleIncrement: number = .1;
 
 export default class ImageManager {
 
@@ -13,14 +13,14 @@ export default class ImageManager {
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;
-    position;
+    position: {x: number, y: number};
 
     // Expects an array of image URIs to be loaded
-    constructor(opts: {p: P5Type, imageURIs: Array<P5Image>}): void {
+    constructor(opts: {p: P5Type, imageURIs: Array<string>}): void {
         this.p = opts.p;
         this.scale = 1;
         this.position = {x: this.p.canvas.width / 2, y: this.p.canvas.height / 2};
-        panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01
+        panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
 
         this.imageURIs = opts.imageURIs;
         this.images = new Array(this.imageURIs.length);
@@ -33,7 +33,7 @@ export default class ImageManager {
             () => {
                 this.readiness[this.currentZ] = true;
             },
-            (err: Error) => {console.error(err)},
+            (err: Error) => {console.error(err);},
             {
                 Authorization: `Bearer ${window.keycloak.token}`
             }
@@ -50,7 +50,7 @@ export default class ImageManager {
                 () => {
                     this.readiness[i] = true;
                 },
-                (err: Error) => {console.error(err)},
+                (err: Error) => {console.error(err);},
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }
@@ -66,13 +66,13 @@ export default class ImageManager {
 
         for (let i = 1; i <= maxDistance; i++) {
             // The next image moving down the z-axis
-            let bottomIndexToLoad = centerZ - i
+            let bottomIndexToLoad = centerZ - i;
             this.images[bottomIndexToLoad] = this.p.loadImage(
                 this.imageURIs[bottomIndexToLoad],
                 () => {
                     this.readiness[bottomIndexToLoad] = true;
                 },
-                (err: Error) => {console.error(err)},
+                (err: Error) => {console.error(err);},
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }
@@ -80,14 +80,14 @@ export default class ImageManager {
 
             // The next image moving up the z-axis.
             // Due to the rounding and 0-indexing, this executes one less time than the previous.
-            let topIndexToLoad = centerZ + i
+            let topIndexToLoad = centerZ + i;
             if (topIndexToLoad < this.imageURIs.length) {
                 this.images[topIndexToLoad] = this.p.loadImage(
                     this.imageURIs[topIndexToLoad],
                     () => {
                         this.readiness[topIndexToLoad] = true;
                     },
-                    (err: Error) => {console.error(err)},
+                    (err: Error) => {console.error(err);},
                     {Authorization: `Bearer ${window.keycloak.token}`}
                 );
             }
@@ -151,8 +151,12 @@ export default class ImageManager {
         }
     }
 
+    maxZ(): number {
+        return this.images.length - 1;
+    }
+
     incrementZ(): void {
-        if (this.currentZ < this.images.length - 1) {
+        if (this.currentZ < this.maxZ()) {
             this.currentZ++;
         }
     }
@@ -193,7 +197,7 @@ export default class ImageManager {
     }
 
     // Returns an object of the EDGES of the image.
-    getBoundingRect(): void {
+    getBoundingRect(): {right: number, left: number, bottom: number, top: number } {
         // right vertical boundary
         let right = this.position.x + (this.images[this.currentZ].width/2 * this.scale);
         // left vertical boundary
@@ -204,7 +208,7 @@ export default class ImageManager {
         let top = this.position.y - (this.images[this.currentZ].height/2 * this.scale);
         return {
             right, left, bottom, top
-        }
+        };
     }
 
     // Checks if a point (usually mouse position) is inside the image.
@@ -237,8 +241,8 @@ export default class ImageManager {
             );
         } else {
             // Image not loaded yet. Filler image.
-            this.p.stroke("#F00");
-            this.p.fill("#FFF");
+            this.p.stroke(255, 0, 0);
+            this.p.fill(255);
 
             this.p.rectMode(this.p.CENTER);
             this.p.rect(
@@ -252,7 +256,7 @@ export default class ImageManager {
             this.p.line(this.position.x + offset, this.position.y + offset, this.position.x - offset, this.position.y - offset);
             this.p.line(this.position.x - offset, this.position.y + offset, this.position.x + offset, this.position.y - offset);
 
-            this.p.fill("#000");
+            this.p.fill(0);
             this.p.noStroke();
             this.p.strokeWeight(4);
             this.p.textSize(24);

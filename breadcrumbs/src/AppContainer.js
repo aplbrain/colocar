@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 
-import type { P5Type } from "./types/p5";
+import type { P5Type } from "./types/p5Types";
 
 import BreadcrumbApp from "./BreadcrumbApp";
 
