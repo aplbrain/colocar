@@ -165,6 +165,10 @@ export default class BreadcrumbApp extends Component {
                     // "tab" toggles the tracing mouseDragged
                     self.setState({traceMode: !self.state.traceMode});
                     break;
+                case 8:
+                case 46:
+                    self.deleteActiveNode();
+                    break;
                 default:
                     break;
                 }
@@ -272,6 +276,10 @@ export default class BreadcrumbApp extends Component {
 
     markDendrite(): void {
         this.layers.traceManager.markDendrite();
+    }
+
+    deleteActiveNode(): void {
+        this.layers.traceManager.deleteActiveNode();
     }
 
     componentDidMount() {
