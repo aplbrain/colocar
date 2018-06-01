@@ -24,7 +24,8 @@ export default class TraceManager {
     im: ImageManager;
     nodesByLayer: Array<Array<string>>;
     edgesByLayer: Array<Array<any>>;
-    prevNode: any;
+    prevNode: NodeMeta;
+    nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
     newSubgraph: boolean;
@@ -34,6 +35,10 @@ export default class TraceManager {
         this.im = opts.imageManager;
         this.g = new graphlib.Graph({directed: false});
         this.drawHinting = false;
+
+        // Contain all previous nodes as added, in order. This enables
+        // a "popping" action when deleting nodes.
+        this.nodeStack = [];
 
         // Stores the node IDs by layer.
         this.nodesByLayer = new Array(this.im.images.length);
@@ -71,6 +76,7 @@ export default class TraceManager {
             // TODO: Pick smarter than this
             if (closeNodes.length) {
                 let n = closeNodes[0];
+                this.nodeStack.push(this.prevNode);
                 this.prevNode = n;
             }
         } else {
@@ -107,6 +113,7 @@ export default class TraceManager {
                 this.g.setEdge(newEdge);
                 this.edgesByLayer[this.im.currentZ].push(newEdge);
                 this.edgesByLayer[this.prevNode.z].push(newEdge);
+                this.nodeStack.push(this.prevNode);
             }
             this.prevNode = newNode;
         }
@@ -119,6 +126,26 @@ export default class TraceManager {
     }
     markDendrite(): void {
         this.g.node(this.prevNode.id).type = "postsynaptic";
+    }
+
+    deleteActiveNode(): void {
+        if (!this.prevNode) {
+            return;
+        }
+        // Delete from edgesByLayer
+        // Get layers:
+        for (let v of this.g.neighbors(this.prevNode.id)) {
+            this.edgesByLayer[this.g.node(v).z] = this.edgesByLayer[this.g.node(v).z].filter(e => {
+                return e.v != this.prevNode.id && e.w != this.prevNode.id;
+            });
+        }
+        // Delete from nodesByLayer
+        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid != this.prevNode.id);
+        // Delete from graph
+        this.g.removeNode(this.prevNode.id);
+        // Assign new last-node to `prevNode`
+        this.nodeStack = this.nodeStack.filter(n => n.id != this.prevNode.id);
+        this.prevNode = this.nodeStack.pop();
     }
 
     // Denormalize the node to scale it to the correct position.
