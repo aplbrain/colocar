@@ -124,12 +124,16 @@ export default class BreadcrumbApp extends Component {
                     self.panDown();
                     break;
                 case 65:
+                    self.markAxon();
+                    break;
                 case 97:
                 // case 37:
-                    // "a" or left arrow is pressed
+                    // left arrow is pressed
                     self.panLeft();
                     break;
                 case 68:
+                    self.markDendrite();
+                    break;
                 case 100:
                 // case 39:
                     // "d" or right arrow is pressed
@@ -260,6 +264,14 @@ export default class BreadcrumbApp extends Component {
             scale: this.layers["imageManager"].scale,
             currentZ: this.layers["imageManager"].currentZ,
         });
+    }
+
+    markAxon(): void {
+        this.layers.traceManager.markAxon();
+    }
+
+    markDendrite(): void {
+        this.layers.traceManager.markDendrite();
     }
 
     componentDidMount() {
