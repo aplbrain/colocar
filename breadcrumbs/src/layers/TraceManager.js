@@ -4,6 +4,7 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
 
+
 export default class TraceManager {
 
     p: any;
@@ -37,8 +38,29 @@ export default class TraceManager {
 
     mousePressed(): void {
         // If right click, select a node under the cursor:
-        if (this.p.mouseButton == this.p.RIGHT) {
-            console.log(this.p.mouseX);
+        if (this.p.mouseButton === this.p.RIGHT) {
+            // Get the closest node and set it as active:
+            // TODO: Filter in here
+            let closeNodes = this.g.nodes().map(n => this.g.node(n));
+            closeNodes.sort((n, m) => {
+                n = this.transformCoords(n.x, n.y);
+                m = this.transformCoords(m.x, m.y);
+                let ndist = (
+                    Math.pow(this.p.mouseX - n.x, 2) +
+                    Math.pow(this.p.mouseY - n.y, 2)
+                );
+                let mdist = (
+                    Math.pow(this.p.mouseX - m.x, 2) +
+                    Math.pow(this.p.mouseY - m.y, 2)
+                );
+                // return m.x;
+                return ndist - mdist;
+            });
+            // TODO: Pick smarter than this
+            if (closeNodes.length) {
+                let n = closeNodes[0];
+                this.prevNode = n;
+            }
         } else {
             this.drawHinting = true;
         }
@@ -81,6 +103,7 @@ export default class TraceManager {
     }
 
     // Denormalize the node to scale it to the correct position.
+    // Returns SCREEN position
     transformCoords(x: number, y: number) {
         return {
             x: (x * this.im.scale) + this.im.position.x,
@@ -90,11 +113,10 @@ export default class TraceManager {
 
     draw(): void {
         // While the mouse is down, but not released
-        // Draw a transparent node and edge showing where they will apear on release.
+        // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {
-            if (this.g.nodes().length > 0) {
-                let lastNode = this.g.node(this.g.nodes()[this.g.nodes().length - 1]);
-                lastNode = this.transformCoords(lastNode.x, lastNode.y);
+            if (this.prevNode) {
+                let lastNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
                 this.p.strokeWeight(3);
                 this.p.stroke("rgba(0, 0, 0, .5)");
                 this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
