@@ -12,7 +12,7 @@ export default class TraceManager {
     nodesByLayer: Array<Array<string>>;
     edgesByLayer: Array<Array<any>>;
 
-    drawHintingLine: boolean;
+    drawHinting: boolean;
     newSubgraph: boolean;
 
     constructor(opts: {p: P5Type, imageManager: ImageManager}) {
@@ -35,11 +35,17 @@ export default class TraceManager {
     }
 
     mousePressed(): void {
-        this.drawHinting = true;
+        // If right click, select a node under the cursor:
+        if (this.p.mouseButton == this.p.RIGHT) {
+            console.log(this.p.mouseX);
+        } else {
+            this.drawHinting = true;
+        }
     }
 
     mouseClicked(): void {
         if (this.im.imageCollision(this.p.mouseX, this.p.mouseY)) {
+
             let newNodeId = uuidv4();
             this.nodesByLayer[this.im.currentZ].push(newNodeId);
 
@@ -52,11 +58,13 @@ export default class TraceManager {
                 prevNode = this.g.nodes()[this.g.nodes().length - 1];
             }
 
+            // TODO: Project xyz into DATA space, not p5 space
             this.g.setNode(newNodeId, new NodeMeta({
                 x,
                 y,
                 z: this.im.currentZ,
                 //!!!TEMP
+                // TODO
                 author: "Tucker Chapin",
             }));
 
@@ -86,7 +94,7 @@ export default class TraceManager {
         if (this.drawHinting) {
             if (this.g.nodes().length > 0) {
                 let lastNode = this.g.node(this.g.nodes()[this.g.nodes().length - 1]);
-                lastNode = this.transformCoords(lastNode.x, lastNode.y)
+                lastNode = this.transformCoords(lastNode.x, lastNode.y);
                 this.p.strokeWeight(3);
                 this.p.stroke("rgba(0, 0, 0, .5)");
                 this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
@@ -113,11 +121,11 @@ export default class TraceManager {
             }
 
             // nodes
-            this.p.fill(`rgba(255, 0, 0, ${diminishingFactor * .5})`);
             this.p.noStroke();
+            this.p.fill(`rgba(255, 0, 0, ${diminishingFactor * .5})`);
             for (let i = 0; i < this.nodesByLayer[j].length; i++) {
                 let node = this.g.node(this.nodesByLayer[j][i]);
-                let transformedNode = this.transformCoords(node.x, node.y)
+                let transformedNode = this.transformCoords(node.x, node.y);
                 this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor * 10, diminishingFactor * 10);
             }
         }
@@ -139,10 +147,11 @@ export default class TraceManager {
         // Draw all the nodes in the current layer.
         for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
             let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
-            let transformedNode = this.transformCoords(node.x, node.y)
+            let transformedNode = this.transformCoords(node.x, node.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
         }
     }
+
 }
 
 // Thin wrapper for node information.
