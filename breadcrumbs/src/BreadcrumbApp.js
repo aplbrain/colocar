@@ -176,13 +176,13 @@ export default class BreadcrumbApp extends Component {
                 if (self.state.traceMode) {
                     self.layers.traceManager.mousePressed();
                 }
-            }
+            };
 
             p.mouseClicked = function() {
                 if (self.state.traceMode) {
                     self.layers.traceManager.mouseClicked();
                 }
-            }
+            };
 
             p.mouseDragged = function() {
                 if (!self.state.traceMode) {
@@ -194,7 +194,7 @@ export default class BreadcrumbApp extends Component {
                         self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
                     }
                 }
-            }
+            };
 
             p.mouseWheel = function(e) {
                 // Handle pinch-to-zoom functionality
@@ -204,11 +204,17 @@ export default class BreadcrumbApp extends Component {
                     } else {
                         self.scaleUp();
                     }
+                } else {
+                    if (e.wheelDelta < 0) {
+                        self.incrementZ();
+                    } else {
+                        self.decrementZ();
+                    }
                 }
-            }
+            };
 
             p.draw = function() {
-                p.clear()
+                p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
                     self.layers[layer].draw();
