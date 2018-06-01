@@ -151,8 +151,12 @@ export default class ImageManager {
         }
     }
 
+    maxZ(): number {
+        return this.images.length - 1;
+    }
+
     incrementZ(): void {
-        if (this.currentZ < this.images.length - 1) {
+        if (this.currentZ < this.maxZ()) {
             this.currentZ++;
         }
     }
