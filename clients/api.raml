@@ -1,0 +1,55 @@
+#%RAML 1.0
+---
+title: colocar
+baseUri: http://colocar.thebossdev.io/{version}
+version: v1
+
+/questions:
+    get:
+        description: "Get all questions"
+    post:
+        description: "Create a new question"
+    /{id}:
+        get:
+            description: "Get a question by ID"
+        delete:
+            description: "Delete a question by ID"
+    /{id}/update:
+        put:
+            description: "Update a question status"
+    /{user}/next:
+        get:
+            description: "Get the next question for a user"
+/volumes:
+    get:
+        description: "Get all volumes"
+    post:
+        description: "Create a new volume"
+    /{id}:
+        get:
+            description: "Get a volume by ID"
+        delete:
+            description: "Delete a volume by ID"
+/nodes:
+    get:
+        description: "Get all nodes"
+    post:
+        description: "Create a list of new nodes"
+    /{id}:
+        get:
+            description: "Get a node by ID"
+        delete:
+            description: "Delete a node by ID"
+        /decision:
+            post:
+                description: "Post a new decision to a node"
+/graph:
+    get:
+        description: "Get all graphs"
+    post:
+        description: "Create a new graph"
+    /{id}:
+        get:
+            description: "Get a graph by ID"
+        delete:
+            description: "Delete a graph by ID"
