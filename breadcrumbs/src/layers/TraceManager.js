@@ -76,17 +76,7 @@ export default class TraceManager {
             let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
             let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
 
-<<<<<<< HEAD
             let newNode = new NodeMeta({
-=======
-            let prevNode;
-            if (this.g.nodes().length > 0) {
-                prevNode = this.g.nodes()[this.g.nodes().length - 1];
-            }
-
-            // TODO: Project xyz into DATA space, not p5 space
-            this.g.setNode(newNodeId, new NodeMeta({
->>>>>>> eaad57794cd84702acc952dfc59d6a2baf4b4877
                 x,
                 y,
                 z: this.im.currentZ,
@@ -125,14 +115,8 @@ export default class TraceManager {
         // While the mouse is down, but not released
         // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {
-<<<<<<< HEAD
             if (this.prevNode) {
                 let lastNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
-=======
-            if (this.g.nodes().length > 0) {
-                let lastNode = this.g.node(this.g.nodes()[this.g.nodes().length - 1]);
-                lastNode = this.transformCoords(lastNode.x, lastNode.y);
->>>>>>> eaad57794cd84702acc952dfc59d6a2baf4b4877
                 this.p.strokeWeight(3);
                 this.p.stroke("rgba(0, 0, 0, .5)");
                 this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
@@ -186,7 +170,6 @@ export default class TraceManager {
         for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
             let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
             let transformedNode = this.transformCoords(node.x, node.y);
-<<<<<<< HEAD
             this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
         }
 
@@ -196,8 +179,6 @@ export default class TraceManager {
         if (this.prevNode) {
             // TODO: Fade with depth
             let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
-=======
->>>>>>> eaad57794cd84702acc952dfc59d6a2baf4b4877
             this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
         }
     }
