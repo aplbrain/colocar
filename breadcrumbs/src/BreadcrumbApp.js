@@ -71,7 +71,7 @@ export default class BreadcrumbApp extends Component {
 
 
                 // The layers that will be rendered in the p5 scene.
-                self.layers = {}
+                self.layers = {};
                 // The electron microscopy imagery layer
                 self.layers["imageManager"] = new ImageManager({
                     p,
@@ -159,7 +159,7 @@ export default class BreadcrumbApp extends Component {
 
                 }
                 // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
-            }
+            };
 
             p.mousePressed = function() {
                 if (self.state.traceMode) {

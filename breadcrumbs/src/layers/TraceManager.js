@@ -2,7 +2,8 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import type { P5Type } from "./types/p5Types";
+import type { P5Type } from "../types/p5Types";
+
 
 export default class TraceManager {
 
@@ -11,8 +12,9 @@ export default class TraceManager {
     im: ImageManager;
     nodesByLayer: Array<Array<string>>;
     edgesByLayer: Array<Array<any>>;
+    prevNode: any;
 
-    drawHintingLine: boolean;
+    drawHinting: boolean;
     newSubgraph: boolean;
 
     constructor(opts: {p: P5Type, imageManager: ImageManager}) {
@@ -35,11 +37,38 @@ export default class TraceManager {
     }
 
     mousePressed(): void {
-        this.drawHinting = true;
+        // If right click, select a node under the cursor:
+        if (this.p.mouseButton === this.p.RIGHT) {
+            // Get the closest node and set it as active:
+            // TODO: Filter in here
+            let closeNodes = this.g.nodes().map(n => this.g.node(n));
+            closeNodes.sort((n, m) => {
+                n = this.transformCoords(n.x, n.y);
+                m = this.transformCoords(m.x, m.y);
+                let ndist = (
+                    Math.pow(this.p.mouseX - n.x, 2) +
+                    Math.pow(this.p.mouseY - n.y, 2)
+                );
+                let mdist = (
+                    Math.pow(this.p.mouseX - m.x, 2) +
+                    Math.pow(this.p.mouseY - m.y, 2)
+                );
+                // return m.x;
+                return ndist - mdist;
+            });
+            // TODO: Pick smarter than this
+            if (closeNodes.length) {
+                let n = closeNodes[0];
+                this.prevNode = n;
+            }
+        } else {
+            this.drawHinting = true;
+        }
     }
 
     mouseClicked(): void {
         if (this.im.imageCollision(this.p.mouseX, this.p.mouseY)) {
+
             let newNodeId = uuidv4();
             this.nodesByLayer[this.im.currentZ].push(newNodeId);
 
@@ -47,32 +76,34 @@ export default class TraceManager {
             let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
             let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
 
-            let prevNode;
-            if (this.g.nodes().length > 0) {
-                prevNode = this.g.nodes()[this.g.nodes().length - 1];
-            }
-
-            this.g.setNode(newNodeId, new NodeMeta({
+            let newNode = new NodeMeta({
                 x,
                 y,
                 z: this.im.currentZ,
                 //!!!TEMP
+                // TODO
                 author: "Tucker Chapin",
-            }));
+                id: newNodeId
+            });
+
+            // TODO: Project xyz into DATA space, not p5 space
+            this.g.setNode(newNodeId, newNode);
 
             // Create an edge to the previous node.
-            if (prevNode) {
-                let newEdge = {v: newNodeId, w:  prevNode};
+            if (this.prevNode) {
+                let newEdge = {v: newNodeId, w: this.prevNode.id};
                 this.g.setEdge(newEdge);
                 this.edgesByLayer[this.im.currentZ].push(newEdge);
-                this.edgesByLayer[this.g.node(prevNode).z].push(newEdge);
+                this.edgesByLayer[this.prevNode.z].push(newEdge);
             }
+            this.prevNode = newNode;
         }
 
         this.drawHinting = false;
     }
 
     // Denormalize the node to scale it to the correct position.
+    // Returns SCREEN position
     transformCoords(x: number, y: number) {
         return {
             x: (x * this.im.scale) + this.im.position.x,
@@ -82,11 +113,10 @@ export default class TraceManager {
 
     draw(): void {
         // While the mouse is down, but not released
-        // Draw a transparent node and edge showing where they will apear on release.
+        // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {
-            if (this.g.nodes().length > 0) {
-                let lastNode = this.g.node(this.g.nodes()[this.g.nodes().length - 1]);
-                lastNode = this.transformCoords(lastNode.x, lastNode.y)
+            if (this.prevNode) {
+                let lastNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
                 this.p.strokeWeight(3);
                 this.p.stroke("rgba(0, 0, 0, .5)");
                 this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
@@ -113,11 +143,11 @@ export default class TraceManager {
             }
 
             // nodes
-            this.p.fill(`rgba(255, 0, 0, ${diminishingFactor * .5})`);
             this.p.noStroke();
+            this.p.fill(`rgba(255, 0, 0, ${diminishingFactor * .5})`);
             for (let i = 0; i < this.nodesByLayer[j].length; i++) {
                 let node = this.g.node(this.nodesByLayer[j][i]);
-                let transformedNode = this.transformCoords(node.x, node.y)
+                let transformedNode = this.transformCoords(node.x, node.y);
                 this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor * 10, diminishingFactor * 10);
             }
         }
@@ -139,15 +169,25 @@ export default class TraceManager {
         // Draw all the nodes in the current layer.
         for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
             let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
-            let transformedNode = this.transformCoords(node.x, node.y)
+            let transformedNode = this.transformCoords(node.x, node.y);
+            this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
+        }
+
+        // Draw the currently active node
+        this.p.fill("#FF0");
+        this.p.noStroke();
+        if (this.prevNode) {
+            // TODO: Fade with depth
+            let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
         }
     }
+
 }
 
 // Thin wrapper for node information.
 class NodeMeta {
-    // id: string;
+    id: string;
     x: number;
     y: number;
     z: number;
@@ -160,13 +200,13 @@ class NodeMeta {
         z: number,
         author?: string,
         created?: Date,
-        // id?: string
+        id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
         this.author = opts.author || undefined;
         this.created = opts.created || new Date();
-        // this.id = opts.id || uuidv4();
+        this.id = opts.id || uuidv4();
     }
 }
