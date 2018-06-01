@@ -1,8 +1,10 @@
 // @flow
+
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
+import type ImageManager from "./ImageManager";
 
 
 export default class TraceManager {

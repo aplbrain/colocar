@@ -45,7 +45,14 @@ export default class BreadcrumbApp extends Component {
     // p: P5Type;
     renderOrder: Array<string>;
 
-    constructor(props) {
+    state: {
+        traceMode?: boolean,
+        ready?: boolean,
+        scale?: number,
+        currentZ?: number,
+    };
+
+    constructor(props: Object) {
         super(props);
 
         this.p5ID = "p5-container";
@@ -104,59 +111,58 @@ export default class BreadcrumbApp extends Component {
             p.keyPressed = function() {
                 // QWASDE navigation, WASD for xy plane, QE to traverse z
                 switch (p.keyCode) {
-                    case 87:
-                    case 119:
-                    // case 38:
-                        // "w" or up arrow is pressed
-                        self.panUp();
-                        break;
-                    case 83:
-                    case 115:
-                    // case 40:
-                        // "s" or down arrow is pressed
-                        self.panDown();
-                        break;
-                    case 65:
-                    case 97:
-                    // case 37:
-                        // "a" or left arrow is pressed
-                        self.panLeft();
-                        break;
-                    case 68:
-                    case 100:
-                    // case 39:
-                        // "d" or right arrow is pressed
-                        self.panRight();
-                        break;
-                    case 81:
-                    case 113:
-                        // "q" is pressed
-                        self.decrementZ();
-                        break;
-                    case 69:
-                    case 101:
-                        // "e" is pressed
-                        self.incrementZ();
-                        break;
-                    case 187:
-                        // "+" is pressed
-                        self.scaleUp();
-                        break;
-                    case 189:
-                        // "-" is pressed
-                        self.scaleDown();
-                        break;
-                    case 27:
-                        // "esc" is pressed, all reset
-                        self.reset();
-                        break;
-                    case 9:
-                        // "tab" toggles the tracing mouseDragged
-                        self.setState({traceMode: !self.state.traceMode});
-                        break;
-                    default:
-                        break;
-
+                case 87:
+                case 119:
+                // case 38:
+                    // "w" or up arrow is pressed
+                    self.panUp();
+                    break;
+                case 83:
+                case 115:
+                // case 40:
+                    // "s" or down arrow is pressed
+                    self.panDown();
+                    break;
+                case 65:
+                case 97:
+                // case 37:
+                    // "a" or left arrow is pressed
+                    self.panLeft();
+                    break;
+                case 68:
+                case 100:
+                // case 39:
+                    // "d" or right arrow is pressed
+                    self.panRight();
+                    break;
+                case 81:
+                case 113:
+                    // "q" is pressed
+                    self.decrementZ();
+                    break;
+                case 69:
+                case 101:
+                    // "e" is pressed
+                    self.incrementZ();
+                    break;
+                case 187:
+                    // "+" is pressed
+                    self.scaleUp();
+                    break;
+                case 189:
+                    // "-" is pressed
+                    self.scaleDown();
+                    break;
+                case 27:
+                    // "esc" is pressed, all reset
+                    self.reset();
+                    break;
+                case 9:
+                    // "tab" toggles the tracing mouseDragged
+                    self.setState({traceMode: !self.state.traceMode});
+                    break;
+                default:
+                    break;
                 }
                 // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
             };

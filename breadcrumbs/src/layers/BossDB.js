@@ -1,6 +1,6 @@
 // @flow
 
-import type { P5Type, P5Image } from "../types/p5";
+import type { P5Type, P5Image } from "../types/p5Types";
 
 
 type BossDBParams = {
@@ -60,9 +60,6 @@ export default class BossDB {
     setImage(z: number) {
         let self = this;
         self.currentZ = z;
-
-        //!!!TEMP
-        return;
 
         let url = (
             `https://api.theboss.io/v1/image/` +
