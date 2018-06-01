@@ -2,7 +2,7 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import type { P5Type } from "./types/p5Types";
+import type { P5Type } from "../types/p5Types";
 
 export default class TraceManager {
 
@@ -11,6 +11,7 @@ export default class TraceManager {
     im: ImageManager;
     nodesByLayer: Array<Array<string>>;
     edgesByLayer: Array<Array<any>>;
+    prevNode: any;
 
     drawHinting: boolean;
     newSubgraph: boolean;
@@ -53,28 +54,27 @@ export default class TraceManager {
             let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
             let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
 
-            let prevNode;
-            if (this.g.nodes().length > 0) {
-                prevNode = this.g.nodes()[this.g.nodes().length - 1];
-            }
-
-            // TODO: Project xyz into DATA space, not p5 space
-            this.g.setNode(newNodeId, new NodeMeta({
+            let newNode = new NodeMeta({
                 x,
                 y,
                 z: this.im.currentZ,
                 //!!!TEMP
                 // TODO
                 author: "Tucker Chapin",
-            }));
+                id: newNodeId
+            });
+
+            // TODO: Project xyz into DATA space, not p5 space
+            this.g.setNode(newNodeId, newNode);
 
             // Create an edge to the previous node.
-            if (prevNode) {
-                let newEdge = {v: newNodeId, w:  prevNode};
+            if (this.prevNode) {
+                let newEdge = {v: newNodeId, w: this.prevNode.id};
                 this.g.setEdge(newEdge);
                 this.edgesByLayer[this.im.currentZ].push(newEdge);
-                this.edgesByLayer[this.g.node(prevNode).z].push(newEdge);
+                this.edgesByLayer[this.prevNode.z].push(newEdge);
             }
+            this.prevNode = newNode;
         }
 
         this.drawHinting = false;
@@ -150,13 +150,22 @@ export default class TraceManager {
             let transformedNode = this.transformCoords(node.x, node.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
         }
+
+        // Draw the currently active node
+        this.p.fill("#FF0");
+        this.p.noStroke();
+        if (this.prevNode) {
+            // TODO: Fade with depth
+            let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
+            this.p.ellipse(transformedNode.x, transformedNode.y, 10, 10);
+        }
     }
 
 }
 
 // Thin wrapper for node information.
 class NodeMeta {
-    // id: string;
+    id: string;
     x: number;
     y: number;
     z: number;
@@ -169,13 +178,13 @@ class NodeMeta {
         z: number,
         author?: string,
         created?: Date,
-        // id?: string
+        id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
         this.author = opts.author || undefined;
         this.created = opts.created || new Date();
-        // this.id = opts.id || uuidv4();
+        this.id = opts.id || uuidv4();
     }
 }
