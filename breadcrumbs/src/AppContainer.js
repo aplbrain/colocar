@@ -82,7 +82,7 @@ p5.prototype.gradientLine = function(x1: number, y1: number, x2: number, y2: num
         this.fill(this.lerpColor(a, b, t));
         this.ellipse(x1 + t * dx,  y1 + t * dy, stroke, stroke);
     }
-}
+};
 
 type AppContainerProps = {};
 

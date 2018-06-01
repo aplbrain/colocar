@@ -33,10 +33,15 @@ export type P5Type = {
     // Core
     setup: () => void,
     draw: () => void,
+    clear: () => void,
 
     // Events
     windowResized: Function,
+
     mousePressed: Function,
+    mouseClicked: Function,
+    mouseDragged: Function,
+
     keyTyped: Function,
     key: string,
     // Mouse:
