@@ -34,7 +34,7 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
-}
+};
 
 export default class BreadcrumbApp extends Component {
 
@@ -66,20 +66,9 @@ export default class BreadcrumbApp extends Component {
                 // p.frameRate(30);
 
                 //!!!TEMP
-                let imageURIs = [
-                    "http://localhost:3000/0.jpg",
-                    "http://localhost:3000/1.jpg",
-                    "http://localhost:3000/2.jpg",
-                    "http://localhost:3000/3.jpg",
-                    "http://localhost:3000/4.jpg",
-                    "http://localhost:3000/5.jpg",
-                    "http://localhost:3000/6.jpg",
-                    "http://localhost:3000/7.jpg",
-                    "http://localhost:3000/8.jpg",
-                    "http://localhost:3000/9.jpg",
-                    "http://localhost:3000/10.jpg",
-                    "http://localhost:3000/11.jpg",
-                ]
+                let imageURIs = [1,2,3,4,5,6,7,8,9,10,11,12].map(_z =>
+                    `https://api.theboss.io/v1/image/kasthuri2015/ac4/em/xy/0/0:1024/0:1024/${_z}/?no-cache=true`);
+
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {}
@@ -185,7 +174,7 @@ export default class BreadcrumbApp extends Component {
             };
 
             p.mouseDragged = function() {
-                if (!self.state.traceMode) {
+                if (!self.state.traceMode || p.mouseButton == p.RIGHT) {
                     // Only drag the image if mouse is in the image.
                     if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
                         let dX = p.pmouseX - p.mouseX;
