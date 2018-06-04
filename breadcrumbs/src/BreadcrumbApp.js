@@ -306,8 +306,6 @@ export default class BreadcrumbApp extends Component<any, any> {
     popBookmark(): void {
         let {x, y, z} = this.layers.traceManager.popBookmark();
         this.layers.imageManager.setZ(z);
-        // this.layers.imageManager.setY(y);
-        // this.layers.imageManager.setX(x);
     }
 
     deleteActiveNode(): void {
