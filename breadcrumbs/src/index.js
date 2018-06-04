@@ -17,9 +17,12 @@ window.keycloak.init({
     onLoad: 'login-required',
 }).success(function (authenticated) {
     // Render the React app:
-    ReactDOM.render(<AppContainer />, document.getElementById('root'));
-    registerServiceWorker();
-    console.log(authenticated ? 'Successfully authenticated.' : 'Not authenticated.');
+    window.keycloak.loadUserProfile().success(() => {
+        ReactDOM.render( <AppContainer /> , document.getElementById('root'));
+        registerServiceWorker();
+        console.log(authenticated ? 'Successfully authenticated.' : 'Not authenticated.');
+    });
+
 }).error(function () {
     console.error('Failed to initialize.');
 });

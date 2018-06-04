@@ -4,12 +4,15 @@ import React, { Component } from 'react';
 
 import type { P5Type } from "./types/p5Types";
 
+import { Ramongo } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 
 import "./BreadcrumbApp.css";
 
 let p5: P5Type = window.p5;
+
+let DB = new Ramongo();
 
 const STYLES = {
     p5Container: {
@@ -36,7 +39,7 @@ const STYLES = {
     },
 };
 
-export default class BreadcrumbApp extends Component {
+export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
@@ -72,36 +75,49 @@ export default class BreadcrumbApp extends Component {
                 // some RAM/CPU
                 // p.frameRate(30);
 
-                //!!!TEMP
-                let imageURIs = [1,2,3,4,5,6,7,8,9,10,11,12].map(_z =>
-                    `https://api.theboss.io/v1/image/kasthuri2015/ac4/em/xy/0/0:1024/0:1024/${_z}/?no-cache=true`);
-
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
-                // The electron microscopy imagery layer
-                self.layers["imageManager"] = new ImageManager({
-                    p,
-                    imageURIs,
-                });
-                // The graph itself, as created by the user
-                self.layers["traceManager"] = new TraceManager({
-                    p,
-                    imageManager: self.layers.imageManager,
+                self.renderOrder = [];
+
+                DB.getNextQuestion(
+                    window.keycloak.profile.username,
+                    'NEURON.PAINT'
+                ).then(({question, volume}) => {
+                    console.log(question);
+                    console.log(volume);
+
+                    // The electron microscopy imagery layer
+                    let imageURIs = [
+                        ...Array(volume.zLarge[1] - volume.zLarge[0]).keys()
+                    ].map(i => i + volume.zLarge[0]).map(_z => {
+                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xLarge[0]}:${volume.xLarge[1]}/${volume.yLarge[0]}:${volume.yLarge[1]}/${_z}/?no-cache=true`;
+                    });
+
+                    self.layers["imageManager"] = new ImageManager({
+                        p,
+                        imageURIs,
+                    });
+
+                    self.layers["traceManager"] = new TraceManager({
+                        p,
+                        imageManager: self.layers.imageManager,
+                    });
+
+                    // Set the order in which to render the layers. Removing layers
+                    // from this array will cause them to not be rendered!
+                    self.renderOrder = [
+                        'imageManager',
+                        'traceManager',
+                    ];
+
+                    self.setState({
+                        ready: true,
+                        scale: self.layers.imageManager.scale,
+                        currentZ: self.layers.imageManager.currentZ,
+                    });
                 });
 
-                // Set the order in which to render the layers. Removing layers
-                // from this array will cause them to not be rendered!
-                self.renderOrder = [
-                    'imageManager',
-                    'traceManager',
-                ];
-
-                self.setState({
-                    ready: true,
-                    scale: self.layers.imageManager.scale,
-                    currentZ: self.layers.imageManager.currentZ,
-                });
             };
 
             p.windowResized = function() {
