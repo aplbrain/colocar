@@ -17,6 +17,8 @@ const AXON_RADIUS = 10;
 const DENDRITE_RADIUS = 10;
 const DEFAULT_RADIUS = 5;
 
+const SELECTION_THRESHOLD = 15;
+
 
 export default class TraceManager {
 
@@ -59,7 +61,15 @@ export default class TraceManager {
         if (this.p.mouseButton === this.p.RIGHT) {
             // Get the closest node and set it as active:
             // TODO: Filter in here
-            let closeNodes = this.g.nodes().map(n => this.g.node(n));
+            let closeNodes = this.g.nodes()
+                .map(n => this.g.node(n))
+                .filter(n => {
+                    n = this.transformCoords(n.x, n.y);
+                    return Math.sqrt(
+                        Math.pow(this.p.mouseX - n.x, 2) +
+                        Math.pow(this.p.mouseY - n.y, 2)
+                    ) < SELECTION_THRESHOLD;
+                });
             closeNodes.sort((n, m) => {
                 n = this.transformCoords(n.x, n.y);
                 m = this.transformCoords(m.x, m.y);

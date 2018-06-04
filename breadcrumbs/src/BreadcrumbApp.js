@@ -285,10 +285,10 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     reset(): void {
-        this.layers["imageManager"].reset();
+        this.layers.imageManager.reset();
         this.setState({
-            scale: this.layers["imageManager"].scale,
-            currentZ: this.layers["imageManager"].currentZ,
+            scale: this.layers.imageManager.scale,
+            currentZ: this.layers.imageManager.currentZ,
         });
     }
 
