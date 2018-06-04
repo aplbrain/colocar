@@ -33,10 +33,18 @@ export default class TraceManager {
     drawHinting: boolean;
     newSubgraph: boolean;
 
-    constructor(opts: {p: P5Type, imageManager: ImageManager}) {
+    constructor(opts: {
+        p: P5Type,
+        imageManager: ImageManager,
+        startingGraph: Object
+    }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.g = new graphlib.Graph({directed: false});
+        this.g = new graphlib.Graph({
+            directed: false
+        });
+
+        window.tm = this;
         this.drawHinting = false;
 
         // Contain all previous nodes as added, in order. This enables
@@ -53,6 +61,14 @@ export default class TraceManager {
         this.edgesByLayer = new Array(this.im.images.length);
         for (let i = 0; i < this.edgesByLayer.length; i++) {
             this.edgesByLayer[i] = [];
+        }
+
+        if (opts.startingGraph) {
+            // TODO: Allow arbitrary graph instead of single-node graph
+            this.addNode(
+                opts.startingGraph.nodes[0].v,
+                opts.startingGraph.nodes[0].value
+            );
         }
     }
 
@@ -95,16 +111,37 @@ export default class TraceManager {
         }
     }
 
+    addNode(newNodeId: string, newNode: NodeMeta): void {
+        // Verify that the node IDs line up
+        newNode.id = newNodeId;
+        this.g.setNode(newNodeId, newNode);
+
+        this.nodesByLayer[this.im.currentZ].push(newNodeId);
+
+        // Create an edge to the previous node.
+        if (this.prevNode) {
+            let newEdge = {
+                v: newNodeId,
+                w: this.prevNode.id
+            };
+            this.g.setEdge(newEdge);
+            this.edgesByLayer[this.im.currentZ].push(newEdge);
+            this.edgesByLayer[this.prevNode.z].push(newEdge);
+            this.nodeStack.push(this.prevNode);
+        }
+        this.prevNode = newNode;
+    }
+
     mouseClicked(): void {
         if (this.im.imageCollision(this.p.mouseX, this.p.mouseY)) {
 
             let newNodeId = uuidv4();
-            this.nodesByLayer[this.im.currentZ].push(newNodeId);
 
             // Normalize relative to the original image.
             let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
             let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
 
+            // TODO: Project xyz into DATA space, not p5 space
             let newNode = new NodeMeta({
                 x,
                 y,
@@ -115,18 +152,7 @@ export default class TraceManager {
                 id: newNodeId
             });
 
-            // TODO: Project xyz into DATA space, not p5 space
-            this.g.setNode(newNodeId, newNode);
-
-            // Create an edge to the previous node.
-            if (this.prevNode) {
-                let newEdge = {v: newNodeId, w: this.prevNode.id};
-                this.g.setEdge(newEdge);
-                this.edgesByLayer[this.im.currentZ].push(newEdge);
-                this.edgesByLayer[this.prevNode.z].push(newEdge);
-                this.nodeStack.push(this.prevNode);
-            }
-            this.prevNode = newNode;
+            this.addNode(newNodeId, newNode);
         }
 
         this.drawHinting = false;
@@ -172,15 +198,15 @@ export default class TraceManager {
         // Get layers:
         for (let v of this.g.neighbors(this.prevNode.id)) {
             this.edgesByLayer[this.g.node(v).z] = this.edgesByLayer[this.g.node(v).z].filter(e => {
-                return e.v != this.prevNode.id && e.w != this.prevNode.id;
+                return e.v !== this.prevNode.id && e.w !== this.prevNode.id;
             });
         }
         // Delete from nodesByLayer
-        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid != this.prevNode.id);
+        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid !== this.prevNode.id);
         // Delete from graph
         this.g.removeNode(this.prevNode.id);
         // Assign new last-node to `prevNode`
-        this.nodeStack = this.nodeStack.filter(n => n.id != this.prevNode.id);
+        this.nodeStack = this.nodeStack.filter(n => n.id !== this.prevNode.id);
         this.prevNode = this.nodeStack.pop();
     }
 
