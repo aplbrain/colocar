@@ -69,7 +69,7 @@ class Ramongo implements Database {
     }
 
     postGraph(
-        graph: Object,
+        graph: {nodes: Array<Object>, edges: Array<Array<string>>},
         author: string,
         volume: string,
         questionId: string
