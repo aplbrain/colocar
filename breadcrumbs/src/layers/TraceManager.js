@@ -194,6 +194,11 @@ export default class TraceManager {
         if (!this.prevNode) {
             return;
         }
+
+        if (this.prevNode.protected) {
+            return;
+        }
+
         // Delete from edgesByLayer
         // Get layers:
         for (let v of this.g.neighbors(this.prevNode.id)) {

@@ -114,7 +114,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 v: question.synapse._id,
                                 value: {
                                     ...synapseRemappedPosition,
-                                    type: "startingSynapse"
+                                    protected: true
                                 }
                             }]
                         }
