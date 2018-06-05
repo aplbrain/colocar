@@ -9,6 +9,7 @@ import type ImageManager from "./ImageManager";
 const AXON_COLOR = { r: 255, g: 0, b: 0 };
 const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
@@ -262,10 +263,18 @@ export default class TraceManager {
             for (let i = 0; i < this.nodesByLayer[j].length; i++) {
                 let node = this.g.node(this.nodesByLayer[j][i]);
                 let color = DEFAULT_COLOR;
-                if (node.type === "presynaptic") {
+                switch (node.type) {
+                case "presynaptic":
                     color = AXON_COLOR;
-                } else if (node.type === "postsynaptic") {
+                    break;
+                case "postsynaptic":
                     color = DENDRITE_COLOR;
+                    break;
+                case "bookmark":
+                    color = BOOKMARK_COLOR;
+                    break;
+                default:
+                    break;
                 }
                 this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
                 let transformedNode = this.transformCoords(node.x, node.y);
