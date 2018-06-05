@@ -129,6 +129,8 @@ export default class TraceManager {
             this.edgesByLayer[this.im.currentZ].push(newEdge);
             this.edgesByLayer[this.prevNode.z].push(newEdge);
             this.nodeStack.push(this.prevNode);
+        } else {
+            this.nodeStack.push(newNode);
         }
         this.prevNode = newNode;
     }
@@ -295,9 +297,14 @@ export default class TraceManager {
         }
 
         // Draw the currently active node
-        this.p.fill(ACTIVE_NODE_COLOR.r, ACTIVE_NODE_COLOR.g, ACTIVE_NODE_COLOR.b);
         this.p.noStroke();
         if (this.prevNode) {
+            this.p.fill(
+                ACTIVE_NODE_COLOR.r,
+                ACTIVE_NODE_COLOR.g,
+                ACTIVE_NODE_COLOR.b,
+                255 - (Math.pow(this.prevNode.z - this.im.currentZ, 2))
+            );
             // TODO: Fade with depth
             let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
