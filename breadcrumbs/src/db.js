@@ -38,10 +38,17 @@ class Ramongo implements Database {
             return fetch(`${this.url}/volume/${question.volume}`, {
                 headers: this.headers,
             }).then((res: Promise) => res.json()).then((json: any) => {
-                return {
-                    question,
-                    volume: json
-                };
+                let volume = json;
+
+                return fetch(`${this.url}/synapse/id/${question.synapseId}`, {
+                    headers: this.headers,
+                }).then((res: Promise) => res.json()).then((json: any) => {
+                    question.synapse = json;
+                    return {
+                        question,
+                        volume: volume
+                    };
+                });
             });
         });
     }

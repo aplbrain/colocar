@@ -9,6 +9,7 @@ import type ImageManager from "./ImageManager";
 const AXON_COLOR = { r: 255, g: 0, b: 0 };
 const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
@@ -33,10 +34,18 @@ export default class TraceManager {
     drawHinting: boolean;
     newSubgraph: boolean;
 
-    constructor(opts: {p: P5Type, imageManager: ImageManager}) {
+    constructor(opts: {
+        p: P5Type,
+        imageManager: ImageManager,
+        startingGraph: Object
+    }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.g = new graphlib.Graph({directed: false});
+        this.g = new graphlib.Graph({
+            directed: false
+        });
+
+        window.tm = this;
         this.drawHinting = false;
 
         // Contain all previous nodes as added, in order. This enables
@@ -53,6 +62,14 @@ export default class TraceManager {
         this.edgesByLayer = new Array(this.im.images.length);
         for (let i = 0; i < this.edgesByLayer.length; i++) {
             this.edgesByLayer[i] = [];
+        }
+
+        if (opts.startingGraph) {
+            // TODO: Allow arbitrary graph instead of single-node graph
+            this.addNode(
+                opts.startingGraph.nodes[0].v,
+                opts.startingGraph.nodes[0].value
+            );
         }
     }
 
@@ -95,16 +112,39 @@ export default class TraceManager {
         }
     }
 
+    addNode(newNodeId: string, newNode: NodeMeta): void {
+        // Verify that the node IDs line up
+        newNode.id = newNodeId;
+        this.g.setNode(newNodeId, newNode);
+
+        this.nodesByLayer[this.im.currentZ].push(newNodeId);
+
+        // Create an edge to the previous node.
+        if (this.prevNode) {
+            let newEdge = {
+                v: newNodeId,
+                w: this.prevNode.id
+            };
+            this.g.setEdge(newEdge);
+            this.edgesByLayer[this.im.currentZ].push(newEdge);
+            this.edgesByLayer[this.prevNode.z].push(newEdge);
+            this.nodeStack.push(this.prevNode);
+        } else {
+            this.nodeStack.push(newNode);
+        }
+        this.prevNode = newNode;
+    }
+
     mouseClicked(): void {
         if (this.im.imageCollision(this.p.mouseX, this.p.mouseY)) {
 
             let newNodeId = uuidv4();
-            this.nodesByLayer[this.im.currentZ].push(newNodeId);
 
             // Normalize relative to the original image.
             let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
             let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
 
+            // TODO: Project xyz into DATA space, not p5 space
             let newNode = new NodeMeta({
                 x,
                 y,
@@ -115,18 +155,7 @@ export default class TraceManager {
                 id: newNodeId
             });
 
-            // TODO: Project xyz into DATA space, not p5 space
-            this.g.setNode(newNodeId, newNode);
-
-            // Create an edge to the previous node.
-            if (this.prevNode) {
-                let newEdge = {v: newNodeId, w: this.prevNode.id};
-                this.g.setEdge(newEdge);
-                this.edgesByLayer[this.im.currentZ].push(newEdge);
-                this.edgesByLayer[this.prevNode.z].push(newEdge);
-                this.nodeStack.push(this.prevNode);
-            }
-            this.prevNode = newNode;
+            this.addNode(newNodeId, newNode);
         }
 
         this.drawHinting = false;
@@ -168,19 +197,24 @@ export default class TraceManager {
         if (!this.prevNode) {
             return;
         }
+
+        if (this.prevNode.protected) {
+            return;
+        }
+
         // Delete from edgesByLayer
         // Get layers:
         for (let v of this.g.neighbors(this.prevNode.id)) {
             this.edgesByLayer[this.g.node(v).z] = this.edgesByLayer[this.g.node(v).z].filter(e => {
-                return e.v != this.prevNode.id && e.w != this.prevNode.id;
+                return e.v !== this.prevNode.id && e.w !== this.prevNode.id;
             });
         }
         // Delete from nodesByLayer
-        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid != this.prevNode.id);
+        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid !== this.prevNode.id);
         // Delete from graph
         this.g.removeNode(this.prevNode.id);
         // Assign new last-node to `prevNode`
-        this.nodeStack = this.nodeStack.filter(n => n.id != this.prevNode.id);
+        this.nodeStack = this.nodeStack.filter(n => n.id !== this.prevNode.id);
         this.prevNode = this.nodeStack.pop();
     }
 
@@ -190,6 +224,14 @@ export default class TraceManager {
         return {
             x: (x * this.im.scale) + this.im.position.x,
             y: (y * this.im.scale) + this.im.position.y,
+        };
+    }
+
+    // Screen to IMAGE position
+    normalizeCoords(x: number, y: number) {
+        return {
+            x: (x - this.im.position.x) / this.im.scale,
+            y: (y - this.im.position.y) / this.im.scale,
         };
     }
 
@@ -231,10 +273,18 @@ export default class TraceManager {
             for (let i = 0; i < this.nodesByLayer[j].length; i++) {
                 let node = this.g.node(this.nodesByLayer[j][i]);
                 let color = DEFAULT_COLOR;
-                if (node.type === "presynaptic") {
+                switch (node.type) {
+                case "presynaptic":
                     color = AXON_COLOR;
-                } else if (node.type === "postsynaptic") {
+                    break;
+                case "postsynaptic":
                     color = DENDRITE_COLOR;
+                    break;
+                case "bookmark":
+                    color = BOOKMARK_COLOR;
+                    break;
+                default:
+                    break;
                 }
                 this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
                 let transformedNode = this.transformCoords(node.x, node.y);
@@ -255,9 +305,14 @@ export default class TraceManager {
         }
 
         // Draw the currently active node
-        this.p.fill(ACTIVE_NODE_COLOR.r, ACTIVE_NODE_COLOR.g, ACTIVE_NODE_COLOR.b);
         this.p.noStroke();
         if (this.prevNode) {
+            this.p.fill(
+                ACTIVE_NODE_COLOR.r,
+                ACTIVE_NODE_COLOR.g,
+                ACTIVE_NODE_COLOR.b,
+                255 - (Math.pow(this.prevNode.z - this.im.currentZ, 2))
+            );
             // TODO: Fade with depth
             let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);

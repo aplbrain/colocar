@@ -87,6 +87,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(question);
                     console.log(volume);
 
+                    // TODO: @tucker helppppp
+                    let synapseRemappedPosition = {
+                        x: (question.synapse.x - volume.xLarge[0]),
+                        y: (question.synapse.y - volume.yLarge[0]),
+                        z: Math.round((question.synapse.z - volume.zLarge[0]))
+                    };
+
                     // The electron microscopy imagery layer
                     let imageURIs = [
                         ...Array(volume.zLarge[1] - volume.zLarge[0]).keys()
@@ -102,6 +109,16 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers["traceManager"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
+                        startingGraph: {
+                            edges: [],
+                            nodes: [{
+                                v: question.synapse._id,
+                                value: {
+                                    ...synapseRemappedPosition,
+                                    protected: true
+                                }
+                            }]
+                        }
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -210,7 +227,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
 
             p.mouseDragged = function() {
-                if (!self.state.traceMode || p.mouseButton == p.RIGHT) {
+                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
                     // Only drag the image if mouse is in the image.
                     if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
                         let dX = p.pmouseX - p.mouseX;
