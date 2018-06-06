@@ -227,6 +227,13 @@ export default class TraceManager {
         };
     }
 
+    normalizeCoords(x: number, y: number) {
+        return {
+            x: (x - this.im.position.x) / this.im.scale,
+            y: (y - this.im.position.y) / this.im.scale,
+        };
+    }
+
     draw(): void {
         // While the mouse is down, but not released
         // Draw a transparent node and edge showing where they will appear on release.
