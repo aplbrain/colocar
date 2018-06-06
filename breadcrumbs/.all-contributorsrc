@@ -1,0 +1,22 @@
+{
+  "projectName": "colocar",
+  "projectOwner": "aplbrain",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "contributors": [
+    {
+      "login": "j6k4m8",
+      "name": "Jordan Matelsky",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/693511?v=4",
+      "profile": "http://jordan.matelsky.com",
+      "contributions": [
+        "code"
+      ]
+    }
+  ]
+}
