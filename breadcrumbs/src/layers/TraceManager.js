@@ -227,6 +227,7 @@ export default class TraceManager {
         };
     }
 
+    // Screen to IMAGE position
     normalizeCoords(x: number, y: number) {
         return {
             x: (x - this.im.position.x) / this.im.scale,
