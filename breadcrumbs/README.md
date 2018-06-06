@@ -12,4 +12,4 @@
 | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-[emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)
+<p align=center>[<a href="https://github.com/kentcdodds/all-contributors#emoji-key">emoji key</a>]</p>
