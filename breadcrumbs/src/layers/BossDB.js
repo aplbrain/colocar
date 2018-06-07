@@ -1,6 +1,6 @@
 // @flow
 
-import type { P5Type, P5Image } from "../types/p5";
+import type { P5Type, P5Image } from "../types/p5Types";
 
 
 type BossDBParams = {
@@ -13,7 +13,6 @@ type BossDBParams = {
         z: [number, number]
     },
     res: number,
-
     shouldPreload?: boolean,
     shouldCache?: boolean,
 };
