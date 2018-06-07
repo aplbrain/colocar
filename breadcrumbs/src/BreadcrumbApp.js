@@ -345,7 +345,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         <div style={STYLES["controlLabel"]}>Zoom</div>
 
                         <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>{this.scaleDown()}}>-</button>
+                            <button onClick={()=>this.scaleDown()}>-</button>
                             {Math.round(100 * this.state.scale)}%
                             <button onClick={()=>{this.scaleUp()}}>+</button>
                         </div>
@@ -355,18 +355,18 @@ export default class BreadcrumbApp extends Component<any, any> {
                         <div style={STYLES["controlLabel"]}>Layer</div>
 
                         <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>{this.decrementZ()}}>-</button>
+                            <button onClick={()=>this.decrementZ()}>-</button>
                             {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
-                            <button onClick={()=>{this.incrementZ()}}>+</button>
+                            <button onClick={()=>this.incrementZ()}>+</button>
                         </div>
                     </div>
 
                     <div style={STYLES["controlRow"]}>
-                        <button onClick={()=>{this.reset()}}>Reset viewport</button>
+                        <button onClick={()=>this.reset()}>Reset viewport</button>
                     </div>
 
                     <div style={STYLES["controlRow"]}>
-                        <button onClick={()=>{this.setState({traceMode: !this.state.traceMode})}}>
+                        <button onClick={()=>this.setState({traceMode: !this.state.traceMode})}>
                             {this.state.traceMode ? "Switch to pan mode" : "Switch to trace mode"}
                         </button>
                     </div>
