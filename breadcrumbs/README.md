@@ -10,6 +10,14 @@
 $ yarn
 ```
 
+## Running a development server
+
+```shell
+$ yarn start
+```
+
+This will run a development server in your shell (with linting and transpile outputs), and will automatically open your browser to http://localhost:3000 where it will display the running breadcrumbs app. Saving files to the breadcrumbs filesystem will trigger a rebuild and will restart the server (refreshing your page).
+
 ## Usage
 
 ### Mouse
