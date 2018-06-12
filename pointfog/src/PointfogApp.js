@@ -7,6 +7,7 @@ import type { P5Type } from "./types/p5Types";
 import { Ramongo } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
+import Crosshairs from "./layers/Crosshairs";
 
 import "./PointfogApp.css";
 
@@ -96,23 +97,19 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.layers["pointcloudManager"] = new PointcloudManager({
                         p,
-                        imageManager: self.layers.imageManager,
-                        startingGraph: {
-                            edges: [],
-                            nodes: [{
-                                v: question.synapse._id,
-                                value: {
-                                    ...synapseRemappedPosition,
-                                    protected: true
-                                }
-                            }]
-                        }
+                        imageManager: self.layers.imageManager
+                    });
+
+                    self.layers["crosshairs"] = new Crosshairs({
+                        p,
+                        imageManager: self.layers.imageManager
                     });
 
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
+                        'crosshairs',
                         'pointcloudManager',
                     ];
 
@@ -190,11 +187,14 @@ export default class PointfogApp extends Component<any, any> {
                 case 46:
                     self.deleteActiveNode();
                     break;
-                case 49:
-                    self.markBookmark();
-                    break;
-                case 50:
-                    self.popBookmark();
+                // case 49:
+                //     self.markBookmark();
+                //     break;
+                // case 50:
+                //     self.popBookmark();
+                //     break;
+                case 84: // T
+                    self.toggleCrosshairs();
                     break;
                 default:
                     break;
@@ -297,23 +297,27 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    markAxon(): void {
-        this.layers.pointcloudManager.markAxon();
-    }
+    // markAxon(): void {
+    //     this.layers.pointcloudManager.markAxon();
+    // }
 
-    markDendrite(): void {
-        this.layers.pointcloudManager.markDendrite();
-    }
+    // markDendrite(): void {
+    //     this.layers.pointcloudManager.markDendrite();
+    // }
 
-    markBookmark(): void {
-        this.layers.pointcloudManager.markBookmark();
-    }
-    popBookmark(): void {
-        let {x, y, z} = this.layers.pointcloudManager.popBookmark();
-        this.layers.imageManager.setZ(z);
-        // this.layers.imageManager.setY(y);
-        // this.layers.imageManager.setX(x);
-    }
+    // markBookmark(): void {
+    //     this.layers.pointcloudManager.markBookmark();
+    // }
+    // popBookmark(): void {
+    //     let {x, y, z} = this.layers.pointcloudManager.popBookmark();
+    //     this.layers.imageManager.setZ(z);
+    //     // this.layers.imageManager.setY(y);
+    //     // this.layers.imageManager.setX(x);
+    // }
+
+    toggleCrosshairs = function () {
+        this.layers.crosshairs.toggleVisibility();
+    };
 
     deleteActiveNode(): void {
         this.layers.pointcloudManager.deleteActiveNode();
