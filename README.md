@@ -7,6 +7,19 @@
 
 ## Directories
 
-### breadcrumbs
 
-Path-tracing using p5 and substrate, with colocard as a backend.
+
+<table>
+<tr>
+    <td>
+        <h3 align=center>breadcrumbs</h3>
+        <img align=center src="breadcrumbs/logo.png" height=200>
+    </td>
+</tr>
+<tr>
+    <td>
+        <h3 align=center>pointfog</h3>
+        <img align=center src="pointfog/logo.png" height=200>
+    </td>
+</tr>
+</table>
