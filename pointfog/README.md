@@ -1,5 +1,5 @@
-<p align=center><img align=center src='./logo.png' width=100 /></p>
-<h3 align=center>b r e a d c r u m b s</h3>
+<p align=center><img align=center src='./logo.png' width=200 /></p>
+<h3 align=center>p o i n t f o g</h3>
 <h6 align=center>simple and scalable graph annotation</h6>
 
 <p align=center><img align=center src="https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square" /></p>
