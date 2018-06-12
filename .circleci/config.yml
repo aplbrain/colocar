@@ -24,8 +24,8 @@ jobs:
           - v1-dependencies-
 
       - run: |
-          cd breadcrumbs && yarn install --only=dev
-          cd pointfog && yarn install --only=dev
+          cd ~/repo/breadcrumbs && yarn install --only=dev
+          cd ~/repo/pointfog && yarn install --only=dev
 
       - save_cache:
           paths:
