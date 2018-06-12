@@ -24,8 +24,8 @@ jobs:
           - v1-dependencies-
 
       - run: |
-        cd breadcrumbs && yarn install --only=dev
-        cd pointfog && yarn install --only=dev
+          cd breadcrumbs && yarn install --only=dev
+          cd pointfog && yarn install --only=dev
 
       - save_cache:
           paths:
@@ -34,6 +34,6 @@ jobs:
 
       # run tests!
       - run: |
-        cd breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
-        cd pointfog && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+          cd breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+          cd pointfog && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
 
