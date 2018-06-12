@@ -1,6 +1,6 @@
-<p align=center><img align=center src='./logo.png' width=200 /></p>
+<p align=center><img align=center src='./logo.png' width=300 /></p>
 <h3 align=center>p o i n t f o g</h3>
-<h6 align=center>simple and scalable graph annotation</h6>
+<h6 align=center>simple and scalable pointcloud annotation</h6>
 
 <p align=center><img align=center src="https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square" /></p>
 
@@ -27,10 +27,6 @@ $ yarn
 | <kbd>tab</kbd> | Toggle between Trace and Pan modes |
 | <kbd>q</kbd>, <kbd>e</kbd> | Pan up and down in the z-stack |
 | <kbd>+</kbd>, <kbd>-</kbd> | Zoom in and out |
-| <kbd>a</kbd> | Mark the current node as an Axon |
-| <kbd>d</kbd> | Mark the current node as a Dendrite |
-| <kbd>!</kbd> | Mark the current node as a bookmark, to return to later. (Press again to toggle) |
-| <kbd>@</kbd> | Return to the previous bookmark |
 | <kbd>delete</kbd> | Delete the currently active node |
 | <kbd>esc</kbd> | Reset the zoom and pan of the scene |
 
