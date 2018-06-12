@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "apl-substrate": "^1.0.4",
     "flow": "^0.2.3",
     "graphlib": "^2.1.5",
     "npm": "^6.0.0",
