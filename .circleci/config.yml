@@ -34,6 +34,6 @@ jobs:
 
       # run tests!
       - run: |
-          cd breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
-          cd pointfog && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+          cd ~/repo/breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+          cd ~/repo/pointfog && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
 
