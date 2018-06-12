@@ -71,28 +71,16 @@ export default class PointfogApp extends Component<any, any> {
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
-                // We don't need much in the way of framerate, and this saves
-                // some RAM/CPU
-                // p.frameRate(30);
-
-
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
                 self.renderOrder = [];
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    'NEURON.PAINT'
+                    'SYNAPSE.PAINT'
                 ).then(({question, volume}) => {
                     console.log(question);
                     console.log(volume);
-
-                    // TODO: @tucker helppppp
-                    let synapseRemappedPosition = {
-                        x: (question.synapse.x - volume.xLarge[0]),
-                        y: (question.synapse.y - volume.yLarge[0]),
-                        z: Math.round((question.synapse.z - volume.zLarge[0]))
-                    };
 
                     // The electron microscopy imagery layer
                     let imageURIs = [
@@ -156,17 +144,17 @@ export default class PointfogApp extends Component<any, any> {
                     // "s" or down arrow is pressed
                     self.panDown();
                     break;
-                case 65:
-                    self.markAxon();
-                    break;
+                // case 65:
+                //     self.markAxon();
+                //     break;
                 case 97:
                 // case 37:
                     // left arrow is pressed
                     self.panLeft();
                     break;
-                case 68:
-                    self.markDendrite();
-                    break;
+                // case 68:
+                //     self.markDendrite();
+                //     break;
                 case 100:
                 // case 39:
                     // "d" or right arrow is pressed
