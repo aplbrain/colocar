@@ -33,3 +33,7 @@
     </td>
 </tr>
 </table>
+
+---
+
+<p align="center"><small>Made with ♥ at <a href="http://www.jhuapl.edu/"><img alt="JHU APL" align="center" src="./apl-logo.png" height="23px"></a></small></p>
