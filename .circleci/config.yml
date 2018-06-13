@@ -19,10 +19,13 @@ jobs:
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "breadcrumbs/package.json" }}
+          - v1-dependencies-{{ checksum "pointfog/package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: cd breadcrumbs && yarn install --only=dev
+      - run: |
+          cd ~/repo/breadcrumbs && yarn install --only=dev
+          cd ~/repo/pointfog && yarn install --only=dev
 
       - save_cache:
           paths:
@@ -30,5 +33,7 @@ jobs:
           key: v1-dependencies-{{ checksum "breadcrumbs/package.json" }}
 
       # run tests!
-      - run: cd breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+      - run: |
+          cd ~/repo/breadcrumbs && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
+          cd ~/repo/pointfog && ./node_modules/eslint/bin/eslint.js -c .eslintrc.js ./
 
