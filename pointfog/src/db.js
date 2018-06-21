@@ -65,7 +65,7 @@ class Colocard implements Database {
     url: string;
     headers: Object;
 
-    constructor(opts: {url: ?string}) {
+    constructor(opts?: {url?: string}) {
         /*
         Create a new Colocard client.
 
@@ -73,6 +73,7 @@ class Colocard implements Database {
             opts: Object. Should include url (str)
 
         */
+        opts = opts || {};
         this.url = opts.url || "http://colocard:9005";
         this.headers = {
             'Accept': 'application/json',
@@ -93,15 +94,22 @@ class Colocard implements Database {
             headers: this.headers,
             method: "POST",
             body: JSON.stringify(nodes)
-        }).then((res: Response) => res.json().then((json: any, err: any) => {
+        }).then((res: Response) => res.json()).then((json: any, err: any) => {
             console.log(json, err);
-        }));
+        });
     }
 
     getNextQuestion(user: string, type: string): Promise<Object> {
-        return;
+        return fetch(`${this.url}/questions?q={"user":"${user}"}`, {
+            headers: this.headers,
+        }).then((res: Response) => res.json()).then((json: any, err: any) => {
+            if (err) { console.error(err); }
+            return json;
+        });
     }
 }
+
+window.cd = new Colocard();
 
 export {
     Ramongo,

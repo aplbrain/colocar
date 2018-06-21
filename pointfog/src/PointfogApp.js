@@ -87,7 +87,7 @@ export default class PointfogApp extends Component<any, any> {
                     let imageURIs = [
                         ...Array(volume.zSmall[1] - volume.zSmall[0]).keys()
                     ].map(i => i + volume.zSmall[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xSmall[0]}:${volume.xSmall[1]}/${volume.ySmall[0]}:${volume.Smalle[1]}/${_z}/?no-cache=true`;
+                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xSmall[0]}:${volume.xSmall[1]}/${volume.ySmall[0]}:${volume.ySmall[1]}/${_z}/?no-cache=true`;
                     });
 
                     self.layers["imageManager"] = new ImageManager({
