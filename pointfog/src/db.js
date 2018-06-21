@@ -32,7 +32,7 @@ class Ramongo implements Database {
             body: this._encode({
                 user: user
             })
-        }).then((res: Promise<any>) => res.json()).then((json: any) => {
+        }).then((res: Response) => res.json()).then((json: any) => {
             let question = json.data;
 
             return fetch(`${this.url}/volume/${question.volume}`, {
