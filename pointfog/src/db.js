@@ -1,7 +1,7 @@
 // @flow
 
 interface Database {
-    // saveGraph(graph: Object): Promise<boolean>,
+    // postNodes(Array): any;
     getNextQuestion(string, string): Promise<Object>
 }
 
@@ -57,8 +57,41 @@ class Ramongo implements Database {
 
 
 class Colocard {
-    saveGraph(graph: Object) {
 
+    url: string;
+    headers: Object;
+
+    constructor(opts: {url: ?string}) {
+        /*
+        Create a new Colocard client.
+
+        Arguments:
+            opts: Object. Should include url (str)
+
+        */
+        this.url = opts.url || "http://colocard:9005";
+        this.headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        };
+    }
+
+    postNodes(nodes: Array<Object>): any {
+        /*
+        Post a list of nodes to the colocard API.
+
+        Arguments:
+            nodes (Array<NodeMeta>): The nodes to post. Should each be fully
+                well-formed node object
+
+        */
+        fetch(`${this.url}/nodes`, {
+            headers: this.headers,
+            method: "POST",
+            body: JSON.stringify(nodes)
+        }).then((res: Response) => res.json().then((json: any, err: any) => {
+            console.log(json, err);
+        }));
     }
 }
 
