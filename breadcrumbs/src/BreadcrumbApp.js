@@ -302,10 +302,12 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     reset(): void {
-        this.layers.imageManager.reset();
+        let curZ = this.layers.traceManager.getSelectedNodeZ();
+        this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
-            currentZ: this.layers.imageManager.currentZ,
+            currentZ: curZ
+            // currentZ: this.layers.imageManager.currentZ,
         });
     }
 

@@ -190,10 +190,13 @@ export default class ImageManager {
 
     // Resets to "default" scale and position.
     // Stays the same image slice.
-    reset(): void {
+    reset(z: ?number): void {
         this.setScale(1);
         this.setX(this.p.canvas.width/2);
         this.setY(this.p.canvas.height/2);
+        if (z) {
+            this.setZ(z);
+        }
     }
 
     // Returns an object of the EDGES of the image.
