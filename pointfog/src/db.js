@@ -1,7 +1,7 @@
 // @flow
 
 interface Database {
-    // postNodes(Array): any;
+    postNodes(Array<Object>): any;
     getNextQuestion(string, string): Promise<Object>
 }
 
@@ -23,6 +23,10 @@ class Ramongo implements Database {
         return Object.keys(obj).map((key) => {
             return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
         }).join('&');
+    }
+
+    postNodes(nodes) {
+        return;
     }
 
     getNextQuestion(user: string, type: string) {
@@ -56,7 +60,7 @@ class Ramongo implements Database {
 }
 
 
-class Colocard {
+class Colocard implements Database {
 
     url: string;
     headers: Object;
@@ -92,6 +96,10 @@ class Colocard {
         }).then((res: Response) => res.json().then((json: any, err: any) => {
             console.log(json, err);
         }));
+    }
+
+    getNextQuestion(user: string, type: string): Promise<Object> {
+        return;
     }
 }
 
