@@ -15,6 +15,7 @@ const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
 
 const AXON_RADIUS = 10;
+const BOOKMARK_RADIUS = 10;
 const DENDRITE_RADIUS = 10;
 const DEFAULT_RADIUS = 5;
 
@@ -70,6 +71,14 @@ export default class TraceManager {
                 opts.startingGraph.nodes[0].v,
                 opts.startingGraph.nodes[0].value
             );
+        }
+    }
+
+    getSelectedNodeZ(): number {
+        if (this.prevNode) {
+            return this.prevNode.z;
+        } else {
+            return this.im.currentZ;
         }
     }
 
@@ -168,15 +177,15 @@ export default class TraceManager {
         this.g.node(this.prevNode.id).type = "postsynaptic";
     }
     markBookmark(): void {
-        if (this.g.node(this.prevNode.id).type === "bookmark") {
-            this.g.node(this.prevNode.id).type = undefined;
+        if (this.g.node(this.prevNode.id).bookmarked) {
+            this.g.node(this.prevNode.id).bookmarked = false;
         } else {
-            this.g.node(this.prevNode.id).type = "bookmark";
+            this.g.node(this.prevNode.id).bookmarked = true;
         }
     }
 
     popBookmark(): {x: number, y: number, z: number} {
-        let bmarks = this.nodeStack.reverse().filter(n => n.type === "bookmark");
+        let bmarks = this.nodeStack.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ
             return {
@@ -280,11 +289,11 @@ export default class TraceManager {
                 case "postsynaptic":
                     color = DENDRITE_COLOR;
                     break;
-                case "bookmark":
-                    color = BOOKMARK_COLOR;
-                    break;
                 default:
                     break;
+                }
+                if (node.bookmarked) {
+                    color = BOOKMARK_COLOR;
                 }
                 this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
                 let transformedNode = this.transformCoords(node.x, node.y);
@@ -330,6 +339,10 @@ export default class TraceManager {
             } else if (node.type === "postsynaptic") {
                 color = DENDRITE_COLOR;
                 radius = DENDRITE_RADIUS;
+            }
+            if (node.bookmarked) {
+                color = BOOKMARK_COLOR;
+                radius = BOOKMARK_RADIUS;
             }
             this.p.fill(color.r, color.g, color.b);
             let transformedNode = this.transformCoords(node.x, node.y);
