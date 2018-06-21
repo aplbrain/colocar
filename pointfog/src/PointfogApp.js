@@ -85,9 +85,9 @@ export default class PointfogApp extends Component<any, any> {
 
                     // The electron microscopy imagery layer
                     let imageURIs = [
-                        ...Array(volume.zLarge[1] - volume.zLarge[0]).keys()
-                    ].map(i => i + volume.zLarge[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xLarge[0]}:${volume.xLarge[1]}/${volume.yLarge[0]}:${volume.yLarge[1]}/${_z}/?no-cache=true`;
+                        ...Array(volume.zSmall[1] - volume.zSmall[0]).keys()
+                    ].map(i => i + volume.zSmall[0]).map(_z => {
+                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xSmall[0]}:${volume.xSmall[1]}/${volume.ySmall[0]}:${volume.ySmall[1]}/${_z}/?no-cache=true`;
                     });
 
                     self.layers["imageManager"] = new ImageManager({
