@@ -3,6 +3,7 @@
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
+import type { Node } from "../types/colocardTypes";
 import type ImageManager from "./ImageManager";
 
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
@@ -26,6 +27,22 @@ export default class TraceManager {
         this.im = opts.imageManager;
 
         this.nodes = [];
+    }
+
+    exportNodes(): Array<Node> {
+        /*
+        Convert the nodes from NodeMeta (UI-friendly) to colocard's Node
+        type (db-friendly).
+        */
+        // Rescale the node centroids to align with data-space, not p5 space:
+        let outputNodes = this.nodes.map(node => {
+            let newNode: Node = {};
+            newNode.x = (node.x - this.im.position.x) / this.im.scale;
+            newNode.y = (node.y - this.im.position.y) / this.im.scale;
+            newNode.z = (node.z - this.im.position.z) / this.im.scale;
+            return newNode;
+        });
+        return outputNodes;
     }
 
     addNode(newNodeId: string, newNode: NodeMeta): NodeMeta {
