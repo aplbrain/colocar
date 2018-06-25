@@ -100,7 +100,7 @@ class Colocard implements Database {
     }
 
     getNextQuestion(user: string, type: string) {
-        return fetch(`${this.url}/questions?q={"assignee": ${user}, "namespace": ${type}}`, {
+        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}}"`, {
             headers: this.headers,
             method: "GET"
         }).then((res: Promise) => res.json()).then((json: any) => {
