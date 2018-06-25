@@ -99,12 +99,46 @@ class Colocard implements Database {
         });
     }
 
-    getNextQuestion(user: string, type: string): Promise<Object> {
-        return fetch(`${this.url}/questions?q={"user":"${user}"}`, {
+    getNextQuestion(user: string, type: string) {
+        return fetch(`${this.url}/questions?q={"assignee": ${user}, "namespace": ${type}}`, {
             headers: this.headers,
-        }).then((res: Response) => res.json()).then((json: any, err: any) => {
-            if (err) { console.error(err); }
-            return json;
+            method: "GET"
+        }).then((res: Promise) => res.json()).then((json: any) => {
+            let questions = json.data;
+            let openQuestions = questions.filter(question => question.status === "open");
+            let nOpen = openQuestions.length;
+            if (nOpen > 1) {
+                throw "cannot have more than one open question - ask an admin";
+            } else if (nOpen === 1) {
+                let question = openQuestions[0];
+            } else {
+                let pendingQuestions = questions.filter(question => question.status === "pending");
+                let nPending = pendingQuestions.length;
+                if (nPending === 0) {
+                    throw "you don't have any open or pending questions - ask an admin";
+                } else {
+                    let prioritizedQuestions = questions.sort(function(a, b) {
+                        return a.priority - b.priority;
+                    });
+                    let question = prioritizedQuestions[nPending-1];
+                }
+            }
+
+            return fetch(`${this.url}/volume/${question.volume}`, {
+                headers: this.headers,
+            }).then((res: Promise) => res.json()).then((json: any) => {
+                let volume = json;
+
+                return fetch(`${this.url}/synapse/id/${question.synapseId}`, {
+                    headers: this.headers,
+                }).then((res: Promise) => res.json()).then((json: any) => {
+                    question.synapse = json;
+                    return {
+                        question,
+                        volume: volume
+                    };
+                });
+            });
         });
     }
 }
