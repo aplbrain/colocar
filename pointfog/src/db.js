@@ -105,27 +105,13 @@ class Colocard implements Database {
         return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}}"`, {
             headers: this.headers,
             method: "GET"
-        }).then((res: Response) => res.json()).then((json: any) => {
-            let question: Question = null;
-            let questions = json.data;
-            let openQuestions = questions.filter(question => question.status === "open");
-            let nOpen = openQuestions.length;
-            if (nOpen > 1) {
-                throw "cannot have more than one open question - ask an admin";
-            } else if (nOpen === 1) {
-                question = openQuestions[0];
-            } else {
-                let pendingQuestions = questions.filter(question => question.status === "pending");
-                let nPending = pendingQuestions.length;
-                if (nPending === 0) {
-                    throw "you don't have any open or pending questions - ask an admin";
-                } else {
-                    let prioritizedQuestions = questions.sort(function(a, b) {
-                        return a.priority - b.priority;
-                    });
-                    question = prioritizedQuestions[nPending-1];
-                }
-            }
+        }).then(this._onQuestionSuccess).catch(this._onException);
+    }
+
+    _onQuestionSuccess(res: Response): Promise<Question> {
+        return res.json().then((json: any) => {
+            let questions: Array<Question> = json.data;
+            let question: Question = this._extractPrioritizedQuestion(questions);
 
             return fetch(`${this.url}/volume/${question.volume}`, {
                 headers: this.headers,
@@ -143,6 +129,33 @@ class Colocard implements Database {
                 });
             });
         });
+    }
+
+    _extractPrioritizedQuestion(questions: Array<Question>): Question {
+        let question: Question = null;
+        let openQuestions = questions.filter(question => question.status === "open");
+        let nOpen = openQuestions.length;
+        if (nOpen > 1) {
+            throw "cannot have more than one open question - ask an admin";
+        } else if (nOpen === 1) {
+            question = openQuestions[0];
+        } else {
+            let pendingQuestions = questions.filter(question => question.status === "pending");
+            let nPending = pendingQuestions.length;
+            if (nPending === 0) {
+                throw "you don't have any open or pending questions - ask an admin";
+            } else {
+                let prioritizedQuestions = questions.sort(function(a, b) {
+                    return a.priority - b.priority;
+                });
+                question = prioritizedQuestions[nPending-1];
+            }
+        }
+        return question;
+    }
+
+    _onException(reason: any) {
+        console.log(reason);
     }
 }
 
