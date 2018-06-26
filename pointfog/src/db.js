@@ -1,8 +1,10 @@
 // @flow
 
+import type {Node, Question} from "./types/colocardTypes";
+
 interface Database {
-    postNodes(Array<Object>): any;
-    getNextQuestion(string, string): Promise<Object>
+    postNodes(Array<Node>): any;
+    getNextQuestion(string, string): Promise<Question>
 }
 
 
@@ -25,7 +27,7 @@ class Ramongo implements Database {
         }).join('&');
     }
 
-    postNodes(nodes) {
+    postNodes(nodes: Array<Node>) {
         return;
     }
 
@@ -81,12 +83,12 @@ class Colocard implements Database {
         };
     }
 
-    postNodes(nodes: Array<Object>): any {
+    postNodes(nodes: Array<Node>) {
         /*
         Post a list of nodes to the colocard API.
 
         Arguments:
-            nodes (Array<NodeMeta>): The nodes to post. Should each be fully
+            nodes (Array<Node>): The nodes to post. Should each be fully
                 well-formed node object
 
         */
@@ -103,14 +105,15 @@ class Colocard implements Database {
         return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}}"`, {
             headers: this.headers,
             method: "GET"
-        }).then((res: Promise) => res.json()).then((json: any) => {
+        }).then((res: Response) => res.json()).then((json: any) => {
+            let question: Question = null;
             let questions = json.data;
             let openQuestions = questions.filter(question => question.status === "open");
             let nOpen = openQuestions.length;
             if (nOpen > 1) {
                 throw "cannot have more than one open question - ask an admin";
             } else if (nOpen === 1) {
-                let question = openQuestions[0];
+                question = openQuestions[0];
             } else {
                 let pendingQuestions = questions.filter(question => question.status === "pending");
                 let nPending = pendingQuestions.length;
@@ -120,18 +123,18 @@ class Colocard implements Database {
                     let prioritizedQuestions = questions.sort(function(a, b) {
                         return a.priority - b.priority;
                     });
-                    let question = prioritizedQuestions[nPending-1];
+                    question = prioritizedQuestions[nPending-1];
                 }
             }
 
             return fetch(`${this.url}/volume/${question.volume}`, {
                 headers: this.headers,
-            }).then((res: Promise) => res.json()).then((json: any) => {
+            }).then((res: Response) => res.json()).then((json: any) => {
                 let volume = json;
 
                 return fetch(`${this.url}/synapse/id/${question.synapseId}`, {
                     headers: this.headers,
-                }).then((res: Promise) => res.json()).then((json: any) => {
+                }).then((res: Response) => res.json()).then((json: any) => {
                     question.synapse = json;
                     return {
                         question,
