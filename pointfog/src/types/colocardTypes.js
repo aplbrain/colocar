@@ -1,10 +1,3 @@
-
-export type NodeDecision = {
-    author: string,
-    decision: string,
-    date: number
-}
-
 export type Node = {
     active: boolean,
     author: string,
@@ -16,4 +9,19 @@ export type Node = {
     submitted: number,
     type: string,
     volume: string,
+}
+
+export type NodeDecision = {
+    author: string,
+    decision: string,
+    date: number
+}
+
+export type Question = {
+    assignee: string,
+    author: string,
+    instructions: Object,
+    namespace: string,
+    priority: number,
+    volume: string
 }
