@@ -77,7 +77,7 @@ class Colocard implements Database {
         this.url = opts.url || "http://colocard:9005";
         this.headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            'Content-Type': 'application/json'
         };
     }
 
