@@ -297,24 +297,6 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    // markAxon(): void {
-    //     this.layers.pointcloudManager.markAxon();
-    // }
-
-    // markDendrite(): void {
-    //     this.layers.pointcloudManager.markDendrite();
-    // }
-
-    // markBookmark(): void {
-    //     this.layers.pointcloudManager.markBookmark();
-    // }
-    // popBookmark(): void {
-    //     let {x, y, z} = this.layers.pointcloudManager.popBookmark();
-    //     this.layers.imageManager.setZ(z);
-    //     // this.layers.imageManager.setY(y);
-    //     // this.layers.imageManager.setX(x);
-    // }
-
     toggleCrosshairs = function () {
         this.layers.crosshairs.toggleVisibility();
     };
@@ -327,6 +309,21 @@ export default class PointfogApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
+    saveNodes() {
+        // Save Nodes to localForage
+        // Note: usually called in the background
+    }
+
+    submitNodes() {
+        /*
+        Submit the Nodes to the database
+        */
+        // TODO: Confirm with an alert, possibly?
+        return DB.postNodes(
+            this.layers.pointcloudManager.exportNodes()
+        );
+    }
+
     render() {
         return (
             <div>
@@ -337,7 +334,9 @@ export default class PointfogApp extends Component<any, any> {
                         <div style={STYLES["controlLabel"]}>Zoom</div>
 
                         <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>this.scaleDown()}>-</button>
+                            <button onClick={
+                                ()=>this.scaleDown()
+                            }>-</button>
                             {Math.round(100 * this.state.scale)}%
                             <button onClick={()=>{this.scaleUp()}}>+</button>
                         </div>
@@ -361,6 +360,14 @@ export default class PointfogApp extends Component<any, any> {
                         <button onClick={()=>this.setState({traceMode: !this.state.traceMode})}>
                             {this.state.traceMode ? "Switch to pan mode" : "Switch to trace mode"}
                         </button>
+                    </div>
+
+                    <div style={{
+                        position: "fixed",
+                        bottom: "2em",
+                        left: "2em",
+                    }}>
+                        <button onClick={()=>this.submitNodes()}>Save</button>
                     </div>
                 </div> : null}
             </div>

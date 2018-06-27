@@ -28,6 +28,7 @@ class Ramongo implements Database {
     }
 
     postNodes(nodes: Array<Node>) {
+        console.log(nodes)
         return;
     }
 
@@ -83,7 +84,7 @@ class Colocard implements Database {
         };
     }
 
-    postNodes(nodes: Array<Node>) {
+    postNodes(nodes: Array<Node>): Promise {
         /*
         Post a list of nodes to the colocard API.
 
@@ -92,7 +93,7 @@ class Colocard implements Database {
                 well-formed node object
 
         */
-        fetch(`${this.url}/nodes`, {
+        return fetch(`${this.url}/nodes`, {
             headers: this.headers,
             method: "POST",
             body: JSON.stringify(nodes)

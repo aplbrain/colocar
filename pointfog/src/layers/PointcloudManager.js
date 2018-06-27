@@ -139,7 +139,7 @@ export default class TraceManager {
     draw(): void {
         this.p.noStroke();
         for (let j = 0; j < this.nodes.length; j++) {
-            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.selectedNode.z - this.im.currentZ, 2)));
+            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
             let color = DEFAULT_COLOR;
             this.p.fill(color.r, color.g, color.b, diminishingFactor);
             let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
