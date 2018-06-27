@@ -29,20 +29,8 @@ export default class TraceManager {
         this.nodes = [];
     }
 
-    exportNodes(): Array<Node> {
-        /*
-        Convert the nodes from NodeMeta (UI-friendly) to colocard's Node
-        type (db-friendly).
-        */
-        // Rescale the node centroids to align with data-space, not p5 space:
-        let outputNodes = this.nodes.map(node => {
-            let newNode: Node = {};
-            newNode.x = (node.x - this.im.position.x) / this.im.scale;
-            newNode.y = (node.y - this.im.position.y) / this.im.scale;
-            newNode.z = (node.z - this.im.position.z) / this.im.scale;
-            return newNode;
-        });
-        return outputNodes;
+    getNodes(): Array<NodeMeta> {
+        return this.nodes;
     }
 
     addNode(newNodeId: string, newNode: NodeMeta): NodeMeta {

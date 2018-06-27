@@ -56,6 +56,8 @@ export default class PointfogApp extends Component<any, any> {
         currentZ?: number,
     };
 
+    volume: Object;
+
     constructor(props: Object) {
         super(props);
 
@@ -82,6 +84,8 @@ export default class PointfogApp extends Component<any, any> {
                 ).then(({question, volume}) => {
                     console.log(question);
                     console.log(volume);
+
+                    self.volume = volume;
 
                     // The electron microscopy imagery layer
                     let imageURIs = [
@@ -319,9 +323,24 @@ export default class PointfogApp extends Component<any, any> {
         Submit the Nodes to the database
         */
         // TODO: Confirm with an alert, possibly?
-        return DB.postNodes(
-            this.layers.pointcloudManager.exportNodes()
-        );
+        let nodes = this.layers.pointcloudManager.getNodes();
+        let transformedNodes = nodes.map(node => {
+            let newNode: Node = {};
+            // Rescale the node centroids to align with data-space, not p5 space:
+            newNode.x = node.x + this.volume.xSmall[0] + (
+                (this.volume.xSmall[1] - this.volume.xSmall[0])/2
+            );
+            newNode.y = node.y + this.volume.ySmall[0] + (
+                (this.volume.ySmall[1] - this.volume.ySmall[0])/2
+            );
+            newNode.z = node.z + this.volume.zSmall[0];
+
+            // TODO: Here is where we do this
+            // newNode.author = blah
+            // TODO: All of the other attrs for Colocard#Node type
+            return newNode;
+        });
+        return DB.postNodes(transformedNodes);
     }
 
     render() {

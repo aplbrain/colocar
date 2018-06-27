@@ -1,11 +1,7 @@
 // @flow
 
-import uuidv4 from "uuid/v4";
-
 import type { P5Type } from "../types/p5Types";
 import type ImageManager from "./ImageManager";
-
-const DEFAULT_COLOR = { r: 255, g: 220, b: 0 };
 
 
 export default class TraceManager {
