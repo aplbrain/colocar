@@ -314,7 +314,7 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     saveNodes() {
-        // Save Nodes to localForage
+        // TODO: Save Nodes to localForage
         // Note: usually called in the background
     }
 
