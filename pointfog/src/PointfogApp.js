@@ -8,6 +8,9 @@ import { Ramongo } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import FloatingActionButton from "material-ui/FloatingActionButton";
+import ContentSend from "material-ui/svg-icons/content/send";
 
 import "./PointfogApp.css";
 
@@ -37,6 +40,11 @@ const STYLES = {
     },
     controlToolInline: {
         float: "right",
+    },
+    submit: {
+        position: "fixed",
+        left: "2em",
+        bottom: "2em"
     },
 };
 
@@ -381,13 +389,15 @@ export default class PointfogApp extends Component<any, any> {
                         </button>
                     </div>
 
-                    <div style={{
-                        position: "fixed",
-                        bottom: "2em",
-                        left: "2em",
-                    }}>
-                        <button onClick={()=>this.submitNodes()}>Save</button>
-                    </div>
+                    <MuiThemeProvider>
+                        <FloatingActionButton
+                            style={STYLES["submit"]}
+                            onClick={() => this.submitNodes()}
+                            >
+                            <ContentSend />
+                        </FloatingActionButton>
+                    </MuiThemeProvider>
+
                 </div> : null}
             </div>
         );
