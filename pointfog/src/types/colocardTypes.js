@@ -25,3 +25,12 @@ export type Question = {
     priority: number,
     volume: string
 }
+
+export type Volume = {
+    author: string,
+    bounds: [[number]],
+    name: string,
+    namespace: string,
+    resolution: number,
+    uri: string
+}
