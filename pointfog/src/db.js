@@ -160,8 +160,6 @@ class Colocard implements Database {
     }
 }
 
-window.cd = new Colocard();
-
 export {
     Ramongo,
     Colocard
