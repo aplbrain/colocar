@@ -88,7 +88,7 @@ export default class PointfogApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    'SYNAPSE.PAINT'
+                    DB.pointfog_name
                 ).then(({question, volume}) => {
                     console.log(question);
                     console.log(volume);

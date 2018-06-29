@@ -12,6 +12,7 @@ class Ramongo implements Database {
 
     url: string;
     headers: Object;
+    pointfog_name: string;
 
     constructor() {
         this.url = "https://ramongo.thebossdev.io";
@@ -19,6 +20,7 @@ class Ramongo implements Database {
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         };
+        this.pointfog_name = 'SYNAPSE.PAINT';
     }
 
     _encode(obj: Object) {
@@ -67,6 +69,7 @@ class Colocard implements Database {
 
     url: string;
     headers: Object;
+    pointfog_name: string;
 
     constructor(opts?: {url?: string}) {
         /*
@@ -82,6 +85,7 @@ class Colocard implements Database {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
+        this.pointfog_name = 'pointfog';
     }
 
     postNodes(nodes: Array<Node>): Promise {
