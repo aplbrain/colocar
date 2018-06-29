@@ -3,8 +3,8 @@
 import type {Node, Question} from "./types/colocardTypes";
 
 interface Database {
+    getNextQuestion(string, string): Promise<Question>;
     postNodes(Array<Node>): any;
-    getNextQuestion(string, string): Promise<Question>
 }
 
 
@@ -29,11 +29,6 @@ class Ramongo implements Database {
         }).join('&');
     }
 
-    postNodes(nodes: Array<Node>) {
-        console.log(nodes)
-        return;
-    }
-
     getNextQuestion(user: string, type: string) {
         return fetch(`${this.url}/questions/next/${type}`, {
             headers: this.headers,
@@ -55,11 +50,16 @@ class Ramongo implements Database {
                     question.synapse = json;
                     return {
                         question,
-                        volume: volume
+                        volume
                     };
                 });
             });
         });
+    }
+
+    postNodes(nodes: Array<Node>) {
+        console.log(nodes)
+        return;
     }
 
 }
@@ -88,29 +88,11 @@ class Colocard implements Database {
         this.pointfog_name = 'pointfog';
     }
 
-    postNodes(nodes: Array<Node>): Promise {
-        /*
-        Post a list of nodes to the colocard API.
-
-        Arguments:
-            nodes (Array<Node>): The nodes to post. Should each be fully
-                well-formed node object
-
-        */
-        return fetch(`${this.url}/nodes`, {
-            headers: this.headers,
-            method: "POST",
-            body: JSON.stringify(nodes)
-        }).then((res: Response) => res.json()).then((json: any, err: any) => {
-            console.log(json, err);
-        });
-    }
-
     getNextQuestion(user: string, type: string) {
         return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}"}`, {
             headers: this.headers,
             method: "GET"
-        }).then(this._onQuestionSuccess).catch(this._onException);
+        }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
     }
 
     _onQuestionSuccess(res: Response): Promise<Question> {
@@ -122,16 +104,10 @@ class Colocard implements Database {
                 headers: this.headers,
             }).then((res: Response) => res.json()).then((json: any) => {
                 let volume = json;
-
-                return fetch(`${this.url}/synapses/id/${question.synapseId}`, {
-                    headers: this.headers,
-                }).then((res: Response) => res.json()).then((json: any) => {
-                    question.synapse = json;
-                    return {
-                        question,
-                        volume: volume
-                    };
-                });
+                return {
+                    question,
+                    volume
+                };
             });
         });
     }
@@ -162,6 +138,26 @@ class Colocard implements Database {
     _onException(reason: any) {
         console.log(reason);
     }
+
+    postNodes(nodes: Array<Node>): Promise {
+        /*
+        Post a list of nodes to the colocard API.
+
+        Arguments:
+            nodes (Array<Node>): The nodes to post. Should each be fully
+                well-formed node object
+
+        */
+        return fetch(`${this.url}/nodes`, {
+            headers: this.headers,
+            method: "POST",
+            body: JSON.stringify(nodes)
+        }).then((res: Response) => res.json()).then((json: any, err: any) => {
+            console.log(json, err);
+            // location.reload(true);
+        });
+    }
+
 }
 
 export {
