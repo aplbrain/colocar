@@ -103,7 +103,7 @@ class Colocard implements Database {
     }
 
     getNextQuestion(user: string, type: string) {
-        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}}"`, {
+        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}"}`, {
             headers: this.headers,
             method: "GET"
         }).then(this._onQuestionSuccess).catch(this._onException);
@@ -114,12 +114,12 @@ class Colocard implements Database {
             let questions: Array<Question> = json.data;
             let question: Question = this._extractPrioritizedQuestion(questions);
 
-            return fetch(`${this.url}/volume/${question.volume}`, {
+            return fetch(`${this.url}/volumes/${question.volume}`, {
                 headers: this.headers,
             }).then((res: Response) => res.json()).then((json: any) => {
                 let volume = json;
 
-                return fetch(`${this.url}/synapse/id/${question.synapseId}`, {
+                return fetch(`${this.url}/synapses/id/${question.synapseId}`, {
                     headers: this.headers,
                 }).then((res: Response) => res.json()).then((json: any) => {
                     question.synapse = json;
