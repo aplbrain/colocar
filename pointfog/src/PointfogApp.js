@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 
 import type { P5Type } from "./types/p5Types";
 
-import { Ramongo } from "./db";
+import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
@@ -16,7 +16,7 @@ import "./PointfogApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Ramongo();
+let DB = new Colocard();
 
 const STYLES = {
     p5Container: {
