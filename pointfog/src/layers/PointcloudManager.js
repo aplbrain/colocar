@@ -56,7 +56,6 @@ export default class TraceManager {
                 z: this.im.currentZ,
                 //!!!TEMP
                 // TODO
-                author: "Tucker Chapin",
                 id: newNodeId
             });
 
@@ -157,24 +156,18 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
-    type: ?string;
-    author: ?string;
     created: ?Date;
 
     constructor(opts: {
         x: number,
         y: number,
         z: number,
-        author?: string,
         created?: Date,
-        type?: string,
         id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
-        this.author = opts.author || undefined;
-        this.type = opts.type || undefined;
         this.created = opts.created || new Date();
         this.id = opts.id || uuidv4();
     }
