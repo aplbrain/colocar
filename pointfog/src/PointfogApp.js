@@ -11,6 +11,7 @@ import Crosshairs from "./layers/Crosshairs";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import ContentSend from "material-ui/svg-icons/content/send";
+import localForage from "localforage";
 
 import "./PointfogApp.css";
 
@@ -327,6 +328,13 @@ export default class PointfogApp extends Component<any, any> {
     saveNodes() {
         // TODO: Save Nodes to localForage
         // Note: usually called in the background
+        let nodes = this.layers.pointcloudManager.getNodes();
+        localForage.setItem(
+            `${window.currentTask._id}_storedSynapses`,
+            nodes,
+        ).then((savedSynapses, errorSaving) => {
+            console.log("saved nodes!");
+        });
     }
 
     submitNodes() {
