@@ -156,19 +156,19 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
-    created: ?Date;
+    created: ?number;
 
     constructor(opts: {
         x: number,
         y: number,
         z: number,
-        created?: Date,
+        created?: number,
         id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
-        this.created = opts.created || new Date();
+        this.created = opts.created || Date.now();
         this.id = opts.id || uuidv4();
     }
 }
