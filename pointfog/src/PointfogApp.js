@@ -334,21 +334,28 @@ export default class PointfogApp extends Component<any, any> {
         Submit the Nodes to the database
         */
         // TODO: Confirm with an alert, possibly?
+        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
         let nodes = this.layers.pointcloudManager.getNodes();
-        let transformedNodes = nodes.map(node => {
+        let transformedNodes = nodes.map(oldNode => {
             let newNode: Node = {};
             // Rescale the node centroids to align with data-space, not p5 space:
-            newNode.x = node.x + this.volume.xSmall[0] + (
-                (this.volume.xSmall[1] - this.volume.xSmall[0])/2
+            let newX = oldNode.x + xBounds[0] + (
+                (xBounds[1] - xBounds[0])/2
             );
-            newNode.y = node.y + this.volume.ySmall[0] + (
-                (this.volume.ySmall[1] - this.volume.ySmall[0])/2
+            let newY = oldNode.y + yBounds[0] + (
+                (yBounds[1] - yBounds[0])/2
             );
-            newNode.z = node.z + this.volume.zSmall[0];
+            let newZ = oldNode.z + zBounds[0];
 
-            // TODO: Here is where we do this
-            // newNode.author = blah
-            // TODO: All of the other attrs for Colocard#Node type
+            newNode.author = window.keycloak.profile.username;
+            newNode.coordinate = [newX, newY, newZ];
+            newNode.created = oldNode.created;
+            newNode.namespace = DB.pointfog_name;
+            newNode.type = "synapse";
+            newNode.volume = this.volume._id;
+
             return newNode;
         });
         return DB.postNodes(transformedNodes);

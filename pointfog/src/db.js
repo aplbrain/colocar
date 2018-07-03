@@ -153,14 +153,16 @@ class Colocard implements Database {
                 well-formed node object
 
         */
-        return fetch(`${this.url}/nodes`, {
-            headers: this.headers,
-            method: "POST",
-            body: JSON.stringify(nodes)
-        }).then((res: Response) => res.json()).then((json: any, err: any) => {
-            console.log(json, err);
-            // location.reload(true);
+        let nodePromises = nodes.map(node => {
+            return fetch(`${this.url}/nodes`, {
+                headers: this.headers,
+                method: "POST",
+                body: JSON.stringify(node)
+            });
         });
+        Promise.all(nodePromises).then(values => {
+            console.log(values);
+        }).catch(reason => console.log(reason));
     }
 
 }
