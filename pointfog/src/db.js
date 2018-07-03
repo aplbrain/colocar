@@ -97,7 +97,7 @@ class Colocard implements Database {
 
     _onQuestionSuccess(res: Response): Promise<Question> {
         return res.json().then((json: any) => {
-            let questions: Array<Question> = json.data;
+            let questions: Array<Question> = json;
             let question: Question = this._extractPrioritizedQuestion(questions);
 
             return fetch(`${this.url}/volumes/${question.volume}`, {
