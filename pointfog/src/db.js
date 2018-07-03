@@ -104,6 +104,11 @@ class Colocard implements Database {
                 headers: this.headers,
             }).then((res: Response) => res.json()).then((json: any) => {
                 let volume = json;
+                let splitUri = volume.uri.split('/');
+                let nUri = splitUri.length;
+                volume.collection = splitUri[nUri-3];
+                volume.experiment = splitUri[nUri-2];
+                volume.channel = splitUri[nUri-1];
                 return {
                     question,
                     volume
