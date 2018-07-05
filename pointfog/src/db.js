@@ -89,7 +89,7 @@ class Colocard implements Database {
     }
 
     getNextQuestion(user: string, type: string) {
-        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}"}`, {
+        return fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}"}`, {
             headers: this.headers,
             method: "GET"
         }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
