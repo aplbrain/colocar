@@ -144,7 +144,7 @@ class Colocard implements Database {
         console.log(reason);
     }
 
-    postNodes(nodes: Array<Node>): Promise {
+    postNodes(nodes: Array<Node>): Promise<string> {
         /*
         Post a list of nodes to the colocard API.
 
@@ -160,9 +160,23 @@ class Colocard implements Database {
                 body: JSON.stringify(node)
             });
         });
-        return Promise.all(nodePromises).then(values => {
+        return Promise.all(
+            nodePromises
+        ).then(values => {
             console.log(values);
-        }).catch(reason => console.log(reason));
+            return "completed";
+        }).catch(reason => {
+            console.log(reason);
+            return "errored";
+        });
+    }
+
+    updateQuestionStatus(status: string): Promise<Response> {
+        return fetch(`${this.url}/questions/status`, {
+            headers: this.headers,
+            method: "PATCH",
+            body: JSON.stringify({status})
+        });
     }
 
 }

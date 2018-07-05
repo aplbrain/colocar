@@ -366,7 +366,9 @@ export default class PointfogApp extends Component<any, any> {
 
             return newNode;
         });
-        return DB.postNodes(transformedNodes).then(() => {
+        return DB.postNodes(transformedNodes).then(status => {
+            return DB.updateQuestionStatus(status);
+        }).then(() => {
             return localForage.removeItem("pointfogStorage");
         });
     }
