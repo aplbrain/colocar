@@ -65,6 +65,7 @@ export default class PointfogApp extends Component<any, any> {
         currentZ?: number,
     };
 
+    questionId: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -94,6 +95,7 @@ export default class PointfogApp extends Component<any, any> {
                     console.log(question);
                     console.log(volume);
 
+                    self.questionId = question._id;
                     self.volume = volume;
 
                     // The electron microscopy imagery layer
@@ -132,6 +134,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
+                        questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
                 });
@@ -367,7 +370,7 @@ export default class PointfogApp extends Component<any, any> {
             return newNode;
         });
         return DB.postNodes(transformedNodes).then(status => {
-            return DB.updateQuestionStatus(status);
+            return DB.updateQuestionStatus(this.questionId, status);
         }).then(() => {
             return localForage.removeItem("pointfogStorage");
         });

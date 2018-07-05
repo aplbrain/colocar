@@ -171,8 +171,8 @@ class Colocard implements Database {
         });
     }
 
-    updateQuestionStatus(status: string): Promise<Response> {
-        return fetch(`${this.url}/questions/status`, {
+    updateQuestionStatus(questionId: string, status: string): Promise<Response> {
+        return fetch(`${this.url}/questions/${questionId}/status`, {
             headers: this.headers,
             method: "PATCH",
             body: JSON.stringify({status})
