@@ -334,36 +334,43 @@ export default class PointfogApp extends Component<any, any> {
         /*
         Submit the Nodes to the database
         */
-        // TODO: Confirm with an alert, possibly?
-        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
-        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
-        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
-        let nodes = this.layers.pointcloudManager.getNodes();
-        let transformedNodes = nodes.map(oldNode => {
-            let newNode: Node = {};
-            // Rescale the node centroids to align with data-space, not p5 space:
-            let newX = oldNode.x + xBounds[0] + (
-                (xBounds[1] - xBounds[0])/2
-            );
-            let newY = oldNode.y + yBounds[0] + (
-                (yBounds[1] - yBounds[0])/2
-            );
-            let newZ = oldNode.z + zBounds[0];
+        // eslint-disable-next-line no-restricted-globals
+        let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
+        console.log(certain);
+        if (certain) {
+            let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+            let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+            let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+            let nodes = this.layers.pointcloudManager.getNodes();
+            let transformedNodes = nodes.map(oldNode => {
+                let newNode: Node = {};
+                // Rescale the node centroids to align with data-space, not p5 space:
+                let newX = oldNode.x + xBounds[0] + (
+                    (xBounds[1] - xBounds[0])/2
+                );
+                let newY = oldNode.y + yBounds[0] + (
+                    (yBounds[1] - yBounds[0])/2
+                );
+                let newZ = oldNode.z + zBounds[0];
 
-            newNode.author = window.keycloak.profile.username;
-            newNode.coordinate = [newX, newY, newZ];
-            newNode.created = oldNode.created;
-            newNode.namespace = DB.pointfog_name;
-            newNode.type = "synapse";
-            newNode.volume = this.volume._id;
+                newNode.author = window.keycloak.profile.username;
+                newNode.coordinate = [newX, newY, newZ];
+                newNode.created = oldNode.created;
+                newNode.namespace = DB.pointfog_name;
+                newNode.type = "synapse";
+                newNode.volume = this.volume._id;
 
-            return newNode;
-        });
-        return DB.postNodes(transformedNodes).then(status => {
-            return DB.updateQuestionStatus(this.questionId, status);
-        }).then(() => {
-            return localForage.removeItem("pointfogStorage");
-        });
+                return newNode;
+            });
+            return DB.postNodes(transformedNodes).then(status => {
+                return DB.updateQuestionStatus(this.questionId, status);
+            }).then(() => {
+                return localForage.removeItem("pointfogStorage");
+            }).then(() => {
+                // eslint-disable-next-line no-restricted-globals
+                location.reload(true);
+            });
+        }
     }
 
     render() {
