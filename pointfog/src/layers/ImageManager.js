@@ -19,7 +19,6 @@ export default class ImageManager {
     constructor(opts: {p: P5Type, imageURIs: Array<string>}): void {
         this.p = opts.p;
         this.scale = 1;
-        this.position = {x: this.p.canvas.width / 2, y: this.p.canvas.height / 2};
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
 
         this.imageURIs = opts.imageURIs;
@@ -38,6 +37,9 @@ export default class ImageManager {
                 Authorization: `Bearer ${window.keycloak.token}`
             }
         );
+
+        let centerPoint = this.getCenter();
+        this.position = {x: centerPoint.x, y: centerPoint.y};
 
         this.loadAllImages();
     }
@@ -192,8 +194,9 @@ export default class ImageManager {
     // Stays the same image slice.
     reset(): void {
         this.setScale(1);
-        this.setX(this.p.canvas.width/2);
-        this.setY(this.p.canvas.height/2);
+        let centerPoint = this.getCenter();
+        this.setX(centerPoint.x);
+        this.setY(centerPoint.y);
     }
 
     // Returns an object of the EDGES of the image.
@@ -208,6 +211,15 @@ export default class ImageManager {
         let top = this.position.y - (this.images[this.currentZ].height/2 * this.scale);
         return {
             right, left, bottom, top
+        };
+    }
+
+    getCenter() {
+        let centerX = this.p.windowWidth / 2;
+        let centerY = this.p.windowHeight / 2;
+        return {
+            "x": centerX,
+            "y": centerY
         };
     }
 
