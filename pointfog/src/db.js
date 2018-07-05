@@ -131,7 +131,7 @@ class Colocard implements Database {
             if (nPending === 0) {
                 throw "you don't have any open or pending questions - ask an admin";
             } else {
-                let prioritizedQuestions = questions.sort(function(a, b) {
+                let prioritizedQuestions = pendingQuestions.sort(function(a, b) {
                     return a.priority - b.priority;
                 });
                 question = prioritizedQuestions[nPending-1];
