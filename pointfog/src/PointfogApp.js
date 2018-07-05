@@ -330,7 +330,7 @@ export default class PointfogApp extends Component<any, any> {
         // Note: usually called in the background
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
-            `${window.currentTask._id}_storedSynapses`,
+            "pointfogStorage",
             nodes,
         ).then((savedSynapses, errorSaving) => {
             console.log("saved nodes!");
@@ -366,7 +366,9 @@ export default class PointfogApp extends Component<any, any> {
 
             return newNode;
         });
-        return DB.postNodes(transformedNodes);
+        return DB.postNodes(transformedNodes).then(() => {
+            return localForage.removeItem("pointfogStorage");
+        });
     }
 
     render() {

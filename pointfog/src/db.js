@@ -160,7 +160,7 @@ class Colocard implements Database {
                 body: JSON.stringify(node)
             });
         });
-        Promise.all(nodePromises).then(values => {
+        return Promise.all(nodePromises).then(values => {
             console.log(values);
         }).catch(reason => console.log(reason));
     }
