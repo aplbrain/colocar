@@ -143,6 +143,9 @@ export default class PointfogApp extends Component<any, any> {
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
+
+                    self.insertStoredNodes();
+
                 });
 
             };
@@ -296,6 +299,16 @@ export default class PointfogApp extends Component<any, any> {
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
         this.setState({currentZ: this.layers.imageManager.currentZ});
+    }
+
+    insertStoredNodes() {
+        localForage.getItem("pointfogStorage").then(nodes => {
+            nodes = nodes || [];
+            nodes.forEach(node => {
+                this.layers.pointcloudManager.addNode(node.id, node)
+            });
+            this.layers.pointcloudManager.selectedNode = nodes.slice(-1)[0];
+        });
     }
 
     reset(): void {
