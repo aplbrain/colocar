@@ -82,6 +82,19 @@ export default class PointfogApp extends Component<any, any> {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
+
+                canvas.mousePressed(function() {
+                    if (self.state.traceMode) {
+                        self.layers.pointcloudManager.mousePressed();
+                    }
+                });
+
+                canvas.mouseClicked(function() {
+                    if (self.state.traceMode) {
+                        self.layers.pointcloudManager.mouseClicked();
+                    }
+                });
+
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 // The layers that will be rendered in the p5 scene.
@@ -218,34 +231,9 @@ export default class PointfogApp extends Component<any, any> {
                 default:
                     break;
                 }
-                // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
             };
 
-            p.mousePressed = function() {
-                if (self.state.traceMode) {
-                    self.layers.pointcloudManager.mousePressed();
-                }
-            };
-
-            p.mouseClicked = function() {
-                if (self.state.traceMode) {
-                    self.layers.pointcloudManager.mouseClicked();
-                }
-            };
-
-            p.mouseDragged = function() {
-                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
-                    // Only drag the image if mouse is in the image.
-                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
-                        let dX = p.pmouseX - p.mouseX;
-                        let dY = p.pmouseY - p.mouseY;
-
-                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
-                    }
-                }
-            };
-
-            p.mouseWheel = function(e) {
+            p.mouseWheel = function (e) {
                 // Handle pinch-to-zoom functionality
                 if (e.ctrlKey) {
                     if (e.wheelDelta < 0) {
@@ -261,6 +249,19 @@ export default class PointfogApp extends Component<any, any> {
                     }
                 }
             };
+
+            p.mouseDragged = function () {
+                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
+                    // Only drag the image if mouse is in the image.
+                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
+                        let dX = p.pmouseX - p.mouseX;
+                        let dY = p.pmouseY - p.mouseY;
+
+                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
+                    }
+                }
+            };
+
 
             p.draw = function() {
                 p.clear();
