@@ -3,6 +3,7 @@
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
+import type { Node } from "../types/colocardTypes";
 import type ImageManager from "./ImageManager";
 
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
@@ -28,6 +29,10 @@ export default class TraceManager {
         this.nodes = [];
     }
 
+    getNodes(): Array<NodeMeta> {
+        return this.nodes;
+    }
+
     addNode(newNodeId: string, newNode: NodeMeta): NodeMeta {
         // Verify that the node IDs line up
         newNode.id = newNodeId;
@@ -51,7 +56,6 @@ export default class TraceManager {
                 z: this.im.currentZ,
                 //!!!TEMP
                 // TODO
-                author: "Tucker Chapin",
                 id: newNodeId
             });
 
@@ -122,7 +126,7 @@ export default class TraceManager {
     draw(): void {
         this.p.noStroke();
         for (let j = 0; j < this.nodes.length; j++) {
-            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.selectedNode.z - this.im.currentZ, 2)));
+            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
             let color = DEFAULT_COLOR;
             this.p.fill(color.r, color.g, color.b, diminishingFactor);
             let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
@@ -152,25 +156,19 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
-    type: ?string;
-    author: ?string;
-    created: ?Date;
+    created: ?number;
 
     constructor(opts: {
         x: number,
         y: number,
         z: number,
-        author?: string,
-        created?: Date,
-        type?: string,
+        created?: number,
         id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
-        this.author = opts.author || undefined;
-        this.type = opts.type || undefined;
-        this.created = opts.created || new Date();
+        this.created = opts.created || Date.now();
         this.id = opts.id || uuidv4();
     }
 }

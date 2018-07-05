@@ -4,16 +4,20 @@ import React, { Component } from 'react';
 
 import type { P5Type } from "./types/p5Types";
 
-import { Ramongo } from "./db";
+import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import FloatingActionButton from "material-ui/FloatingActionButton";
+import ContentSend from "material-ui/svg-icons/content/send";
+import localForage from "localforage";
 
 import "./PointfogApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Ramongo();
+let DB = new Colocard();
 
 const STYLES = {
     p5Container: {
@@ -38,6 +42,11 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
+    submit: {
+        position: "fixed",
+        left: "2em",
+        bottom: "2em"
+    },
 };
 
 export default class PointfogApp extends Component<any, any> {
@@ -56,6 +65,9 @@ export default class PointfogApp extends Component<any, any> {
         currentZ?: number,
     };
 
+    questionId: string;
+    volume: Object;
+
     constructor(props: Object) {
         super(props);
 
@@ -70,6 +82,19 @@ export default class PointfogApp extends Component<any, any> {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
+
+                canvas.mousePressed(function() {
+                    if (self.state.traceMode) {
+                        self.layers.pointcloudManager.mousePressed();
+                    }
+                });
+
+                canvas.mouseClicked(function() {
+                    if (self.state.traceMode) {
+                        self.layers.pointcloudManager.mouseClicked();
+                    }
+                });
+
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 // The layers that will be rendered in the p5 scene.
@@ -78,16 +103,22 @@ export default class PointfogApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    'SYNAPSE.PAINT'
+                    DB.pointfog_name
                 ).then(({question, volume}) => {
                     console.log(question);
                     console.log(volume);
 
+                    self.questionId = question._id;
+                    self.volume = volume;
+
                     // The electron microscopy imagery layer
+                    let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
+                    let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
+                    let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
                     let imageURIs = [
-                        ...Array(volume.zSmall[1] - volume.zSmall[0]).keys()
-                    ].map(i => i + volume.zSmall[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xSmall[0]}:${volume.xSmall[1]}/${volume.ySmall[0]}:${volume.Smalle[1]}/${_z}/?no-cache=true`;
+                        ...Array(zBounds[1] - zBounds[0]).keys()
+                    ].map(i => i + zBounds[0]).map(_z => {
+                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
 
                     self.layers["imageManager"] = new ImageManager({
@@ -116,6 +147,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
+                        questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
                 });
@@ -199,34 +231,9 @@ export default class PointfogApp extends Component<any, any> {
                 default:
                     break;
                 }
-                // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
             };
 
-            p.mousePressed = function() {
-                if (self.state.traceMode) {
-                    self.layers.pointcloudManager.mousePressed();
-                }
-            };
-
-            p.mouseClicked = function() {
-                if (self.state.traceMode) {
-                    self.layers.pointcloudManager.mouseClicked();
-                }
-            };
-
-            p.mouseDragged = function() {
-                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
-                    // Only drag the image if mouse is in the image.
-                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
-                        let dX = p.pmouseX - p.mouseX;
-                        let dY = p.pmouseY - p.mouseY;
-
-                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
-                    }
-                }
-            };
-
-            p.mouseWheel = function(e) {
+            p.mouseWheel = function (e) {
                 // Handle pinch-to-zoom functionality
                 if (e.ctrlKey) {
                     if (e.wheelDelta < 0) {
@@ -242,6 +249,19 @@ export default class PointfogApp extends Component<any, any> {
                     }
                 }
             };
+
+            p.mouseDragged = function () {
+                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
+                    // Only drag the image if mouse is in the image.
+                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
+                        let dX = p.pmouseX - p.mouseX;
+                        let dY = p.pmouseY - p.mouseY;
+
+                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
+                    }
+                }
+            };
+
 
             p.draw = function() {
                 p.clear();
@@ -297,24 +317,6 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    // markAxon(): void {
-    //     this.layers.pointcloudManager.markAxon();
-    // }
-
-    // markDendrite(): void {
-    //     this.layers.pointcloudManager.markDendrite();
-    // }
-
-    // markBookmark(): void {
-    //     this.layers.pointcloudManager.markBookmark();
-    // }
-    // popBookmark(): void {
-    //     let {x, y, z} = this.layers.pointcloudManager.popBookmark();
-    //     this.layers.imageManager.setZ(z);
-    //     // this.layers.imageManager.setY(y);
-    //     // this.layers.imageManager.setX(x);
-    // }
-
     toggleCrosshairs = function () {
         this.layers.crosshairs.toggleVisibility();
     };
@@ -327,6 +329,54 @@ export default class PointfogApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
+    saveNodes() {
+        // TODO: Save Nodes to localForage
+        // Note: usually called in the background
+        let nodes = this.layers.pointcloudManager.getNodes();
+        localForage.setItem(
+            "pointfogStorage",
+            nodes,
+        ).then((savedSynapses, errorSaving) => {
+            console.log("saved nodes!");
+        });
+    }
+
+    submitNodes() {
+        /*
+        Submit the Nodes to the database
+        */
+        // TODO: Confirm with an alert, possibly?
+        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+        let nodes = this.layers.pointcloudManager.getNodes();
+        let transformedNodes = nodes.map(oldNode => {
+            let newNode: Node = {};
+            // Rescale the node centroids to align with data-space, not p5 space:
+            let newX = oldNode.x + xBounds[0] + (
+                (xBounds[1] - xBounds[0])/2
+            );
+            let newY = oldNode.y + yBounds[0] + (
+                (yBounds[1] - yBounds[0])/2
+            );
+            let newZ = oldNode.z + zBounds[0];
+
+            newNode.author = window.keycloak.profile.username;
+            newNode.coordinate = [newX, newY, newZ];
+            newNode.created = oldNode.created;
+            newNode.namespace = DB.pointfog_name;
+            newNode.type = "synapse";
+            newNode.volume = this.volume._id;
+
+            return newNode;
+        });
+        return DB.postNodes(transformedNodes).then(status => {
+            return DB.updateQuestionStatus(this.questionId, status);
+        }).then(() => {
+            return localForage.removeItem("pointfogStorage");
+        });
+    }
+
     render() {
         return (
             <div>
@@ -337,7 +387,9 @@ export default class PointfogApp extends Component<any, any> {
                         <div style={STYLES["controlLabel"]}>Zoom</div>
 
                         <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>this.scaleDown()}>-</button>
+                            <button onClick={
+                                ()=>this.scaleDown()
+                            }>-</button>
                             {Math.round(100 * this.state.scale)}%
                             <button onClick={()=>{this.scaleUp()}}>+</button>
                         </div>
@@ -362,6 +414,16 @@ export default class PointfogApp extends Component<any, any> {
                             {this.state.traceMode ? "Switch to pan mode" : "Switch to trace mode"}
                         </button>
                     </div>
+
+                    <MuiThemeProvider>
+                        <FloatingActionButton
+                            style={STYLES["submit"]}
+                            onClick={() => this.submitNodes()}
+                            >
+                            <ContentSend />
+                        </FloatingActionButton>
+                    </MuiThemeProvider>
+
                 </div> : null}
             </div>
         );

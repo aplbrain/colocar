@@ -349,7 +349,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         <div style={STYLES["controlToolInline"]}>
                             <button onClick={()=>this.scaleDown()}>-</button>
                             {Math.round(100 * this.state.scale)}%
-                            <button onClick={()=>{this.scaleUp()}}>+</button>
+                            <button onClick={()=>{this.scaleUp();}}>+</button>
                         </div>
                     </div>
 
