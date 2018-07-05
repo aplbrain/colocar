@@ -59,7 +59,6 @@ export default class PointfogApp extends Component<any, any> {
     renderOrder: Array<string>;
 
     state: {
-        traceMode?: boolean,
         ready?: boolean,
         scale?: number,
         currentZ?: number,
@@ -72,9 +71,7 @@ export default class PointfogApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        this.state = {
-            traceMode: false,
-        };
+        this.state = {};
 
         // Create p5 sketch
         let self = this;
@@ -84,15 +81,11 @@ export default class PointfogApp extends Component<any, any> {
                 canvas.parent(self.p5ID);
 
                 canvas.mousePressed(function() {
-                    if (self.state.traceMode) {
-                        self.layers.pointcloudManager.mousePressed();
-                    }
+                    self.layers.pointcloudManager.mousePressed();
                 });
 
                 canvas.mouseClicked(function() {
-                    if (self.state.traceMode) {
-                        self.layers.pointcloudManager.mouseClicked();
-                    }
+                    self.layers.pointcloudManager.mouseClicked();
                 });
 
                 self.ghostLayer = p.createGraphics(p.width, p.height);
@@ -211,10 +204,6 @@ export default class PointfogApp extends Component<any, any> {
                     // "esc" is pressed, all reset
                     self.reset();
                     break;
-                case 9:
-                    // "tab" toggles the tracing mouseDragged
-                    self.setState({traceMode: !self.state.traceMode});
-                    break;
                 case 8:
                 case 46:
                     self.deleteActiveNode();
@@ -251,7 +240,7 @@ export default class PointfogApp extends Component<any, any> {
             };
 
             p.mouseDragged = function () {
-                if (!self.state.traceMode || p.mouseButton === p.RIGHT) {
+                if (p.mouseButton === p.RIGHT) {
                     // Only drag the image if mouse is in the image.
                     if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
                         let dX = p.pmouseX - p.mouseX;
@@ -407,12 +396,6 @@ export default class PointfogApp extends Component<any, any> {
 
                     <div style={STYLES["controlRow"]}>
                         <button onClick={()=>this.reset()}>Reset viewport</button>
-                    </div>
-
-                    <div style={STYLES["controlRow"]}>
-                        <button onClick={()=>this.setState({traceMode: !this.state.traceMode})}>
-                            {this.state.traceMode ? "Switch to pan mode" : "Switch to trace mode"}
-                        </button>
                     </div>
 
                     <MuiThemeProvider>
