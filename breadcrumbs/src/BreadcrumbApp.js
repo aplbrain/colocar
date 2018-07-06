@@ -70,15 +70,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
-                    if (self.state.traceMode) {
-                        self.layers.traceManager.mousePressed();
-                    }
+                    self.layers.traceManager.mousePressed();
                 });
 
                 canvas.mouseClicked(function() {
-                    if (self.state.traceMode) {
-                        self.layers.traceManager.mouseClicked();
-                    }
+                    self.layers.traceManager.mouseClicked();
                 });
 
                 // We don't need much in the way of framerate, and this saves
@@ -103,11 +99,10 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(question);
                     console.log(volume);
 
-                    // TODO: @tucker helppppp
                     let synapseRemappedPosition = {
-                        x: (question.synapse.x - volume.xLarge[0]),
-                        y: (question.synapse.y - volume.yLarge[0]),
-                        z: Math.round((question.synapse.z - volume.zLarge[0]))
+                        x: question.synapse.x - volume.xLarge[0] - ((volume.xLarge[1] - volume.xLarge[0])/2),
+                        y: question.synapse.y - volume.yLarge[0] - ((volume.yLarge[1] - volume.yLarge[0])/2),
+                        z: Math.round(question.synapse.z - volume.zLarge[0])
                     };
 
                     // The electron microscopy imagery layer

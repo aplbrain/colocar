@@ -139,7 +139,7 @@ export default class TraceManager {
         newNode.id = newNodeId;
         this.g.setNode(newNodeId, newNode);
 
-        this.nodesByLayer[this.im.currentZ].push(newNodeId);
+        this.nodesByLayer[newNode.z].push(newNodeId);
 
         // Create an edge to the previous node.
         if (this.prevNode) {
@@ -148,7 +148,7 @@ export default class TraceManager {
                 w: this.prevNode.id
             };
             this.g.setEdge(newEdge);
-            this.edgesByLayer[this.im.currentZ].push(newEdge);
+            this.edgesByLayer[newNode.z].push(newEdge);
             this.edgesByLayer[this.prevNode.z].push(newEdge);
             this.nodeStack.push(this.prevNode);
         } else {
