@@ -16,7 +16,7 @@ export default class ImageManager {
     position: {x: number, y: number};
 
     // Expects an array of image URIs to be loaded
-    constructor(opts: {p: P5Type, imageURIs: Array<string>}): void {
+    constructor(opts: {p: P5Type, imageURIs: Array<string>, startingZ?: number}): void {
         this.p = opts.p;
         this.scale = 1;
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
@@ -24,7 +24,7 @@ export default class ImageManager {
         this.imageURIs = opts.imageURIs;
         this.images = new Array(this.imageURIs.length);
         this.readiness = new Array(this.imageURIs.length);
-        this.currentZ = Math.floor((this.imageURIs.length) / 2); // Starts in the middle
+        this.currentZ = opts.startingZ || Math.floor((this.imageURIs.length) / 2); // Starts in the middle
 
         // Load the middle image first
         this.images[this.currentZ] = this.p.loadImage(
