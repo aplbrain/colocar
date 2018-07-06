@@ -83,7 +83,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
                     'NEURON.PAINT'
-                ).then(({question, volume}) => {
+                ).then((res: { question: Object, volume: Object }) => {
+                    if (!res || !res.question) {
+                        alert("No remaining questions.");
+                        return;
+                    }
+                    let question = res.question;
+                    let volume = res.volume;
                     console.log(question);
                     console.log(volume);
 

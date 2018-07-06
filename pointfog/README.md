@@ -17,7 +17,7 @@ $ yarn
 | Command | Description |
 |---------|-------------|
 | <kbd>LMB</kbd> | Click to place a new node (Trace Mode only) |
-| <kbd>RMB</kbd> | Drag to pan around the scene. Click to select a node |
+| <kbd>RMB</kbd> | Drag to pan around the scene. Click to select an existing node |
 | <kbd>MMB</kbd> | Scroll to scrub through the z-stack |
 
 ### Keyboard
