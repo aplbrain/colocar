@@ -11,6 +11,7 @@ import Crosshairs from "./layers/Crosshairs";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import ContentSend from "material-ui/svg-icons/content/send";
+import ContentSave from "material-ui/svg-icons/content/save";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
@@ -42,9 +43,14 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
-    submit: {
+    save: {
         position: "fixed",
         left: "2em",
+        bottom: "2em",
+    },
+    submit: {
+        position: "fixed",
+        right: "2em",
         bottom: "2em"
     },
 };
@@ -419,12 +425,19 @@ export default class PointfogApp extends Component<any, any> {
                     </div>
 
                     <MuiThemeProvider>
-                        <FloatingActionButton
-                            style={STYLES["submit"]}
-                            onClick={() => this.submitNodes()}
-                            >
-                            <ContentSend />
-                        </FloatingActionButton>
+                        <div>
+                            <FloatingActionButton
+                                style={STYLES["submit"]}
+                                onClick={() => this.submitNodes()}>
+                                <ContentSend />
+                            </FloatingActionButton>
+                            <FloatingActionButton
+                                secondary={true}
+                                style={STYLES["save"]}
+                                onClick={() => this.saveNodes()}>
+                                <ContentSave />
+                            </FloatingActionButton>
+                        </div>
                     </MuiThemeProvider>
 
                 </div> : null}
