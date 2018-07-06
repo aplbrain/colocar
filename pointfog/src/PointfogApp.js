@@ -97,7 +97,13 @@ export default class PointfogApp extends Component<any, any> {
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
                     DB.pointfog_name
-                ).then(({question, volume}) => {
+                ).then((res: { question: Object, volume: Object }) => {
+                    if (!res || !res.question) {
+                        alert("No remaining questions.");
+                        return;
+                    }
+                    let question = res.question;
+                    let volume = res.volume;
                     console.log(question);
                     console.log(volume);
 
@@ -156,31 +162,25 @@ export default class PointfogApp extends Component<any, any> {
                 switch (p.keyCode) {
                 case 87:
                 case 119:
-                // case 38:
+                case 38:
                     // "w" or up arrow is pressed
-                    self.panUp();
+                    self.panDown();
                     break;
                 case 83:
                 case 115:
-                // case 40:
+                case 40:
                     // "s" or down arrow is pressed
-                    self.panDown();
+                    self.panUp();
                     break;
-                // case 65:
-                //     self.markAxon();
-                //     break;
                 case 97:
-                // case 37:
+                case 37:
                     // left arrow is pressed
-                    self.panLeft();
-                    break;
-                // case 68:
-                //     self.markDendrite();
-                //     break;
-                case 100:
-                // case 39:
-                    // "d" or right arrow is pressed
                     self.panRight();
+                    break;
+                case 100:
+                case 39:
+                    // "d" or right arrow is pressed
+                    self.panLeft();
                     break;
                 case 81:
                 case 113:
@@ -319,8 +319,9 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     saveNodes() {
-        // TODO: Save Nodes to localForage
-        // Note: usually called in the background
+        /*
+        Save nodes to a localforage cache
+        */
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
             "pointfogStorage",

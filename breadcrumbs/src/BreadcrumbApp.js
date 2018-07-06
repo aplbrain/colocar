@@ -65,8 +65,21 @@ export default class BreadcrumbApp extends Component<any, any> {
         self.sketch = (p: P5Type) => {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                self.canvas = canvas;
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
+
+                canvas.mousePressed(function() {
+                    if (self.state.traceMode) {
+                        self.layers.traceManager.mousePressed();
+                    }
+                });
+
+                canvas.mouseClicked(function() {
+                    if (self.state.traceMode) {
+                        self.layers.traceManager.mouseClicked();
+                    }
+                });
 
                 // We don't need much in the way of framerate, and this saves
                 // some RAM/CPU
@@ -80,7 +93,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
                     'NEURON.PAINT'
-                ).then(({question, volume}) => {
+                ).then((res: { question: Object, volume: Object }) => {
+                    if (!res || !res.question) {
+                        alert("No remaining questions.");
+                        return;
+                    }
+                    let question = res.question;
+                    let volume = res.volume;
                     console.log(question);
                     console.log(volume);
 
@@ -204,15 +223,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                 default:
                     break;
                 }
-                // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
-            };
-
-            p.mousePressed = function() {
-                self.layers.traceManager.mousePressed();
-            };
-
-            p.mouseClicked = function() {
-                self.layers.traceManager.mouseClicked();
             };
 
             p.mouseDragged = function() {
