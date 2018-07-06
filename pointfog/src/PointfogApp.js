@@ -302,7 +302,7 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     insertStoredNodes() {
-        localForage.getItem("pointfogStorage").then(nodes => {
+        localForage.getItem(`pointfogStorage-${this.questionId}`).then(nodes => {
             nodes = nodes || [];
             nodes.forEach(node => {
                 this.layers.pointcloudManager.addNode(node.id, node)
@@ -336,7 +336,7 @@ export default class PointfogApp extends Component<any, any> {
         // Note: usually called in the background
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
-            "pointfogStorage",
+            `pointfogStorage-${this.questionId}`,
             nodes,
         ).then((savedSynapses, errorSaving) => {
             console.log("saved nodes!");
