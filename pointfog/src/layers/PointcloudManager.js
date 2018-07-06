@@ -6,10 +6,15 @@ import type { P5Type } from "../types/p5Types";
 import type { Node } from "../types/colocardTypes";
 import type ImageManager from "./ImageManager";
 
+// Highlight color for active node
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+// Default node color
 const DEFAULT_COLOR = { r: 30, g: 240, b: 255 };
 
+// Distance in pixels inside of which a node can be selected
 const SELECTION_THRESHOLD = 10;
+// Distance in z-slices inside of which a node can be selected
+const SELECTION_RADIUS_Z = 10;
 
 
 export default class TraceManager {
@@ -68,6 +73,7 @@ export default class TraceManager {
             // Get the closest node and set it as active:
             // TODO: Filter in here
             let closeNodes = this.nodes
+                .filter(n => Math.abs(n.z - this.im.currentZ) < SELECTION_RADIUS_Z)
                 .filter(n => {
                     n = this.transformCoords(n.x, n.y);
                     return Math.sqrt(
