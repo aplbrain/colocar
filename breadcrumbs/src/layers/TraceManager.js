@@ -6,20 +6,32 @@ import uuidv4 from "uuid/v4";
 import type { P5Type } from "../types/p5Types";
 import type ImageManager from "./ImageManager";
 
+// Color of node marked as axon
 const AXON_COLOR = { r: 255, g: 0, b: 0 };
+// Color of node marked as dendrite
 const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
+// Color of the currently selected node "highlight" area
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+// Color of a node that has been marked as a bookmark
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
+// Default node color
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
+// Default edge color
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
-
+// Radius of an axon marker
 const AXON_RADIUS = 10;
+// Radius of a marker for a node that is marked as a bookmark
 const BOOKMARK_RADIUS = 10;
+// Radius of a dendrite marker
 const DENDRITE_RADIUS = 10;
+// Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 5;
 
+// Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
+// Number of z-slices after which a node is no longer selectable
+const SELECTION_RADIUS_Z = 6;
 
 
 export default class TraceManager {
@@ -89,6 +101,7 @@ export default class TraceManager {
             // TODO: Filter in here
             let closeNodes = this.g.nodes()
                 .map(n => this.g.node(n))
+                .filter(n => Math.abs(n.z - this.im.currentZ) < SELECTION_RADIUS_Z)
                 .filter(n => {
                     n = this.transformCoords(n.x, n.y);
                     return Math.sqrt(
@@ -158,9 +171,6 @@ export default class TraceManager {
                 x,
                 y,
                 z: this.im.currentZ,
-                //!!!TEMP
-                // TODO
-                author: "Tucker Chapin",
                 id: newNodeId
             });
 
