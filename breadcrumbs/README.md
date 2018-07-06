@@ -51,3 +51,21 @@ This will run a development server in your shell (with linting and transpile out
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <p align=center>[<a href="https://github.com/kentcdodds/all-contributors#emoji-key">emoji key</a>]</p>
+
+## Deploying
+
+- **Build the application.**
+
+```shell
+yarn build
+```
+
+- **Zip the build.**
+
+```shell
+zip build.zip build/*
+```
+
+- **Upload the build.**
+
+You'll need access to the AWS console in order to do this: Get in touch with a project maintainer.
