@@ -70,15 +70,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
-                    if (self.state.traceMode) {
-                        self.layers.traceManager.mousePressed();
-                    }
+                    self.layers.traceManager.mousePressed();
                 });
 
                 canvas.mouseClicked(function() {
-                    if (self.state.traceMode) {
-                        self.layers.traceManager.mouseClicked();
-                    }
+                    self.layers.traceManager.mouseClicked();
                 });
 
                 // We don't need much in the way of framerate, and this saves
