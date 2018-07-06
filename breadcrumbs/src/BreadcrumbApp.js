@@ -104,6 +104,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         imageURIs,
+                        startingZ: synapseRemappedPosition.z
                     });
 
                     self.layers["traceManager"] = new TraceManager({
