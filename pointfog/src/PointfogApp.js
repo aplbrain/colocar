@@ -384,7 +384,7 @@ export default class PointfogApp extends Component<any, any> {
             return DB.postNodes(transformedNodes).then(status => {
                 return DB.updateQuestionStatus(this.questionId, status);
             }).then(() => {
-                return localForage.removeItem("pointfogStorage");
+                return localForage.removeItem(`pointfogStorage-${this.questionId}`);
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
