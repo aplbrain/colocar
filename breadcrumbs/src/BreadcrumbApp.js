@@ -68,8 +68,21 @@ export default class BreadcrumbApp extends Component<any, any> {
         self.sketch = (p: P5Type) => {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                self.canvas = canvas;
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
+
+                canvas.mousePressed(function() {
+                    if (self.state.traceMode) {
+                        self.layers.traceManager.mousePressed();
+                    }
+                });
+
+                canvas.mouseClicked(function() {
+                    if (self.state.traceMode) {
+                        self.layers.traceManager.mouseClicked();
+                    }
+                });
 
                 // We don't need much in the way of framerate, and this saves
                 // some RAM/CPU
@@ -216,19 +229,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                     break;
                 default:
                     break;
-                }
-                // console.log(`Image ${self.layers["imageManager"].currentZ} at (${self.layers["imageManager"].position["x"]}, ${self.layers["imageManager"].position["y"]}) with ${Math.round(100*self.layers["imageManager"].scale)} scale.`);
-            };
-
-            p.mousePressed = function() {
-                if (self.state.traceMode) {
-                    self.layers.traceManager.mousePressed();
-                }
-            };
-
-            p.mouseClicked = function() {
-                if (self.state.traceMode) {
-                    self.layers.traceManager.mouseClicked();
                 }
             };
 
