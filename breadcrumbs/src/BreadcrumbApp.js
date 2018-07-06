@@ -99,10 +99,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(question);
                     console.log(volume);
 
-                    // TODO: @tucker helppppp
                     let synapseRemappedPosition = {
-                        x: question.synapse.x - ((volume.xLarge[1] - volume.xLarge[0])/2),
-                        y: question.synapse.y - ((volume.yLarge[1] - volume.yLarge[0])/2),
+                        x: question.synapse.x - volume.xLarge[0] - ((volume.xLarge[1] - volume.xLarge[0])/2),
+                        y: question.synapse.y - volume.yLarge[0] - ((volume.yLarge[1] - volume.yLarge[0])/2),
                         z: Math.round(question.synapse.z - volume.zLarge[0])
                     };
 
