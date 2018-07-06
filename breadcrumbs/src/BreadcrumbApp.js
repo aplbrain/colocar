@@ -359,7 +359,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                         <div style={STYLES["controlToolInline"]}>
                             <button onClick={()=>this.decrementZ()}>-</button>
-                            {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
+                            {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
                             <button onClick={()=>this.incrementZ()}>+</button>
                         </div>
                     </div>
