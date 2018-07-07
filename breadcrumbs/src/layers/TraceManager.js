@@ -79,7 +79,7 @@ export default class TraceManager {
 
         if (opts.startingGraph) {
             // TODO: Allow arbitrary graph instead of single-node graph
-            this.addNode(
+            this.extendGraph(
                 opts.startingGraph.nodes[0].v,
                 opts.startingGraph.nodes[0].value
             );
@@ -134,7 +134,7 @@ export default class TraceManager {
         }
     }
 
-    addNode(newNodeId: string, newNode: NodeMeta): void {
+    extendGraph(newNodeId: string, newNode: NodeMeta): void {
         newNodeId = newNodeId || uuidv4();
         // Verify that the node IDs line up
         newNode.id = newNodeId;
@@ -153,7 +153,7 @@ export default class TraceManager {
             this.edgesByLayer[this.activeNode.z].push(newEdge);
             this.nodeStack.push(this.activeNode);
         } else {
-            this.nodeStack.push(newNode);
+            throw "no active node - ask an admin";
         }
         this.activeNode = newNode;
     }
@@ -175,7 +175,7 @@ export default class TraceManager {
                 id: newNodeId
             });
 
-            this.addNode(newNodeId, newNode);
+            this.extendGraph(newNodeId, newNode);
         }
 
         this.drawHinting = false;
