@@ -135,6 +135,7 @@ export default class TraceManager {
     }
 
     addNode(newNodeId: string, newNode: NodeMeta): void {
+        newNodeId = newNodeId || uuidv4();
         // Verify that the node IDs line up
         newNode.id = newNodeId;
         this.g.setNode(newNodeId, newNode);
