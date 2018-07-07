@@ -166,6 +166,17 @@ class Colocard implements Database {
                 well-formed graph object
 
         */
+        return fetch(`${this.url}/graphs`, {
+                headers: this.headers,
+                method: "POST",
+                body: JSON.stringify(graph)
+        }).then(values => {
+            console.log(values);
+            return "completed";
+        }).catch(reason => {
+            console.log(reason);
+            return "errored";
+        });
     }
 
     updateQuestionStatus(questionId: string, status: string): Promise<Response> {
