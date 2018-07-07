@@ -99,21 +99,16 @@ class Colocard implements Database {
         return res.json().then((json: any) => {
             let questions: Array<Question> = json;
             let question: Question = this._extractPrioritizedQuestion(questions);
-            let volume = null;
-
-            return fetch(`${this.url}/volumes/${question.volume}`, {
-                headers: this.headers,
-            }).then((res: Response) => res.json()).then((json: any) => {
-                volume = json;
-                let splitUri = volume.uri.split('/');
-                let nUri = splitUri.length;
-                volume.collection = splitUri[nUri-3];
-                volume.experiment = splitUri[nUri-2];
-                volume.channel = splitUri[nUri-1];
-                let graphId = question.instructions.graph;
-                return fetch(`${this.url}/graph/${graphId}`, {
-                    headers: this.headers
-                })
+            let volume = question.volume;
+            console.log(question);
+            let splitUri = volume.uri.split('/');
+            let nUri = splitUri.length;
+            volume.collection = splitUri[nUri - 3];
+            volume.experiment = splitUri[nUri - 2];
+            volume.channel = splitUri[nUri - 1];
+            let graphId = question.instructions.graph;
+            return fetch(`${this.url}/graphs/${graphId}`, {
+                headers: this.headers
             }).then((res: Response) => res.json()).then((json: any) => {
                 question.instructions.graph = json;
                 return this._setOpenStatus(question);
