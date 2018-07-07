@@ -364,9 +364,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         */
         // eslint-disable-next-line no-restricted-globals
         let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
-        console.log(certain);
         if (certain) {
-            let graph = self.layers.traceManager.g;
+            let graph = this.layers.traceManager.g;
             let transformedGraph = graph;
             return DB.postGraph(transformedGraph).then(status => {
                 return DB.updateQuestionStatus(this.questionId, status);
