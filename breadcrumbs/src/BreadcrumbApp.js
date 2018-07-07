@@ -77,7 +77,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         self.sketch = (p: P5Type) => {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-                self.canvas = canvas;
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
@@ -107,13 +106,12 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return;
                     }
                     let question = res.question;
-                    let synapse = question.instructions.graph;
+                    let startingGraph = question.instructions.graph;
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
-                    console.log(question.instructions.graph);
+                    console.log(startingGraph);
 
-                    let startingGraph = question.instructions.graph;
                     // TODO: Graphs will have more than one node! Filter for the starting node.
                     let startingSynapse = startingGraph.structure.nodes[0];
 
@@ -131,9 +129,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                     });
 
                     let synapseRemappedPosition = {
-                        x: startingSynapse.x - xBounds[0] - ((xBounds[1] - xBounds[0])/2),
-                        y: startingSynapse.y - yBounds[0] - ((yBounds[1] - yBounds[0])/2),
-                        z: Math.round(startingSynapse.z - zBounds[0])
+                        x: startingSynapse.coordinate[0] - xBounds[0] - ((xBounds[1] - xBounds[0])/2),
+                        y: startingSynapse.coordinate[1] - yBounds[0] - ((yBounds[1] - yBounds[0])/2),
+                        z: Math.round(startingSynapse.coordinate[2] - zBounds[0])
                     };
 
                     self.layers["imageManager"] = new ImageManager({
@@ -148,7 +146,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         startingGraph: {
                             edges: [],
                             nodes: [{
-                                v: synapse._id,
+                                v: startingSynapse._id,
                                 value: {
                                     ...synapseRemappedPosition,
                                     protected: true
