@@ -126,7 +126,8 @@ class Colocard implements Database {
         let openQuestions = questions.filter(question => question.status === "open");
         let nOpen = openQuestions.length;
         if (nOpen > 1) {
-            throw "cannot have more than one open question - ask an admin";
+            // throw "cannot have more than one open question - ask an admin";
+            question = openQuestions[0];
         } else if (nOpen === 1) {
             question = openQuestions[0];
         } else {
