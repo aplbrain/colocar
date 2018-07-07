@@ -135,11 +135,12 @@ export default class TraceManager {
     }
 
     addNode(newNodeId: string, newNode: NodeMeta): void {
+        newNodeId = newNodeId || uuidv4();
         // Verify that the node IDs line up
         newNode.id = newNodeId;
         this.g.setNode(newNodeId, newNode);
 
-        this.nodesByLayer[newNode.z].push(newNodeId);
+        this.nodesByLayer[Math.round(newNode.z)].push(newNodeId);
 
         // Create an edge to the previous node.
         if (this.prevNode) {

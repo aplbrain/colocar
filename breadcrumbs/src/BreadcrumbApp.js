@@ -4,15 +4,19 @@ import React, { Component } from 'react';
 
 import type { P5Type } from "./types/p5Types";
 
-import { Ramongo } from "./db";
+import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import FloatingActionButton from "material-ui/FloatingActionButton";
+import ContentSend from "material-ui/svg-icons/content/send";
+import localForage from "localforage";
 
 import "./BreadcrumbApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Ramongo();
+let DB = new Colocard();
 
 const STYLES = {
     p5Container: {
@@ -37,6 +41,11 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
+    submit: {
+        position: "fixed",
+        left: "2em",
+        bottom: "2em"
+    }
 };
 
 export default class BreadcrumbApp extends Component<any, any> {
@@ -54,6 +63,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         currentZ?: number,
     };
 
+    questionId: string;
+    volume: Object;
+
     constructor(props: Object) {
         super(props);
 
@@ -65,7 +77,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         self.sketch = (p: P5Type) => {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-                self.canvas = canvas;
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
@@ -88,29 +99,40 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    'NEURON.PAINT'
+                    DB.breadcrumbs_name
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         alert("No remaining questions.");
                         return;
                     }
                     let question = res.question;
+                    let startingGraph = question.instructions.graph;
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
+                    console.log(startingGraph);
 
-                    let synapseRemappedPosition = {
-                        x: question.synapse.x - volume.xLarge[0] - ((volume.xLarge[1] - volume.xLarge[0])/2),
-                        y: question.synapse.y - volume.yLarge[0] - ((volume.yLarge[1] - volume.yLarge[0])/2),
-                        z: Math.round(question.synapse.z - volume.zLarge[0])
-                    };
+                    // TODO: Graphs will have more than one node! Filter for the starting node.
+                    let startingSynapse = startingGraph.structure.nodes[0];
+
+                    self.questionId = question._id;
+                    self.volume = volume;
 
                     // The electron microscopy imagery layer
+                    let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
+                    let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
+                    let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
                     let imageURIs = [
-                        ...Array(volume.zLarge[1] - volume.zLarge[0]).keys()
-                    ].map(i => i + volume.zLarge[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${volume.xLarge[0]}:${volume.xLarge[1]}/${volume.yLarge[0]}:${volume.yLarge[1]}/${_z}/?no-cache=true`;
+                        ...Array(zBounds[1] - zBounds[0]).keys()
+                    ].map(i => i + zBounds[0]).map(_z => {
+                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
+
+                    let synapseRemappedPosition = {
+                        x: startingSynapse.coordinate[0] - xBounds[0] - ((xBounds[1] - xBounds[0])/2),
+                        y: startingSynapse.coordinate[1] - yBounds[0] - ((yBounds[1] - yBounds[0])/2),
+                        z: Math.round(startingSynapse.coordinate[2] - zBounds[0])
+                    };
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -124,7 +146,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         startingGraph: {
                             edges: [],
                             nodes: [{
-                                v: question.synapse._id,
+                                v: startingSynapse._id,
                                 value: {
                                     ...synapseRemappedPosition,
                                     protected: true
@@ -143,6 +165,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
+                        questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
                 });
@@ -320,8 +343,6 @@ export default class BreadcrumbApp extends Component<any, any> {
     popBookmark(): void {
         let {x, y, z} = this.layers.traceManager.popBookmark();
         this.layers.imageManager.setZ(z);
-        // this.layers.imageManager.setY(y);
-        // this.layers.imageManager.setX(x);
     }
 
     deleteActiveNode(): void {
@@ -330,6 +351,14 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     componentDidMount() {
         new p5(this.sketch);
+    }
+
+    saveGraph() {
+
+    }
+
+    submitGraph() {
+
     }
 
     render() {
@@ -344,7 +373,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         <div style={STYLES["controlToolInline"]}>
                             <button onClick={()=>this.scaleDown()}>-</button>
                             {Math.round(100 * this.state.scale)}%
-                            <button onClick={()=>{this.scaleUp();}}>+</button>
+                            <button onClick={()=>this.scaleUp()}>+</button>
                         </div>
                     </div>
 
