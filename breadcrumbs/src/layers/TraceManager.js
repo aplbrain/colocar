@@ -55,7 +55,7 @@ export default class TraceManager {
         this.p = opts.p;
         this.im = opts.imageManager;
         this.g = new graphlib.Graph({
-            directed: false
+            directed: true
         });
 
         window.tm = this;
@@ -142,11 +142,11 @@ export default class TraceManager {
 
         this.nodesByLayer[Math.round(newNode.z)].push(newNodeId);
 
-        // Create an edge to the previous node.
+        // Create an edge from the previous node.
         if (this.prevNode) {
             let newEdge = {
-                v: newNodeId,
-                w: this.prevNode.id
+                v: this.prevNode.id,
+                w: newNodeId
             };
             this.g.setEdge(newEdge);
             this.edgesByLayer[newNode.z].push(newEdge);
