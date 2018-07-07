@@ -50,7 +50,8 @@ export default class TraceManager {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        startingGraph: Object
+        startingGraph: Object,
+        activeNodeId: string
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
@@ -79,10 +80,12 @@ export default class TraceManager {
 
         if (opts.startingGraph) {
             // TODO: Allow arbitrary graph instead of single-node graph
-            this.extendGraph(
-                opts.startingGraph.nodes[0].v,
-                opts.startingGraph.nodes[0].value
+            this.insertGraph(
+                opts.startingGraph,
+                opts.activeNodeId
             );
+        } else {
+            throw "must supply a starting graph";
         }
     }
 
@@ -132,6 +135,18 @@ export default class TraceManager {
         } else {
             this.drawHinting = true;
         }
+    }
+
+    insertGraph(graph: Object, activeNodeId: string) {
+        graph.nodes.forEach(n => {
+            n.id = n._id;
+            this.g.setNode(n._id, n);
+            this.nodesByLayer[Math.round(n.z)].push(n.id);
+        });
+        graph.links.forEach(l => {
+            this.g.setEdge();
+        });
+        this.activeNode = this.g.node(activeNodeId);
     }
 
     extendGraph(newNodeId: string, newNode: NodeMeta): void {

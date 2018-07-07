@@ -144,15 +144,16 @@ export default class BreadcrumbApp extends Component<any, any> {
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: {
-                            edges: [],
+                            links: [],
                             nodes: [{
-                                v: startingSynapse._id,
-                                value: {
-                                    ...synapseRemappedPosition,
-                                    protected: true
-                                }
+                                _id: startingSynapse._id,
+                                x: synapseRemappedPosition.x,
+                                y: synapseRemappedPosition.y,
+                                z: synapseRemappedPosition.z,
+                                protected: true
                             }]
-                        }
+                        },
+                        activeNodeId: startingSynapse._id
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -390,6 +391,17 @@ export default class BreadcrumbApp extends Component<any, any> {
                     <div style={STYLES["controlRow"]}>
                         <button onClick={()=>this.reset()}>Reset viewport</button>
                     </div>
+
+                    <MuiThemeProvider>
+                        <div>
+                            <FloatingActionButton
+                                style={STYLES["submit"]}
+                                onClick={() => this.submitGraph()}>
+                                <ContentSend />
+                            </FloatingActionButton>
+                        </div>
+                    </MuiThemeProvider>
+
                 </div> : null}
             </div>
         );
