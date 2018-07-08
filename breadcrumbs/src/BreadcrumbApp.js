@@ -144,15 +144,16 @@ export default class BreadcrumbApp extends Component<any, any> {
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: {
-                            edges: [],
+                            links: [],
                             nodes: [{
-                                v: startingSynapse._id,
-                                value: {
-                                    ...synapseRemappedPosition,
-                                    protected: true
-                                }
+                                _id: startingSynapse._id,
+                                x: synapseRemappedPosition.x,
+                                y: synapseRemappedPosition.y,
+                                z: synapseRemappedPosition.z,
+                                protected: true
                             }]
-                        }
+                        },
+                        activeNodeId: startingSynapse._id
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -358,7 +359,23 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     submitGraph() {
-
+        /*
+        Submit the Graph to the database
+        */
+        // eslint-disable-next-line no-restricted-globals
+        let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
+        if (certain) {
+            let graph = this.layers.traceManager.g;
+            let transformedGraph = graph;
+            return DB.postGraph(transformedGraph).then(status => {
+                return DB.updateQuestionStatus(this.questionId, status);
+            }).then(() => {
+                return localForage.removeItem(`breadcrumbsStorage-${this.questionId}`);
+            }).then(() => {
+                // eslint-disable-next-line no-restricted-globals
+                location.reload(true);
+            });
+        }
     }
 
     render() {
@@ -390,6 +407,17 @@ export default class BreadcrumbApp extends Component<any, any> {
                     <div style={STYLES["controlRow"]}>
                         <button onClick={()=>this.reset()}>Reset viewport</button>
                     </div>
+
+                    <MuiThemeProvider>
+                        <div>
+                            <FloatingActionButton
+                                style={STYLES["submit"]}
+                                onClick={() => this.submitGraph()}>
+                                <ContentSend />
+                            </FloatingActionButton>
+                        </div>
+                    </MuiThemeProvider>
+
                 </div> : null}
             </div>
         );
