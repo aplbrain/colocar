@@ -1,6 +1,7 @@
 // @flow
 
 import type {Question} from "./types/colocardTypes";
+import Config from "./_config";
 
 interface Database {
     getNextQuestion(string, string): Promise<Object>;
@@ -76,16 +77,16 @@ class Colocard implements Database {
         Create a new Colocard client.
 
         Arguments:
-            opts: Object. Should include url (str)
+        opts: Object. Should include url (str)
 
         */
-       opts = opts || {};
-       this.url = opts.url || "http://colocard:9005";
-       this.headers = {
-           'Accept': 'application/json',
-           'Content-Type': 'application/json'
-       };
-       this.breadcrumbs_name = "breadcrumbs";
+        opts = opts || {};
+        this.url = opts.url || Config.colocardUrl;
+        this.headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+        this.breadcrumbs_name = "breadcrumbs";
     }
 
     getNextQuestion(user: string, type: string) {
@@ -162,14 +163,14 @@ class Colocard implements Database {
         Post a graph to the colocard API.
 
         Arguments:
-            graph (Object): The graph to post. Should be fully
-                well-formed graph object
+        graph (Object): The graph to post. Should be fully
+        well-formed graph object
 
         */
         return fetch(`${this.url}/graphs`, {
-                headers: this.headers,
-                method: "POST",
-                body: JSON.stringify(graph)
+            headers: this.headers,
+            method: "POST",
+            body: JSON.stringify(graph)
         }).then(values => {
             console.log(values);
             return "completed";
