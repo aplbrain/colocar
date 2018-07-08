@@ -41,7 +41,7 @@ export default class TraceManager {
     im: ImageManager;
     nodesByLayer: Array<Array<string>>;
     edgesByLayer: Array<Array<any>>;
-    prevNode: NodeMeta;
+    activeNode: NodeMeta;
     nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
@@ -50,12 +50,13 @@ export default class TraceManager {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        startingGraph: Object
+        startingGraph: Object,
+        activeNodeId: string
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
         this.g = new graphlib.Graph({
-            directed: false
+            directed: true
         });
 
         window.tm = this;
@@ -79,16 +80,18 @@ export default class TraceManager {
 
         if (opts.startingGraph) {
             // TODO: Allow arbitrary graph instead of single-node graph
-            this.addNode(
-                opts.startingGraph.nodes[0].v,
-                opts.startingGraph.nodes[0].value
+            this.insertGraph(
+                opts.startingGraph,
+                opts.activeNodeId
             );
+        } else {
+            throw "must supply a starting graph";
         }
     }
 
     getSelectedNodeZ(): number {
-        if (this.prevNode) {
-            return this.prevNode.z;
+        if (this.activeNode) {
+            return this.activeNode.z;
         } else {
             return this.im.currentZ;
         }
@@ -126,15 +129,27 @@ export default class TraceManager {
             // TODO: Pick smarter than this
             if (closeNodes.length) {
                 let n = closeNodes[0];
-                this.nodeStack.push(this.prevNode);
-                this.prevNode = n;
+                this.nodeStack.push(this.activeNode);
+                this.activeNode = n;
             }
         } else {
             this.drawHinting = true;
         }
     }
 
-    addNode(newNodeId: string, newNode: NodeMeta): void {
+    insertGraph(graph: Object, activeNodeId: string) {
+        graph.nodes.forEach(n => {
+            n.id = n._id;
+            this.g.setNode(n._id, n);
+            this.nodesByLayer[Math.round(n.z)].push(n.id);
+        });
+        graph.links.forEach(l => {
+            this.g.setEdge();
+        });
+        this.activeNode = this.g.node(activeNodeId);
+    }
+
+    extendGraph(newNodeId: string, newNode: NodeMeta): void {
         newNodeId = newNodeId || uuidv4();
         // Verify that the node IDs line up
         newNode.id = newNodeId;
@@ -142,20 +157,20 @@ export default class TraceManager {
 
         this.nodesByLayer[Math.round(newNode.z)].push(newNodeId);
 
-        // Create an edge to the previous node.
-        if (this.prevNode) {
+        // Create an edge from the active node.
+        if (this.activeNode) {
             let newEdge = {
-                v: newNodeId,
-                w: this.prevNode.id
+                v: this.activeNode.id,
+                w: newNodeId
             };
             this.g.setEdge(newEdge);
             this.edgesByLayer[newNode.z].push(newEdge);
-            this.edgesByLayer[this.prevNode.z].push(newEdge);
-            this.nodeStack.push(this.prevNode);
+            this.edgesByLayer[this.activeNode.z].push(newEdge);
+            this.nodeStack.push(this.activeNode);
         } else {
-            this.nodeStack.push(newNode);
+            throw "no active node - ask an admin";
         }
-        this.prevNode = newNode;
+        this.activeNode = newNode;
     }
 
     mouseClicked(): void {
@@ -175,23 +190,23 @@ export default class TraceManager {
                 id: newNodeId
             });
 
-            this.addNode(newNodeId, newNode);
+            this.extendGraph(newNodeId, newNode);
         }
 
         this.drawHinting = false;
     }
 
     markAxon(): void {
-        this.g.node(this.prevNode.id).type = "presynaptic";
+        this.g.node(this.activeNode.id).type = "presynaptic";
     }
     markDendrite(): void {
-        this.g.node(this.prevNode.id).type = "postsynaptic";
+        this.g.node(this.activeNode.id).type = "postsynaptic";
     }
     markBookmark(): void {
-        if (this.g.node(this.prevNode.id).bookmarked) {
-            this.g.node(this.prevNode.id).bookmarked = false;
+        if (this.g.node(this.activeNode.id).bookmarked) {
+            this.g.node(this.activeNode.id).bookmarked = false;
         } else {
-            this.g.node(this.prevNode.id).bookmarked = true;
+            this.g.node(this.activeNode.id).bookmarked = true;
         }
     }
 
@@ -200,9 +215,9 @@ export default class TraceManager {
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ
             return {
-                x: this.prevNode.x,
-                y: this.prevNode.y,
-                z: this.prevNode.z,
+                x: this.activeNode.x,
+                y: this.activeNode.y,
+                z: this.activeNode.z,
             };
         } else {
             return {
@@ -214,28 +229,28 @@ export default class TraceManager {
     }
 
     deleteActiveNode(): void {
-        if (!this.prevNode) {
+        if (!this.activeNode) {
             return;
         }
 
-        if (this.prevNode.protected) {
+        if (this.activeNode.protected) {
             return;
         }
 
         // Delete from edgesByLayer
         // Get layers:
-        for (let v of this.g.neighbors(this.prevNode.id)) {
+        for (let v of this.g.neighbors(this.activeNode.id)) {
             this.edgesByLayer[this.g.node(v).z] = this.edgesByLayer[this.g.node(v).z].filter(e => {
-                return e.v !== this.prevNode.id && e.w !== this.prevNode.id;
+                return e.v !== this.activeNode.id && e.w !== this.activeNode.id;
             });
         }
         // Delete from nodesByLayer
-        this.nodesByLayer[this.prevNode.z] = this.nodesByLayer[this.prevNode.z].filter(nid => nid !== this.prevNode.id);
+        this.nodesByLayer[this.activeNode.z] = this.nodesByLayer[this.activeNode.z].filter(nid => nid !== this.activeNode.id);
         // Delete from graph
-        this.g.removeNode(this.prevNode.id);
-        // Assign new last-node to `prevNode`
-        this.nodeStack = this.nodeStack.filter(n => n.id !== this.prevNode.id);
-        this.prevNode = this.nodeStack.pop();
+        this.g.removeNode(this.activeNode.id);
+        // Assign new last-node to `activeNode`
+        this.nodeStack = this.nodeStack.filter(n => n.id !== this.activeNode.id);
+        this.activeNode = this.nodeStack.pop();
     }
 
     // Denormalize the node to scale it to the correct position.
@@ -259,8 +274,8 @@ export default class TraceManager {
         // While the mouse is down, but not released
         // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {
-            if (this.prevNode) {
-                let lastNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
+            if (this.activeNode) {
+                let lastNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
                 this.p.strokeWeight(3);
                 this.p.stroke("rgba(0, 0, 0, .5)");
                 this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
@@ -326,15 +341,15 @@ export default class TraceManager {
 
         // Draw the currently active node
         this.p.noStroke();
-        if (this.prevNode) {
+        if (this.activeNode) {
             this.p.fill(
                 ACTIVE_NODE_COLOR.r,
                 ACTIVE_NODE_COLOR.g,
                 ACTIVE_NODE_COLOR.b,
-                255 - (Math.pow(this.prevNode.z - this.im.currentZ, 2))
+                255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2))
             );
             // TODO: Fade with depth
-            let transformedNode = this.transformCoords(this.prevNode.x, this.prevNode.y);
+            let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
         }
 
