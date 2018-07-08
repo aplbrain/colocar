@@ -75,7 +75,7 @@ export default class TraceManager {
         }
     }
 
-    getGraph(): Object {
+    exportGraph(): Object {
         /*
         Remap nodes to data-space and return COPY OF graph.
         */
