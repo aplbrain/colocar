@@ -75,6 +75,17 @@ export default class TraceManager {
         }
     }
 
+    getGraph(): Object {
+        /*
+        Remap nodes to data-space and return COPY OF graph.
+        */
+        let graphCopy = graphlib.json.read(graphlib.json.write(this.g));
+        for (let node of graphCopy.nodes()) {
+            // TODO: Remap coords
+        }
+        return graphCopy;
+    }
+
     getSelectedNodeZ(): number {
         if (this.activeNode) {
             return this.activeNode.z;
