@@ -367,7 +367,13 @@ export default class BreadcrumbApp extends Component<any, any> {
         if (certain) {
             let graph = this.layers.traceManager.g;
             let transformedGraph = graph;
-            return DB.postGraph(transformedGraph).then(status => {
+            return DB.postGraph(
+                transformedGraph,
+                this.volume._id,
+                window.keycloak.profile.username
+            ).then(status => {
+                // TODO: Do not reload page if failed; instead,
+                // show error to user
                 return DB.updateQuestionStatus(this.questionId, status);
             }).then(() => {
                 return localForage.removeItem(`breadcrumbsStorage-${this.questionId}`);
