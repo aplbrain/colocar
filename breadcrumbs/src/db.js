@@ -112,13 +112,21 @@ class Colocard implements Database {
         well-formed graph object
 
         */
+        let structure = graphlib.json.write(graph);
+        structure.multigraph = structure.options.multigraph;
+        structure.directed = structure.options.directed;
+        structure.links = structure.options.edges;
+        delete structure.edges;
+        delete structure.options;
+
+
         return fetch(`${this.url}/graphs`, {
             headers: this.headers,
             method: "POST",
             body: JSON.stringify({
                 author: author,
                 namespace: this.breadcrumbs_name,
-                structure: graphlib.json.write(graph),
+                structure: structure,
                 volume: volume
             })
         }).then(values => {

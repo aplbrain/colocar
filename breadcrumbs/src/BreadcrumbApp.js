@@ -1,6 +1,8 @@
 // @flow
 
 import React, { Component } from 'react';
+import * as graphlib from "graphlib";
+
 
 import type { P5Type } from "./types/p5Types";
 
