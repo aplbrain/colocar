@@ -39,8 +39,6 @@ export default class TraceManager {
     p: any;
     g: any;
     im: ImageManager;
-    nodesByLayer: Array<Array<string>>;
-    edgesByLayer: Array<Array<any>>;
     activeNode: NodeMeta;
     nodeStack: Array<NodeMeta>;
 
@@ -66,18 +64,6 @@ export default class TraceManager {
         // a "popping" action when deleting nodes.
         this.nodeStack = [];
 
-        // Stores the node IDs by layer.
-        this.nodesByLayer = new Array(this.im.images.length);
-        for (let i = 0; i < this.nodesByLayer.length; i++) {
-            this.nodesByLayer[i] = [];
-        }
-
-        // Stores the edges by layer (edges can appear twice, if they span layers).
-        this.edgesByLayer = new Array(this.im.images.length);
-        for (let i = 0; i < this.edgesByLayer.length; i++) {
-            this.edgesByLayer[i] = [];
-        }
-
         if (opts.startingGraph) {
             // TODO: Allow arbitrary graph instead of single-node graph
             this.insertGraph(
@@ -85,7 +71,7 @@ export default class TraceManager {
                 opts.activeNodeId
             );
         } else {
-            throw "must supply a starting graph";
+            throw "Must supply a starting graph";
         }
     }
 
@@ -139,13 +125,12 @@ export default class TraceManager {
 
     insertGraph(graph: Object, activeNodeId: string) {
         graph.nodes.forEach(n => {
-            n.id = n._id;
-            this.g.setNode(n._id, n);
-            this.nodesByLayer[Math.round(n.z)].push(n.id);
+            n.id = n.id || uuidv4();
+            this.g.setNode(n.id, n);
         });
-        graph.links.forEach(l => {
-            this.g.setEdge();
-        });
+        // graph.links.forEach(l => {
+        //     this.g.setEdge();
+        // });
         this.activeNode = this.g.node(activeNodeId);
     }
 
@@ -155,8 +140,6 @@ export default class TraceManager {
         newNode.id = newNodeId;
         this.g.setNode(newNodeId, newNode);
 
-        this.nodesByLayer[Math.round(newNode.z)].push(newNodeId);
-
         // Create an edge from the active node.
         if (this.activeNode) {
             let newEdge = {
@@ -164,11 +147,9 @@ export default class TraceManager {
                 w: newNodeId
             };
             this.g.setEdge(newEdge);
-            this.edgesByLayer[newNode.z].push(newEdge);
-            this.edgesByLayer[this.activeNode.z].push(newEdge);
             this.nodeStack.push(this.activeNode);
         } else {
-            throw "no active node - ask an admin";
+            throw "No active node. Ask an admin.";
         }
         this.activeNode = newNode;
     }
@@ -237,15 +218,6 @@ export default class TraceManager {
             return;
         }
 
-        // Delete from edgesByLayer
-        // Get layers:
-        for (let v of this.g.neighbors(this.activeNode.id)) {
-            this.edgesByLayer[this.g.node(v).z] = this.edgesByLayer[this.g.node(v).z].filter(e => {
-                return e.v !== this.activeNode.id && e.w !== this.activeNode.id;
-            });
-        }
-        // Delete from nodesByLayer
-        this.nodesByLayer[this.activeNode.z] = this.nodesByLayer[this.activeNode.z].filter(nid => nid !== this.activeNode.id);
         // Delete from graph
         this.g.removeNode(this.activeNode.id);
         // Assign new last-node to `activeNode`
@@ -286,77 +258,13 @@ export default class TraceManager {
         }
 
         this.p.noStroke();
-        // Draw all the nodes and edges in the previous layers.
-        for (let j = 0; j < this.im.maxZ(); j++) {
-            // Make "far away" nodes and edges fade into the distance.
-            let diminishingFactor = (j + 1) / (this.im.currentZ + 1);
-            // TODO: I'm exhausted but this is dumb, do better
-            if (diminishingFactor > 1) { diminishingFactor = 1/diminishingFactor; }
 
-            // edges
-            this.p.strokeWeight(3 * diminishingFactor);
-            this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
-            for (let i = 0; i < this.edgesByLayer[j].length; i++) {
-                let edge = this.edgesByLayer[j][i];
-                let transformedNodeV = this.transformCoords(this.g.node(edge.v).x, this.g.node(edge.v).y);
-                let transformedNodeW = this.transformCoords(this.g.node(edge.w).x, this.g.node(edge.w).y);
-                this.p.line(transformedNodeV.x, transformedNodeV.y, transformedNodeW.x, transformedNodeW.y);
-            }
+        // Draw nodes
+        for (let node of this.g.nodes().map(n => this.g.node(n))) {
+            let nodePos = this.transformCoords(node.x, node.y);
+            // TODO: Color by type
+            // TODO: Fade with distance
 
-            // nodes
-            this.p.noStroke();
-            for (let i = 0; i < this.nodesByLayer[j].length; i++) {
-                let node = this.g.node(this.nodesByLayer[j][i]);
-                let color = DEFAULT_COLOR;
-                switch (node.type) {
-                case "presynaptic":
-                    color = AXON_COLOR;
-                    break;
-                case "postsynaptic":
-                    color = DENDRITE_COLOR;
-                    break;
-                default:
-                    break;
-                }
-                if (node.bookmarked) {
-                    color = BOOKMARK_COLOR;
-                }
-                this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
-                let transformedNode = this.transformCoords(node.x, node.y);
-                this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor * 10, diminishingFactor * 10);
-            }
-        }
-
-        this.p.strokeWeight(3);
-        this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
-        // Draw all the edges with a node in the current layer.
-        for (let i = 0; i < this.edgesByLayer[this.im.currentZ].length; i++) {
-            let edge = this.edgesByLayer[this.im.currentZ][i];
-            let nodeV = this.g.node(edge.v);
-            let nodeW = this.g.node(edge.w);
-            let transformedNodeV = this.transformCoords(nodeV.x, nodeV.y);
-            let transformedNodeW = this.transformCoords(nodeW.x, nodeW.y);
-            this.p.line(transformedNodeV.x, transformedNodeV.y, transformedNodeW.x, transformedNodeW.y);
-        }
-
-        // Draw the currently active node
-        this.p.noStroke();
-        if (this.activeNode) {
-            this.p.fill(
-                ACTIVE_NODE_COLOR.r,
-                ACTIVE_NODE_COLOR.g,
-                ACTIVE_NODE_COLOR.b,
-                255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2))
-            );
-            // TODO: Fade with depth
-            let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
-        }
-
-        this.p.noStroke();
-        // Draw all the nodes in the current layer.
-        for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
-            let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
             let color = DEFAULT_COLOR;
             let radius = DEFAULT_RADIUS;
             if (node.type === "presynaptic") {
@@ -370,10 +278,117 @@ export default class TraceManager {
                 color = BOOKMARK_COLOR;
                 radius = BOOKMARK_RADIUS;
             }
-            this.p.fill(color.r, color.g, color.b);
-            let transformedNode = this.transformCoords(node.x, node.y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, radius, radius);
+            this.p.fill(
+                color.r, color.g, color.b,
+                255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2))
+            );
+            this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
         }
+
+        // Draw edges
+        for (let {v,w} of this.g.edges().map(({v, w}) => {
+            return {v: this.g.node(v), w: this.g.node(w)};
+        })) {
+            let nodePosU = this.transformCoords(v.x, v.y);
+            let nodePosV = this.transformCoords(w.x, w.y);
+            // TODO: Color by type
+            // TODO: Fade with distance
+            let diminishingFactor = 255 - (
+                Math.pow(this.activeNode.z - this.im.currentZ, 2)
+            );
+            this.p.strokeWeight(3 * diminishingFactor);
+            this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
+            this.p.line(nodePosU.x, nodePosU.y, nodePosV.x, nodePosV.y);
+        }
+
+
+        // // Draw all the nodes and edges in the previous layers.
+        // for (let j = 0; j < this.im.maxZ(); j++) {
+        //     // Make "far away" nodes and edges fade into the distance.
+        //     let diminishingFactor = (j + 1) / (this.im.currentZ + 1);
+        //     // TODO: I'm exhausted but this is dumb, do better
+        //     if (diminishingFactor > 1) { diminishingFactor = 1/diminishingFactor; }
+
+        //     // edges
+        //     this.p.strokeWeight(3 * diminishingFactor);
+        //     this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
+        //     for (let i = 0; i < this.edgesByLayer[j].length; i++) {
+        //         let edge = this.edgesByLayer[j][i];
+        //         let transformedNodeV = this.transformCoords(this.g.node(edge.v).x, this.g.node(edge.v).y);
+        //         let transformedNodeW = this.transformCoords(this.g.node(edge.w).x, this.g.node(edge.w).y);
+        //         this.p.line(transformedNodeV.x, transformedNodeV.y, transformedNodeW.x, transformedNodeW.y);
+        //     }
+
+        //     // nodes
+        //     this.p.noStroke();
+        //     for (let i = 0; i < this.nodesByLayer[j].length; i++) {
+        //         let node = this.g.node(this.nodesByLayer[j][i]);
+        //         let color = DEFAULT_COLOR;
+        //         switch (node.type) {
+        //         case "presynaptic":
+        //             color = AXON_COLOR;
+        //             break;
+        //         case "postsynaptic":
+        //             color = DENDRITE_COLOR;
+        //             break;
+        //         default:
+        //             break;
+        //         }
+        //         if (node.bookmarked) {
+        //             color = BOOKMARK_COLOR;
+        //         }
+        //         this.p.fill(color.r, color.g, color.b, diminishingFactor * .5);
+        //         let transformedNode = this.transformCoords(node.x, node.y);
+        //         this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor * 10, diminishingFactor * 10);
+        //     }
+        // }
+
+        // this.p.strokeWeight(3);
+        // this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
+        // // Draw all the edges with a node in the current layer.
+        // for (let i = 0; i < this.edgesByLayer[this.im.currentZ].length; i++) {
+        //     let edge = this.edgesByLayer[this.im.currentZ][i];
+        //     let nodeV = this.g.node(edge.v);
+        //     let nodeW = this.g.node(edge.w);
+        //     let transformedNodeV = this.transformCoords(nodeV.x, nodeV.y);
+        //     let transformedNodeW = this.transformCoords(nodeW.x, nodeW.y);
+        //     this.p.line(transformedNodeV.x, transformedNodeV.y, transformedNodeW.x, transformedNodeW.y);
+        // }
+
+        // Draw the currently active node
+        this.p.noStroke();
+        if (this.activeNode) {
+            this.p.fill(
+                ACTIVE_NODE_COLOR.r,
+                ACTIVE_NODE_COLOR.g,
+                ACTIVE_NODE_COLOR.b,
+                255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2))
+            );
+            let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
+            this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
+        }
+
+        // this.p.noStroke();
+        // // Draw all the nodes in the current layer.
+        // for (let i = 0; i < this.nodesByLayer[this.im.currentZ].length; i++) {
+        //     let node = this.g.node(this.nodesByLayer[this.im.currentZ][i]);
+        //     let color = DEFAULT_COLOR;
+        //     let radius = DEFAULT_RADIUS;
+        //     if (node.type === "presynaptic") {
+        //         color = AXON_COLOR;
+        //         radius = AXON_RADIUS;
+        //     } else if (node.type === "postsynaptic") {
+        //         color = DENDRITE_COLOR;
+        //         radius = DENDRITE_RADIUS;
+        //     }
+        //     if (node.bookmarked) {
+        //         color = BOOKMARK_COLOR;
+        //         radius = BOOKMARK_RADIUS;
+        //     }
+        //     this.p.fill(color.r, color.g, color.b);
+        //     let transformedNode = this.transformCoords(node.x, node.y);
+        //     this.p.ellipse(transformedNode.x, transformedNode.y, radius, radius);
+        // }
     }
 
 }

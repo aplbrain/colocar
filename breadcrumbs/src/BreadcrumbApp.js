@@ -146,14 +146,14 @@ export default class BreadcrumbApp extends Component<any, any> {
                         startingGraph: {
                             links: [],
                             nodes: [{
-                                _id: startingSynapse._id,
+                                id: startingSynapse.id,
                                 x: synapseRemappedPosition.x,
                                 y: synapseRemappedPosition.y,
                                 z: synapseRemappedPosition.z,
                                 protected: true
                             }]
                         },
-                        activeNodeId: startingSynapse._id
+                        activeNodeId: startingSynapse.id
                     });
 
                     // Set the order in which to render the layers. Removing layers
