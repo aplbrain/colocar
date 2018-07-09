@@ -84,16 +84,13 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                 canvas.mousePressed(function() {
                     self.layers.traceManager.mousePressed();
+                    self.updateUIStatus();
                 });
 
                 canvas.mouseClicked(function() {
                     self.layers.traceManager.mouseClicked();
+                    self.updateUIStatus();
                 });
-
-                // We don't need much in the way of framerate, and this saves
-                // some RAM/CPU
-                // p.frameRate(30);
-
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
@@ -170,6 +167,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
+                        nodeCount: self.layers.traceManager.g.nodes().length
                     });
                 });
 
@@ -251,6 +249,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                 default:
                     break;
                 }
+
+                self.updateUIStatus();
             };
 
             p.mouseDragged = function() {
@@ -290,6 +290,12 @@ export default class BreadcrumbApp extends Component<any, any> {
                 }
             };
         };
+    }
+
+    updateUIStatus(): void {
+        this.setState({
+            nodeCount: this.layers.traceManager.g.nodes().length
+        });
     }
 
     panUp(): void {
@@ -463,6 +469,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                             <button onClick={()=>this.decrementZ()}>-</button>
                             {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
                             <button onClick={()=>this.incrementZ()}>+</button>
+                        </div>
+                    </div>
+                    <div style={STYLES["controlRow"]}>
+                        <div style={STYLES["controlLabel"]}>Nodes</div>
+
+                        <div style={STYLES["controlToolInline"]}>
+                            {this.state.nodeCount}
                         </div>
                     </div>
 
