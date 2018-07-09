@@ -9,7 +9,8 @@ import type { P5Type } from "./types/p5Types";
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Scrollbar from "./layers/Scrollbar";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import ContentSend from "material-ui/svg-icons/content/send";
 import localForage from "localforage";
@@ -157,11 +158,17 @@ export default class BreadcrumbApp extends Component<any, any> {
                         activeNodeId: startingSynapse._id || startingSynapse.id
                     });
 
+                    self.layers["scrollbar"] = new Scrollbar({
+                        p,
+                        imageManager: self.layers.imageManager
+                    });
+
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
                         'traceManager',
+                        'scrollbar'
                     ];
 
                     self.setState({
