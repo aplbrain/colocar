@@ -8,7 +8,8 @@ import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Scrollbar from "./layers/Scrollbar";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from "material-ui/FloatingActionButton";
 import ContentSend from "material-ui/svg-icons/content/send";
 import ContentSave from "material-ui/svg-icons/content/save";
@@ -148,12 +149,18 @@ export default class PointfogApp extends Component<any, any> {
                         imageManager: self.layers.imageManager
                     });
 
+                    self.layers["scrollbar"] = new Scrollbar({
+                        p,
+                        imageManager: self.layers.imageManager
+                    });
+
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
                         'crosshairs',
                         'pointcloudManager',
+                        'scrollbar'
                     ];
 
                     self.setState({
