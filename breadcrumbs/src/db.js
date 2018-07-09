@@ -103,7 +103,7 @@ class Colocard implements Database {
         console.log(reason);
     }
 
-    postGraph(graph: Object, volume: string, author: string): Promise<string> {
+    postGraph(structure: Object, volume: string, author: string): Promise<string> {
         /*
         Post a graph to the colocard API.
 
@@ -112,10 +112,9 @@ class Colocard implements Database {
         well-formed graph object
 
         */
-        let structure = graphlib.json.write(graph);
         structure.multigraph = structure.options.multigraph;
         structure.directed = structure.options.directed;
-        structure.links = structure.options.edges;
+        structure.links = structure.edges;
         delete structure.edges;
         delete structure.options;
 

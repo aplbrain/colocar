@@ -360,17 +360,48 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     }
 
+    remapGraph(graph: Object) {
+        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+        let mappedNodes = graph.nodes().map(n => graph.node(n)).map(oldNode => {
+            let newNode: Node = {};
+            // Rescale the node centroids to align with data-space, not p5 space:
+            let newX = oldNode.x + xBounds[0] + (
+                (xBounds[1] - xBounds[0]) / 2
+            );
+            let newY = oldNode.y + yBounds[0] + (
+                (yBounds[1] - yBounds[0]) / 2
+            );
+            let newZ = oldNode.z + zBounds[0];
+
+            newNode.author = window.keycloak.profile.username;
+            newNode.coordinate = [newX, newY, newZ];
+            newNode.created = oldNode.created;
+            newNode.namespace = DB.breadcrumbs_name;
+            newNode.type = "synapse";
+            newNode.volume = this.volume._id;
+            return newNode;
+        });
+        let output = graphlib.json.write(graph);
+        output.nodes = mappedNodes;
+        return output;
+    }
+
     submitGraph() {
         /*
         Submit the Graph to the database
         */
         // eslint-disable-next-line no-restricted-globals
-        let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
+        let certain = confirm(
+            "Preparing to submit. Are you sure that your data are ready?"
+        );
         if (certain) {
-            let graph = this.layers.traceManager.exportGraph();
-            let transformedGraph = graph;
+            let graph = this.remapGraph(
+                this.layers.traceManager.exportGraph()
+            );
             return DB.postGraph(
-                transformedGraph,
+                graph,
                 this.volume._id,
                 window.keycloak.profile.username
             ).then(status => {
@@ -378,7 +409,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 // show error to user
                 return DB.updateQuestionStatus(this.questionId, status);
             }).then(() => {
-                return localForage.removeItem(`breadcrumbsStorage-${this.questionId}`);
+                return localForage.removeItem(
+                    `breadcrumbsStorage-${this.questionId}`
+                );
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);

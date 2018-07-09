@@ -20,13 +20,13 @@ const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
 // Radius of an axon marker
-const AXON_RADIUS = 10;
+const AXON_RADIUS = 25;
 // Radius of a marker for a node that is marked as a bookmark
-const BOOKMARK_RADIUS = 10;
+const BOOKMARK_RADIUS = 25;
 // Radius of a dendrite marker
-const DENDRITE_RADIUS = 10;
+const DENDRITE_RADIUS = 25;
 // Radius of the default marker for a neuron
-const DEFAULT_RADIUS = 5;
+const DEFAULT_RADIUS = 7;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
@@ -80,9 +80,6 @@ export default class TraceManager {
         Remap nodes to data-space and return COPY OF graph.
         */
         let graphCopy = graphlib.json.read(graphlib.json.write(this.g));
-        for (let node of graphCopy.nodes()) {
-            // TODO: Remap coords
-        }
         return graphCopy;
     }
 
