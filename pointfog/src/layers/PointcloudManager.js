@@ -109,7 +109,7 @@ export default class TraceManager {
 
         // Delete from nodesByLayer
         this.nodes = this.nodes.filter(node => node.id !== this.selectedNode.id);
-        this.selectedNode = this.nodes.slice(-1)[0];
+        this.selectedNode = null;
     }
 
     // Denormalize the node to scale it to the correct position.
