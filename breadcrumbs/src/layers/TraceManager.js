@@ -311,11 +311,13 @@ export default class TraceManager {
                 radius = DEFAULT_RADIUS;
             }
 
-            this.p.fill(
-                color.r, color.g, color.b,
-                (255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2)))
-            );
-            this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
+            if (this.activeNode) {
+                this.p.fill(
+                    color.r, color.g, color.b,
+                    (255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2)))
+                );
+                this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
+            }
         }
 
         // Draw edges
