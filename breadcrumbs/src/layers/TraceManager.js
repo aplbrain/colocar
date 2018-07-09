@@ -20,13 +20,13 @@ const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
 
 // Radius of an axon marker
-const AXON_RADIUS = 10;
+const AXON_RADIUS = 25;
 // Radius of a marker for a node that is marked as a bookmark
-const BOOKMARK_RADIUS = 10;
+const BOOKMARK_RADIUS = 25;
 // Radius of a dendrite marker
-const DENDRITE_RADIUS = 10;
+const DENDRITE_RADIUS = 25;
 // Radius of the default marker for a neuron
-const DEFAULT_RADIUS = 5;
+const DEFAULT_RADIUS = 7;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
@@ -43,6 +43,7 @@ export default class TraceManager {
     nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
+    visibility: boolean;
     newSubgraph: boolean;
 
     constructor(opts: {
@@ -59,6 +60,7 @@ export default class TraceManager {
 
         window.tm = this;
         this.drawHinting = false;
+        this.visibility = true;
 
         // Contain all previous nodes as added, in order. This enables
         // a "popping" action when deleting nodes.
@@ -75,6 +77,14 @@ export default class TraceManager {
         }
     }
 
+    exportGraph(): Object {
+        /*
+        Remap nodes to data-space and return COPY OF graph.
+        */
+        let graphCopy = graphlib.json.read(graphlib.json.write(this.g));
+        return graphCopy;
+    }
+
     getSelectedNodeZ(): number {
         if (this.activeNode) {
             return this.activeNode.z;
@@ -83,9 +93,17 @@ export default class TraceManager {
         }
     }
 
+    stopHinting(): void {
+        this.drawHinting = false;
+    }
+
+    toggleVisibility(): void {
+        console.log(this.visibility);
+        this.visibility = !this.visibility;
+    }
+
     mousePressed(): void {
         // If right click, select a node under the cursor:
-        console.log(this.p.mouseButton)
         if (this.p.mouseButton === this.p.RIGHT) {
             // Get the closest node and set it as active:
             // TODO: Filter in here
@@ -179,10 +197,18 @@ export default class TraceManager {
     }
 
     markAxon(): void {
-        this.g.node(this.activeNode.id).type = "presynaptic";
+        if (this.g.node(this.activeNode.id).type == "presynaptic") {
+            this.g.node(this.activeNode.id).type = undefined;
+        } else {
+            this.g.node(this.activeNode.id).type = "presynaptic";
+        }
     }
     markDendrite(): void {
-        this.g.node(this.activeNode.id).type = "postsynaptic";
+        if (this.g.node(this.activeNode.id).type == "postsynaptic") {
+            this.g.node(this.activeNode.id).type = undefined;
+        } else {
+            this.g.node(this.activeNode.id).type = "postsynaptic";
+        }
     }
     markBookmark(): void {
         if (this.g.node(this.activeNode.id).bookmarked) {
@@ -244,6 +270,10 @@ export default class TraceManager {
     }
 
     draw(): void {
+        if (!this.visibility) {
+            return;
+        }
+
         // While the mouse is down, but not released
         // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {

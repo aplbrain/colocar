@@ -1,5 +1,7 @@
 // @flow
 
+import * as graphlib from "graphlib";
+
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
@@ -101,7 +103,7 @@ class Colocard implements Database {
         console.log(reason);
     }
 
-    postGraph(graph: Object): Promise<string> {
+    postGraph(structure: Object, volume: string, author: string): Promise<string> {
         /*
         Post a graph to the colocard API.
 
@@ -110,10 +112,22 @@ class Colocard implements Database {
         well-formed graph object
 
         */
+        structure.multigraph = structure.options.multigraph;
+        structure.directed = structure.options.directed;
+        structure.links = structure.edges;
+        delete structure.edges;
+        delete structure.options;
+
+
         return fetch(`${this.url}/graphs`, {
             headers: this.headers,
             method: "POST",
-            body: JSON.stringify(graph)
+            body: JSON.stringify({
+                author: author,
+                namespace: this.breadcrumbs_name,
+                structure: structure,
+                volume: volume
+            })
         }).then(values => {
             console.log(values);
             return "completed";

@@ -32,7 +32,6 @@ This will run a development server in your shell (with linting and transpile out
 
 | Command | Description |
 |---------|-------------|
-| <kbd>tab</kbd> | Toggle between Trace and Pan modes |
 | <kbd>q</kbd>, <kbd>e</kbd> | Pan up and down in the z-stack |
 | <kbd>+</kbd>, <kbd>-</kbd> | Zoom in and out |
 | <kbd>a</kbd> | Mark the current node as an Axon |
@@ -41,6 +40,7 @@ This will run a development server in your shell (with linting and transpile out
 | <kbd>@</kbd> | Return to the previous bookmark |
 | <kbd>delete</kbd> | Delete the currently active node |
 | <kbd>esc</kbd> | Reset the zoom and pan of the scene |
+| <kbd>T</kbd> | Toggle trace visibility |
 
 ## Contributors
 
