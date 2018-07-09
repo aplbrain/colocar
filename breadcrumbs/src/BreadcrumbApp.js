@@ -490,6 +490,14 @@ export default class BreadcrumbApp extends Component<any, any> {
                     </div>
 
                     <div style={STYLES["controlRow"]}>
+                        <small><code>
+                            {
+                                this.questionId || ""
+                            }
+                        </code></small>
+                    </div>
+
+                    <div style={STYLES["controlRow"]}>
                         <button onClick={()=>this.reset()}>Reset viewport</button>
                     </div>
 
