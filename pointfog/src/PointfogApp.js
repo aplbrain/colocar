@@ -68,7 +68,8 @@ export default class PointfogApp extends Component<any, any> {
         ready?: boolean,
         scale?: number,
         currentZ?: number,
-        nodeCount: number
+        nodeCount: number,
+        saveInProgress: boolean
     };
 
     questionId: string;
@@ -79,7 +80,8 @@ export default class PointfogApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
-            nodeCount: 0
+            nodeCount: 0,
+            saveInProgress: false,
         };
 
         // Create p5 sketch
@@ -355,11 +357,17 @@ export default class PointfogApp extends Component<any, any> {
         /*
         Save nodes to a localforage cache
         */
+        this.setState({
+            saveInProgress: true
+        });
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
             `pointfogStorage-${this.questionId}`,
             nodes,
         ).then((savedSynapses, errorSaving) => {
+            this.setState({
+                saveInProgress: false
+            });
             console.log("saved nodes!");
         });
     }
@@ -368,6 +376,9 @@ export default class PointfogApp extends Component<any, any> {
         /*
         Submit the Nodes to the database
         */
+        this.setState({
+            saveInProgress: true
+        });
         // eslint-disable-next-line no-restricted-globals
         let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
         console.log(certain);
@@ -399,10 +410,17 @@ export default class PointfogApp extends Component<any, any> {
             return DB.postNodes(transformedNodes).then(status => {
                 return DB.updateQuestionStatus(this.questionId, status);
             }).then(() => {
+                this.setState({
+                    saveInProgress: false
+                });
                 return localForage.removeItem(`pointfogStorage-${this.questionId}`);
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
+            });
+        } else {
+            this.setState({
+                saveInProgress: false
             });
         }
     }
@@ -450,13 +468,15 @@ export default class PointfogApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["submit"]}
-                                onClick={() => this.submitNodes()}>
+                                onClick={() => this.submitNodes()}
+                                disabled={this.state.saveInProgress}>
                                 <ContentSend />
                             </FloatingActionButton>
                             <FloatingActionButton
                                 secondary={true}
                                 style={STYLES["save"]}
-                                onClick={() => this.saveNodes()}>
+                                onClick={() => this.saveNodes()}
+                                disabled={this.state.saveInProgress}>
                                 <ContentSave />
                             </FloatingActionButton>
                         </div>

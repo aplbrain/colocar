@@ -63,6 +63,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         ready?: boolean,
         scale?: number,
         currentZ?: number,
+        saveInProgress: boolean
     };
 
     questionId: string;
@@ -72,7 +73,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        this.state = {};
+        this.state = {
+            saveInProgress: false
+        };
 
         // Create p5 sketch
         let self = this;
@@ -109,7 +112,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
-                    console.log(startingGraph);
 
                     // TODO: Graphs will have more than one node! Filter for the starting node.
                     let startingSynapse = startingGraph.structure.nodes[0];
@@ -419,6 +421,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         /*
         Submit the Graph to the database
         */
+        this.setState({ saveInProgress: true });
         // eslint-disable-next-line no-restricted-globals
         let certain = confirm(
             "Preparing to submit. Are you sure that your data are ready?"
@@ -436,12 +439,19 @@ export default class BreadcrumbApp extends Component<any, any> {
                 // show error to user
                 return DB.updateQuestionStatus(this.questionId, status);
             }).then(() => {
+                this.setState({
+                    saveInProgress: true
+                });
                 return localForage.removeItem(
                     `breadcrumbsStorage-${this.questionId}`
                 );
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
+            });
+        } else {
+            this.setState({
+                saveInProgress: false
             });
         }
     }
@@ -487,7 +497,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["submit"]}
-                                onClick={() => this.submitGraph()}>
+                                onClick={() => this.submitGraph()}
+                                disabled={this.state.saveInProgress}>
                                 <ContentSend />
                             </FloatingActionButton>
                         </div>
