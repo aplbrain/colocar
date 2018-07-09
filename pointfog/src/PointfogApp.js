@@ -88,10 +88,12 @@ export default class PointfogApp extends Component<any, any> {
 
                 canvas.mousePressed(function() {
                     self.layers.pointcloudManager.mousePressed();
+                    self.updateUIStatus();
                 });
 
                 canvas.mouseClicked(function() {
                     self.layers.pointcloudManager.mouseClicked();
+                    self.updateUIStatus();
                 });
 
                 self.ghostLayer = p.createGraphics(p.width, p.height);
@@ -155,6 +157,7 @@ export default class PointfogApp extends Component<any, any> {
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
+                    self.updateUIStatus();
 
                     self.insertStoredNodes();
 
@@ -229,6 +232,7 @@ export default class PointfogApp extends Component<any, any> {
                 default:
                     break;
                 }
+                self.updateUIStatus();
             };
 
             p.mouseWheel = function (e) {
@@ -314,6 +318,7 @@ export default class PointfogApp extends Component<any, any> {
                 this.layers.pointcloudManager.addNode(node.id, node)
             });
             this.layers.pointcloudManager.selectedNode = nodes.slice(-1)[0];
+            this.updateUIStatus();
         });
     }
 
@@ -335,6 +340,12 @@ export default class PointfogApp extends Component<any, any> {
 
     componentDidMount() {
         new p5(this.sketch);
+    }
+
+    updateUIStatus(): void {
+        this.setState({
+            nodeCount: this.layers.pointcloudManager.nodes.length
+        });
     }
 
     saveNodes() {
@@ -418,6 +429,13 @@ export default class PointfogApp extends Component<any, any> {
                             <button onClick={()=>this.decrementZ()}>-</button>
                             {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
                             <button onClick={()=>this.incrementZ()}>+</button>
+                        </div>
+                    </div>
+
+                    <div style={STYLES["controlRow"]}>
+                        <div style={STYLES["controlLabel"]}>Nodes</div>
+                        <div style={STYLES["controlToolInline"]}>
+                            {this.state.nodeCount}
                         </div>
                     </div>
 
