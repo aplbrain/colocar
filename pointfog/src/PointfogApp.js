@@ -439,56 +439,58 @@ export default class PointfogApp extends Component<any, any> {
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
                     <table>
-                        <tr>
-                            <td>
-                                <div style={STYLES["controlLabel"]}>Zoom</div>
-                            </td>
-                            <td>
-                                <div style={STYLES["controlToolInline"]}>
-                                    <button onClick={
-                                        ()=>this.scaleDown()
-                                    }>-</button>
-                                    {Math.round(100 * this.state.scale)}%
-                                    <button onClick={()=>{this.scaleUp()}}>+</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style={STYLES["controlLabel"]}>Layer</div>
-                            </td>
-                            <td>
-                                <div style={STYLES["controlToolInline"]}>
-                                    <button onClick={()=>this.decrementZ()}>-</button>
-                                    {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
-                                    <button onClick={()=>this.incrementZ()}>+</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style={STYLES["controlRow"]}>
-                                <div style={STYLES["controlLabel"]}>Nodes</div>
-                                <div style={STYLES["controlToolInline"]}>
-                                    {this.state.nodeCount}
-                                </div>
-                            </td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style={STYLES["controlLabel"]}>Zoom</div>
+                                </td>
+                                <td>
+                                    <div style={STYLES["controlToolInline"]}>
+                                        <button onClick={
+                                            ()=>this.scaleDown()
+                                        }>-</button>
+                                        {Math.round(100 * this.state.scale)}%
+                                        <button onClick={()=>{this.scaleUp()}}>+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style={STYLES["controlLabel"]}>Layer</div>
+                                </td>
+                                <td>
+                                    <div style={STYLES["controlToolInline"]}>
+                                        <button onClick={()=>this.decrementZ()}>-</button>
+                                        {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
+                                        <button onClick={()=>this.incrementZ()}>+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style={STYLES["controlRow"]}>
+                                    <div style={STYLES["controlLabel"]}>Nodes</div>
+                                    <div style={STYLES["controlToolInline"]}>
+                                        {this.state.nodeCount}
+                                    </div>
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <td colSpan={2}>
-                                <small>
-                                    <code>
-                                        {this.questionId || ""}
-                                    </code>
-                                </small>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <small>
+                                        <code>
+                                            {this.questionId || ""}
+                                        </code>
+                                    </small>
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <td colSpan={2}>
-                                <button onClick={()=>this.reset()}>Reset viewport</button>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <button onClick={()=>this.reset()}>Reset viewport</button>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
 
                     <MuiThemeProvider>
