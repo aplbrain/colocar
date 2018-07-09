@@ -24,7 +24,6 @@ $ yarn
 
 | Command | Description |
 |---------|-------------|
-| <kbd>tab</kbd> | Toggle between Trace and Pan modes |
 | <kbd>q</kbd>, <kbd>e</kbd> | Pan up and down in the z-stack |
 | <kbd>+</kbd>, <kbd>-</kbd> | Zoom in and out |
 | <kbd>delete</kbd> | Delete the currently active node |
