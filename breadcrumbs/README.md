@@ -63,7 +63,7 @@ yarn build
 - **Zip the build.**
 
 ```shell
-zip build.zip build/*
+zip -r build.zip build/*
 ```
 
 - **Upload the build.**
