@@ -31,7 +31,7 @@ const DEFAULT_RADIUS = 7;
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
 // Number of z-slices after which a node is no longer selectable
-const SELECTION_RADIUS_Z = 6;
+const SELECTION_RADIUS_Z = 20;
 
 
 export default class TraceManager {
@@ -293,22 +293,24 @@ export default class TraceManager {
         // Draw nodes
         for (let node of this.g.nodes().map(n => this.g.node(n))) {
             let nodePos = this.transformCoords(node.x, node.y);
-            // TODO: Color by type
-            // TODO: Fade with distance
 
             let color = DEFAULT_COLOR;
             let radius = DEFAULT_RADIUS;
-            if (node.type === "presynaptic") {
+
+            if (node.bookmarked) {
+                color = BOOKMARK_COLOR;
+                radius = BOOKMARK_RADIUS;
+            } else if (node.type === "presynaptic") {
                 color = AXON_COLOR;
                 radius = AXON_RADIUS;
             } else if (node.type === "postsynaptic") {
                 color = DENDRITE_COLOR;
                 radius = DENDRITE_RADIUS;
+            } else {
+                color = DEFAULT_COLOR;
+                radius = DEFAULT_RADIUS;
             }
-            if (node.bookmarked) {
-                color = BOOKMARK_COLOR;
-                radius = BOOKMARK_RADIUS;
-            }
+
             this.p.fill(
                 color.r, color.g, color.b,
                 (255 - (Math.pow(this.activeNode.z - this.im.currentZ, 2)))
@@ -322,9 +324,6 @@ export default class TraceManager {
         })) {
             let nodePosU = this.transformCoords(v.x, v.y);
             let nodePosV = this.transformCoords(w.x, w.y);
-            // TODO: Color by type
-            // TODO: Fade with distance
-
 
             if (Math.abs(w.z - this.im.currentZ) > SELECTION_RADIUS_Z) {
                 let diminishingFactor = (v.z + 1) / (this.im.currentZ + 1);
