@@ -462,44 +462,56 @@ export default class BreadcrumbApp extends Component<any, any> {
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
-                    <div style={STYLES["controlRow"]}>
-                        <div style={STYLES["controlLabel"]}>Zoom</div>
-
-                        <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>this.scaleDown()}>-</button>
-                            {Math.round(100 * this.state.scale)}%
-                            <button onClick={()=>this.scaleUp()}>+</button>
-                        </div>
-                    </div>
-
-                    <div style={STYLES["controlRow"]}>
-                        <div style={STYLES["controlLabel"]}>Layer</div>
-
-                        <div style={STYLES["controlToolInline"]}>
-                            <button onClick={()=>this.decrementZ()}>-</button>
-                            {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
-                            <button onClick={()=>this.incrementZ()}>+</button>
-                        </div>
-                    </div>
-                    <div style={STYLES["controlRow"]}>
-                        <div style={STYLES["controlLabel"]}>Nodes</div>
-
-                        <div style={STYLES["controlToolInline"]}>
-                            {this.state.nodeCount}
-                        </div>
-                    </div>
-
-                    <div style={STYLES["controlRow"]}>
-                        <small><code>
-                            {
-                                this.questionId || ""
-                            }
-                        </code></small>
-                    </div>
-
-                    <div style={STYLES["controlRow"]}>
-                        <button onClick={()=>this.reset()}>Reset viewport</button>
-                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <div style={STYLES["controlLabel"]}>Zoom</div>
+                            </td>
+                            <td>
+                                <div style={STYLES["controlToolInline"]}>
+                                    <button onClick={()=>this.scaleDown()}>-</button>
+                                    {Math.round(100 * this.state.scale)}%
+                                    <button onClick={()=>this.scaleUp()}>+</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style={STYLES["controlLabel"]}>Layer</div>
+                            </td>
+                            <td>
+                                <div style={STYLES["controlToolInline"]}>
+                                    <button onClick={()=>this.decrementZ()}>-</button>
+                                    {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
+                                    <button onClick={()=>this.incrementZ()}>+</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style={STYLES["controlLabel"]}>Nodes</div>
+                            </td>
+                            <td>
+                                <div style={STYLES["controlToolInline"]}>
+                                    {this.state.nodeCount}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={2}>
+                                <small><code>
+                                    {
+                                        this.questionId || ""
+                                    }
+                                </code></small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={2}>
+                                <button onClick={()=>this.reset()}>Reset viewport</button>
+                            </td>
+                        </tr>
+                    </table>
 
                     <MuiThemeProvider>
                         <div>
