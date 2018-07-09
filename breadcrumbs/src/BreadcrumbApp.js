@@ -45,7 +45,7 @@ const STYLES = {
     },
     submit: {
         position: "fixed",
-        left: "2em",
+        right: "2em",
         bottom: "2em"
     }
 };

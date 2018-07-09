@@ -68,6 +68,7 @@ export default class PointfogApp extends Component<any, any> {
         ready?: boolean,
         scale?: number,
         currentZ?: number,
+        nodeCount: number
     };
 
     questionId: string;
@@ -77,7 +78,9 @@ export default class PointfogApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        this.state = {};
+        this.state = {
+            nodeCount: 0
+        };
 
         // Create p5 sketch
         let self = this;
