@@ -379,12 +379,19 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
             newNode.namespace = DB.breadcrumbs_name;
-            newNode.type = "synapse";
+            newNode.type = oldNode.type;
+            newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
             return newNode;
         });
         let output = graphlib.json.write(graph);
         output.nodes = mappedNodes;
+        output.edges = output.edges.map(e => {
+            let newEdge = {};
+            newEdge.source = e.v;
+            newEdge.target = e.w;
+            return newEdge;
+        });
         return output;
     }
 
