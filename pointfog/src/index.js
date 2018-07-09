@@ -5,6 +5,8 @@ import AppContainer from './AppContainer';
 import registerServiceWorker from './registerServiceWorker';
 
 
+window._appversion = "1.0.0";
+
 // Inline hack to get keycloak to load before any other JS associated with
 // the React app:
 window.keycloak = window.Keycloak({
