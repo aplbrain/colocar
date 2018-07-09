@@ -43,6 +43,7 @@ export default class TraceManager {
     nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
+    visibility: boolean;
     newSubgraph: boolean;
 
     constructor(opts: {
@@ -59,6 +60,7 @@ export default class TraceManager {
 
         window.tm = this;
         this.drawHinting = false;
+        this.visibility = true;
 
         // Contain all previous nodes as added, in order. This enables
         // a "popping" action when deleting nodes.
@@ -91,9 +93,17 @@ export default class TraceManager {
         }
     }
 
+    stopHinting(): void {
+        this.drawHinting = false;
+    }
+
+    toggleVisibility(): void {
+        console.log(this.visibility);
+        this.visibility = !this.visibility;
+    }
+
     mousePressed(): void {
         // If right click, select a node under the cursor:
-        console.log(this.p.mouseButton)
         if (this.p.mouseButton === this.p.RIGHT) {
             // Get the closest node and set it as active:
             // TODO: Filter in here
@@ -187,10 +197,18 @@ export default class TraceManager {
     }
 
     markAxon(): void {
-        this.g.node(this.activeNode.id).type = "presynaptic";
+        if (this.g.node(this.activeNode.id).type == "presynaptic") {
+            this.g.node(this.activeNode.id).type = undefined;
+        } else {
+            this.g.node(this.activeNode.id).type = "presynaptic";
+        }
     }
     markDendrite(): void {
-        this.g.node(this.activeNode.id).type = "postsynaptic";
+        if (this.g.node(this.activeNode.id).type == "postsynaptic") {
+            this.g.node(this.activeNode.id).type = undefined;
+        } else {
+            this.g.node(this.activeNode.id).type = "postsynaptic";
+        }
     }
     markBookmark(): void {
         if (this.g.node(this.activeNode.id).bookmarked) {
@@ -252,6 +270,10 @@ export default class TraceManager {
     }
 
     draw(): void {
+        if (!this.visibility) {
+            return;
+        }
+
         // While the mouse is down, but not released
         // Draw a transparent node and edge showing where they will appear on release.
         if (this.drawHinting) {

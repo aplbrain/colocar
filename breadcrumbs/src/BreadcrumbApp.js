@@ -194,6 +194,12 @@ export default class BreadcrumbApp extends Component<any, any> {
                     // "s" or down arrow is pressed
                     self.panDown();
                     break;
+                case 72:  // H cancels hinting
+                    self.stopHinting();
+                    break;
+                case 84:  // T toggles trace visibility
+                    self.toggleTraceVisibility();
+                    break;
                 case 65:
                     self.markAxon();
                     break;
@@ -334,6 +340,14 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     markAxon(): void {
         this.layers.traceManager.markAxon();
+    }
+
+    stopHinting(): void {
+        this.layers.traceManager.stopHinting();
+    }
+
+    toggleTraceVisibility(): void {
+        this.layers.traceManager.toggleVisibility();
     }
 
     markDendrite(): void {
