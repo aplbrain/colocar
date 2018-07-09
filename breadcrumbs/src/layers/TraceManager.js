@@ -245,6 +245,10 @@ export default class TraceManager {
             return;
         }
 
+        if (this.g.neighbors(this.activeNode.id).length > 1) {
+            return;
+        }
+
         // Delete from graph
         this.g.removeNode(this.activeNode.id);
         // Assign new last-node to `activeNode`
