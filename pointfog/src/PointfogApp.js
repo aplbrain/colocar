@@ -11,8 +11,8 @@ import Crosshairs from "./layers/Crosshairs";
 import Scrollbar from "./layers/Scrollbar";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from "material-ui/FloatingActionButton";
-import ContentSend from "material-ui/svg-icons/content/send";
 import ContentSave from "material-ui/svg-icons/content/save";
+import ContentSend from "material-ui/svg-icons/content/send";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
@@ -494,17 +494,17 @@ export default class PointfogApp extends Component<any, any> {
                     <MuiThemeProvider>
                         <div>
                             <FloatingActionButton
-                                style={STYLES["submit"]}
-                                onClick={() => this.submitNodes()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSend />
-                            </FloatingActionButton>
-                            <FloatingActionButton
                                 secondary={true}
                                 style={STYLES["save"]}
                                 onClick={() => this.saveNodes()}
                                 disabled={this.state.saveInProgress}>
                                 <ContentSave />
+                            </FloatingActionButton>
+                            <FloatingActionButton
+                                style={STYLES["submit"]}
+                                onClick={() => this.submitNodes()}
+                                disabled={this.state.saveInProgress}>
+                                <ContentSend />
                             </FloatingActionButton>
                         </div>
                     </MuiThemeProvider>
