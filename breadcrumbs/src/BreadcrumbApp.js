@@ -354,7 +354,11 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     markAxon(): void {
-        this.layers.traceManager.markAxon();
+        this.layers.traceManager.markNodeType("presynaptic");
+    }
+
+    markDendrite(): void {
+        this.layers.traceManager.markNodeType("postsynaptic");
     }
 
     stopHinting(): void {
@@ -363,10 +367,6 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     toggleTraceVisibility(): void {
         this.layers.traceManager.toggleVisibility();
-    }
-
-    markDendrite(): void {
-        this.layers.traceManager.markDendrite();
     }
 
     markBookmark(): void {
