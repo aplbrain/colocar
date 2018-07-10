@@ -394,7 +394,25 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     saveGraph() {
-
+        this.setState({
+            saveInProgress: true
+        });
+        let graphStr = graphlib.json.write(this.layers.traceManager.g);
+        localForage.setItem(
+            `breadcrumbsGraph-${this.questionId}`,
+            graphStr,
+        ).then((savedGraph, errorSaving) => {
+            let activeNodeId = this.layers.traceManager.activeNode.id;
+            return localForage.setItem(
+                `breadcrumbsActive-${this.questionId}`,
+                activeNodeId
+            );
+        }).then((savedActiveId, errorSaving) => {
+            this.setState({
+                saveInProgress: false
+            });
+            console.log("saved graph!");
+        });
     }
 
     remapGraph(graph: Object) {
