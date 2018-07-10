@@ -12,6 +12,8 @@ const AXON_COLOR = { r: 255, g: 0, b: 0 };
 const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
 // Color of the currently selected node "highlight" area
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
+// Color of the starting synapse
+const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 };
 // Color of a node that has been marked as a bookmark
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
 // Default node color
@@ -147,6 +149,13 @@ export default class TraceManager {
             n.id = n.id || uuidv4();
             this.g.setNode(n.id, n);
         });
+        if (this.g.nodeCount() === 1) {
+            let startingSynapseId = this.g.nodes()[0];
+            let startingSynapse = this.g.node(startingSynapseId);
+            startingSynapse.protected = true;
+            startingSynapse.type = "initial";
+            this.g.setNode(startingSynapseId, startingSynapse);
+        }
         // graph.links.forEach(l => {
         //     this.g.setEdge();
         // });
@@ -196,20 +205,18 @@ export default class TraceManager {
         this.drawHinting = false;
     }
 
-    markAxon(): void {
-        if (this.g.node(this.activeNode.id).type == "presynaptic") {
-            this.g.node(this.activeNode.id).type = undefined;
-        } else {
-            this.g.node(this.activeNode.id).type = "presynaptic";
+    markNodeType(nodeType: string): void {
+        let node = this.g.node(this.activeNode.id)
+        if (!node.protected) {
+            if (node.type == nodeType) {
+                node.type = undefined;
+            } else {
+                node.type = nodeType;
+            }
+            this.g.setNode(this.activeNode.id, node)
         }
     }
-    markDendrite(): void {
-        if (this.g.node(this.activeNode.id).type == "postsynaptic") {
-            this.g.node(this.activeNode.id).type = undefined;
-        } else {
-            this.g.node(this.activeNode.id).type = "postsynaptic";
-        }
-    }
+
     markBookmark(): void {
         if (this.g.node(this.activeNode.id).bookmarked) {
             this.g.node(this.activeNode.id).bookmarked = false;
@@ -303,6 +310,9 @@ export default class TraceManager {
 
             if (node.bookmarked) {
                 color = BOOKMARK_COLOR;
+                radius = BOOKMARK_RADIUS;
+            } else if (node.type === "initial") {
+                color = STARTING_SYNAPSE_COLOR;
                 radius = BOOKMARK_RADIUS;
             } else if (node.type === "presynaptic") {
                 color = AXON_COLOR;
