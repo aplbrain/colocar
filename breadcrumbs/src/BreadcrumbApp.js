@@ -276,7 +276,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
             p.mouseWheel = function(e) {
                 // Handle pinch-to-zoom functionality
-                if (e.ctrlKey) {
+                if (e.ctrlKey || e.shiftKey) {
                     if (e.wheelDelta < 0) {
                         self.scaleDown();
                     } else {
