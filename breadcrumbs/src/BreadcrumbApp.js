@@ -187,73 +187,75 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
 
             p.keyPressed = function() {
-                // QWASDE navigation, WASD for xy plane, QE to traverse z
+                const aKey = 65;
+                const dKey = 68;
+                const eKey = 69;
+                const hKey = 72;
+                const qKey = 81;
+                const tKey = 84;
+                const upArrowKey = 38;
+                const downArrowKey = 40;
+                const leftArrowKey = 37;
+                const rightArrowKey = 39;
+                const plusKey = 187;
+                const minusKey = 189;
+                const escapeKey = 27;
+                const exclamationKey = 49;
+                const atSignKey = 50;
+                const backspaceKey = 8;
                 switch (p.keyCode) {
-                case 87:
-                case 119:
-                // case 38:
-                    // "w" or up arrow is pressed
-                    self.panUp();
-                    break;
-                case 83:
-                case 115:
-                // case 40:
-                    // "s" or down arrow is pressed
+                // navigation (move image opposite to camera)
+                case upArrowKey:
                     self.panDown();
                     break;
-                case 72:  // H cancels hinting
-                    self.stopHinting();
+                case downArrowKey:
+                    self.panUp();
                     break;
-                case 84:  // T toggles trace visibility
-                    self.toggleTraceVisibility();
-                    break;
-                case 65:
-                    self.markAxon();
-                    break;
-                case 97:
-                // case 37:
-                    // left arrow is pressed
-                    self.panLeft();
-                    break;
-                case 68:
-                    self.markDendrite();
-                    break;
-                case 100:
-                // case 39:
-                    // "d" or right arrow is pressed
+                case leftArrowKey:
                     self.panRight();
                     break;
-                case 81:
-                case 113:
-                    // "q" is pressed
+                case rightArrowKey:
+                    self.panLeft();
+                    break;
+                case qKey:
                     self.decrementZ();
                     break;
-                case 69:
-                case 101:
-                    // "e" is pressed
+                case eKey:
                     self.incrementZ();
                     break;
-                case 187:
-                    // "+" is pressed
+                // view update
+                case plusKey:
                     self.scaleUp();
                     break;
-                case 189:
-                    // "-" is pressed
+                case minusKey:
                     self.scaleDown();
                     break;
-                case 27:
-                    // "esc" is pressed, all reset
+                case escapeKey:
                     self.reset();
                     break;
-                case 8:
-                case 46:
-                    self.deleteActiveNode();
+                case hKey:
+                    self.stopHinting();
                     break;
-                case 49:
+                case tKey:
+                    self.toggleTraceVisibility();
+                    break;
+                // label nodes
+                case aKey:
+                    self.markAxon();
+                    break;
+                case dKey:
+                    self.markDendrite();
+                    break;
+                // bookmarking
+                case exclamationKey:
                     self.markBookmark();
                     break;
-                case 50:
+                case atSignKey:
                     self.popBookmark();
+                    break;
+                // deletion
+                case backspaceKey:
+                    self.deleteActiveNode();
                     break;
                 default:
                     break;

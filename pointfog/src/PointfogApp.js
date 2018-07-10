@@ -182,68 +182,66 @@ export default class PointfogApp extends Component<any, any> {
             };
 
             p.keyPressed = function() {
-                // QWASDE navigation, WASD for xy plane, QE to traverse z
+                const aKey = 65;
+                const dKey = 68;
+                const eKey = 69;
+                const qKey = 81;
+                const sKey = 83;
+                const tKey = 84;
+                const wKey = 87;
+                const upArrowKey = 38;
+                const downArrowKey = 40;
+                const leftArrowKey = 37;
+                const rightArrowKey = 39;
+                const plusKey = 187;
+                const minusKey = 189;
+                const escapeKey = 27;
+                const backspaceKey = 8;
                 switch (p.keyCode) {
-                case 87:
-                case 119:
-                case 38:
-                    // "w" or up arrow is pressed
+                // navigation (move image opposite to camera)
+                case wKey:
+                case upArrowKey:
                     self.panDown();
                     break;
-                case 83:
-                case 115:
-                case 40:
-                    // "s" or down arrow is pressed
+                case sKey:
+                case downArrowKey:
                     self.panUp();
                     break;
-                case 97:
-                case 37:
-                    // left arrow is pressed
+                case aKey:
+                case leftArrowKey:
                     self.panRight();
                     break;
-                case 100:
-                case 39:
-                    // "d" or right arrow is pressed
+                case dKey:
+                case rightArrowKey:
                     self.panLeft();
                     break;
-                case 81:
-                case 113:
-                    // "q" is pressed
+                case qKey:
                     self.decrementZ();
                     break;
-                case 69:
-                case 101:
-                    // "e" is pressed
+                case eKey:
                     self.incrementZ();
                     break;
-                case 187:
-                    // "+" is pressed
+                // view update
+                case plusKey:
                     self.scaleUp();
                     break;
-                case 189:
-                    // "-" is pressed
+                case minusKey:
                     self.scaleDown();
                     break;
-                case 27:
-                    // "esc" is pressed, all reset
+                case escapeKey:
                     self.reset();
                     break;
-                case 8:
-                case 46:
-                    self.deleteActiveNode();
-                    break;
-                // case 49:
-                //     self.markBookmark();
-                //     break;
-                // case 50:
-                //     self.popBookmark();
-                //     break;
-                case 84: // T
+                case tKey:
                     self.toggleCrosshairs();
+                    break;
+                // deletion
+                case backspaceKey:
+                    self.deleteActiveNode();
                     break;
                 default:
                     break;
                 }
+
                 self.updateUIStatus();
             };
 
