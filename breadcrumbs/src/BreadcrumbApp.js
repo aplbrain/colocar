@@ -12,6 +12,7 @@ import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from "material-ui/FloatingActionButton";
+import ContentSave from "material-ui/svg-icons/content/save";
 import ContentSend from "material-ui/svg-icons/content/send";
 import localForage from "localforage";
 
@@ -43,6 +44,11 @@ const STYLES = {
     },
     controlToolInline: {
         float: "right",
+    },
+    save: {
+        position: "fixed",
+        left: "2em",
+        bottom: "2em"
     },
     submit: {
         position: "fixed",
@@ -526,6 +532,13 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     <MuiThemeProvider>
                         <div>
+                            <FloatingActionButton
+                                secondary={true}
+                                style={STYLES["save"]}
+                                onClick={() => this.saveGraph()}
+                                disabled={this.state.saveInProgress}>
+                                <ContentSave />
+                            </FloatingActionButton>
                             <FloatingActionButton
                                 style={STYLES["submit"]}
                                 onClick={() => this.submitGraph()}
