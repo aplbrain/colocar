@@ -115,13 +115,10 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return;
                     }
                     let question = res.question;
-                    let startingGraph = question.instructions.graph;
+                    let colocardGraph = question.instructions.graph;
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
-
-                    // TODO: Graphs will have more than one node! Filter for the starting node.
-                    let startingSynapse = startingGraph.structure.nodes[0];
 
                     self.questionId = question._id;
                     self.volume = volume;
@@ -136,11 +133,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
 
-                    let synapseRemappedPosition = {
-                        x: startingSynapse.coordinate[0] - xBounds[0] - ((xBounds[1] - xBounds[0])/2),
-                        y: startingSynapse.coordinate[1] - yBounds[0] - ((yBounds[1] - yBounds[0])/2),
-                        z: Math.round(startingSynapse.coordinate[2] - zBounds[0])
-                    };
+                    let p5Graph = this.p5FromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -415,13 +408,50 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
-    remapGraph(graph: Object) {
+    p5FromColocard(graph: Object) {
+        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+        let mappedNodes = graph.nodes().map(n => graph.node(n)).map(oldNode => {
+            let newNode = {};
+            // Rescale the node centroids to align with p5-space, not data-space:
+            let newX = oldNode.coordinate[0] - xBounds[0] - (
+                (xBounds[1] - xBounds[0]) / 2
+            );
+            let newY = oldNode.coordinate[1] - yBounds[0] - (
+                (yBounds[1] - yBounds[0]) / 2
+            );
+            let newZ = Math.round(oldNode.coordinate[2] - zBounds[0]);
+
+            newNode.author = window.keycloak.profile.username;
+            newNode.x = newX;
+            newNode.y = newY;
+            newNode.z = newZ;
+            newNode.created = oldNode.created;
+            newNode.namespace = DB.breadcrumbs_name;
+            newNode.type = oldNode.type;
+            newNode.id = oldNode.id;
+            newNode.volume = this.volume._id;
+            return newNode;
+        });
+        let output = graphlib.json.write(graph);
+        output.nodes = mappedNodes;
+        output.edges = output.edges.map(e => {
+            let newEdge = {};
+            newEdge.source = e.v;
+            newEdge.target = e.w;
+            return newEdge;
+        });
+        return output;
+    }
+
+    p5ToColocard(graph: Object) {
         let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
         let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
         let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
         let mappedNodes = graph.nodes().map(n => graph.node(n)).map(oldNode => {
             let newNode: Node = {};
-            // Rescale the node centroids to align with data-space, not p5 space:
+            // Rescale the node centroids to align with data-space, not p5-space:
             let newX = oldNode.x + xBounds[0] + (
                 (xBounds[1] - xBounds[0]) / 2
             );
@@ -460,7 +490,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             "Preparing to submit. Are you sure that your data are ready?"
         );
         if (certain) {
-            let graph = this.remapGraph(
+            let graph = this.p5ToColocard(
                 this.layers.traceManager.exportGraph()
             );
             return DB.postGraph(
