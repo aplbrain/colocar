@@ -115,7 +115,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return;
                     }
                     let question = res.question;
-                    let colocardGraph = question.instructions.graph;
+                    let colocardGraph = question.instructions.graph.structure;
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
@@ -133,28 +133,18 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
 
-                    let p5Graph = this.p5FromColocard(colocardGraph);
+                    let p5Graph = self.p5FromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         imageURIs,
-                        startingZ: synapseRemappedPosition.z
+                        startingZ: 0
                     });
 
                     self.layers["traceManager"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: {
-                            links: [],
-                            nodes: [{
-                                id: startingSynapse._id || startingSynapse.id,
-                                x: synapseRemappedPosition.x,
-                                y: synapseRemappedPosition.y,
-                                z: synapseRemappedPosition.z,
-                                protected: true
-                            }]
-                        },
-                        activeNodeId: startingSynapse._id || startingSynapse.id
+                        startingGraph: null
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
@@ -175,8 +165,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodes().length
+                        nodeCount: self.layers.traceManager.g.nodeCount()
                     });
+
+                    self.insertStoredGraph(p5Graph);
+
                 });
 
             };
@@ -386,21 +379,34 @@ export default class BreadcrumbApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
+    insertStoredGraph(parentGraph: Object) {
+        localForage.getItem(
+            `breadcrumbsStorage-${this.questionId}`
+        ).then(storedData => {
+            let storedGraph = graphlib.json.read(storedData.graphStr);
+            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
+            this.layers.imageManager.reset();
+            this.updateUIStatus();
+        }).catch((err) => {
+            this.layers.traceManager.insertGraph(parentGraph);
+            this.layers.imageManager.reset();
+            this.updateUIStatus();
+        });
+    }
+
     saveGraph() {
         this.setState({
             saveInProgress: true
         });
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
+        let activeNodeId = this.layers.traceManager.activeNode.id;
         localForage.setItem(
-            `breadcrumbsGraph-${this.questionId}`,
-            graphStr,
-        ).then((savedGraph, errorSaving) => {
-            let activeNodeId = this.layers.traceManager.activeNode.id;
-            return localForage.setItem(
-                `breadcrumbsActive-${this.questionId}`,
+            `breadcrumbsStorage-${this.questionId}`,
+            {
+                graphStr,
                 activeNodeId
-            );
-        }).then((savedActiveId, errorSaving) => {
+            }
+        ).then((storedData, errorSaving) => {
             this.setState({
                 saveInProgress: false
             });
@@ -412,7 +418,12 @@ export default class BreadcrumbApp extends Component<any, any> {
         let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
         let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
         let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
-        let mappedNodes = graph.nodes().map(n => graph.node(n)).map(oldNode => {
+        let output = new graphlib.Graph({
+            directed: true,
+            compound: false,
+            multigraph: false
+        });
+        graph.nodes.forEach(oldNode => {
             let newNode = {};
             // Rescale the node centroids to align with p5-space, not data-space:
             let newX = oldNode.coordinate[0] - xBounds[0] - (
@@ -432,15 +443,13 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
-            return newNode;
+            output.setNode(newNode.id, newNode);
         });
-        let output = graphlib.json.write(graph);
-        output.nodes = mappedNodes;
-        output.edges = output.edges.map(e => {
+        graph.links.forEach(e => {
             let newEdge = {};
             newEdge.source = e.v;
             newEdge.target = e.w;
-            return newEdge;
+            output.setEdge(newEdge);
         });
         return output;
     }

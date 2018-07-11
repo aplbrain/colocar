@@ -52,7 +52,6 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
-        activeNodeId: string
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
@@ -67,16 +66,6 @@ export default class TraceManager {
         // Contain all previous nodes as added, in order. This enables
         // a "popping" action when deleting nodes.
         this.nodeStack = [];
-
-        if (opts.startingGraph) {
-            // TODO: Allow arbitrary graph instead of single-node graph
-            this.insertGraph(
-                opts.startingGraph,
-                opts.activeNodeId
-            );
-        } else {
-            throw "Must supply a starting graph";
-        }
     }
 
     exportGraph(): Object {
@@ -145,16 +134,27 @@ export default class TraceManager {
     }
 
     insertGraph(graph: Object, activeNodeId: string) {
-        graph.nodes.forEach(n => {
-            n.id = n.id || uuidv4();
-            this.g.setNode(n.id, n);
-        });
+        this.g = graph;
+        // handle starting synapse
         if (this.g.nodeCount() === 1) {
             let startingSynapseId = this.g.nodes()[0];
             let startingSynapse = this.g.node(startingSynapseId);
             startingSynapse.protected = true;
             startingSynapse.type = "initial";
             this.g.setNode(startingSynapseId, startingSynapse);
+        }
+        // handle previous graph
+        else {
+            // handle parent graph
+            if (!activeNodeId) {
+                let activeNodeId;
+                this.g.nodes.forEach(n => {
+
+                });
+                if (!activeNodeId) {
+                    let activeNodeId = this.g.nodes()[0];
+                }
+            }
         }
         // graph.links.forEach(l => {
         //     this.g.setEdge();
