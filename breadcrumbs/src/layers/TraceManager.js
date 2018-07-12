@@ -142,6 +142,8 @@ export default class TraceManager {
         if (this.g.nodeCount() === 1) {
             let startingSynapseId = this.g.nodes()[0];
             let startingSynapse = this.g.node(startingSynapseId);
+            this.g.removeNode(startingSynapseId);
+            startingSynapse.id = startingSynapse.id || uuidv4();
             startingSynapse.protected = true;
             startingSynapse.type = "initial";
             this.g.setNode(startingSynapseId, startingSynapse);

@@ -434,7 +434,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
             let newZ = Math.round(oldNode.coordinate[2] - zBounds[0]);
 
-            newNode.author = window.keycloak.profile.username;
+            newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.x = newX;
             newNode.y = newY;
             newNode.z = newZ;
@@ -469,7 +469,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
             let newZ = oldNode.z + zBounds[0];
 
-            newNode.author = window.keycloak.profile.username;
+            newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
             newNode.namespace = DB.breadcrumbs_name;
