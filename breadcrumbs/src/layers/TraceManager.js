@@ -42,7 +42,6 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
-    nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
     visibility: boolean;
@@ -62,10 +61,6 @@ export default class TraceManager {
         window.tm = this;
         this.drawHinting = false;
         this.visibility = true;
-
-        // Contain all previous nodes as added, in order. This enables
-        // a "popping" action when deleting nodes.
-        this.nodeStack = [];
     }
 
     exportGraph(): Object {
@@ -125,7 +120,6 @@ export default class TraceManager {
             // TODO: Pick smarter than this
             if (closeNodes.length) {
                 let n = closeNodes[0];
-                this.nodeStack.push(this.activeNode);
                 this.activeNode = n;
             }
         } else {
@@ -159,6 +153,7 @@ export default class TraceManager {
             let nodeIds = this.g.nodes();
             nodeIds.forEach(nodeId => {
                 let node = this.g.node(nodeId);
+                node.id = nodeId || uuidv4();
                 node.protected = true;
                 this.g.setNode(nodeId, node);
                 if (node.type === "initial") {
@@ -187,7 +182,6 @@ export default class TraceManager {
                 w: newNodeId
             };
             this.g.setEdge(newEdge);
-            this.nodeStack.push(this.activeNode);
         } else {
             throw "No active node. Ask an admin.";
         }
@@ -220,7 +214,7 @@ export default class TraceManager {
     markNodeType(nodeType: string): void {
         let node = this.g.node(this.activeNode.id)
         if (!node.protected) {
-            if (node.type == nodeType) {
+            if (node.type === nodeType) {
                 node.type = undefined;
             } else {
                 node.type = nodeType;
@@ -238,7 +232,8 @@ export default class TraceManager {
     }
 
     popBookmark(): {x: number, y: number, z: number} {
-        let bmarks = this.nodeStack.reverse().filter(n => n.bookmarked);
+        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId))
+        let bmarks = nodes.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ
             return {
@@ -264,15 +259,14 @@ export default class TraceManager {
             return;
         }
 
-        if (this.g.neighbors(this.activeNode.id).length > 1) {
+        if (!this.g.isLeaf(this.activeNode.id)) {
             return;
         }
 
-        // Delete from graph
+        let replacementId = this.g.neighbors(this.activeNode.id)[0];
+        let replacement = this.g.node(replacementId);
         this.g.removeNode(this.activeNode.id);
-        // Assign new last-node to `activeNode`
-        this.nodeStack = this.nodeStack.filter(n => n.id !== this.activeNode.id);
-        this.activeNode = this.nodeStack.pop();
+        this.activeNode = replacement;
     }
 
     // Denormalize the node to scale it to the correct position.
