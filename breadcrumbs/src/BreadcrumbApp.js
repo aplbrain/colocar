@@ -45,6 +45,9 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
+    qid: {
+        userSelect: "text"
+    },
     save: {
         position: "fixed",
         left: "2em",
@@ -581,11 +584,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                             </tr>
                             <tr>
                                 <td colSpan={2}>
-                                    <small><code>
-                                        {
-                                            this.questionId || ""
-                                        }
-                                    </code></small>
+                                    <small style={STYLES["qid"]}>
+                                        <code>
+                                            {this.questionId || ""}
+                                        </code>
+                                    </small>
                                 </td>
                             </tr>
                             <tr>
