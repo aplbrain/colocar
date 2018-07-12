@@ -172,22 +172,20 @@ export default class TraceManager {
     }
 
     extendGraph(newNodeId: string, newNode: NodeMeta): void {
-        newNodeId = newNodeId || uuidv4();
-        // Verify that the node IDs line up
-        newNode.id = newNodeId;
-        this.g.setNode(newNodeId, newNode);
-
-        // Create an edge from the active node.
         if (this.activeNode) {
+            newNodeId = newNodeId || uuidv4();
+            // Verify that the node IDs line up
+            newNode.id = newNodeId;
+            this.g.setNode(newNodeId, newNode);
+
+            // Create an edge from the active node.
             let newEdge = {
                 v: this.activeNode.id,
                 w: newNodeId
             };
             this.g.setEdge(newEdge);
-        } else {
-            throw new Error("No active node. Ask an admin.");
+            this.activeNode = newNode;
         }
-        this.activeNode = newNode;
     }
 
     mouseClicked(): void {
