@@ -133,7 +133,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/0/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
 
-                    let p5Graph = self.p5FromColocard(colocardGraph);
+                    let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -167,7 +167,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         nodeCount: self.layers.traceManager.g.nodeCount()
                     });
 
-                    self.insertStoredGraph(p5Graph);
+                    self.insertStoredGraph(graphlibGraph);
 
                 });
 
@@ -423,7 +423,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
-    p5FromColocard(graph: Object) {
+    graphlibFromColocard(graph: Object) {
         let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
         let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
         let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
@@ -463,7 +463,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         return output;
     }
 
-    p5ToColocard(graph: Object) {
+    graphlibToColocard(graph: Object) {
         let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
         let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
         let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
@@ -508,7 +508,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             "Preparing to submit. Are you sure that your data are ready?"
         );
         if (certain) {
-            let graph = this.p5ToColocard(
+            let graph = this.graphlibToColocard(
                 this.layers.traceManager.exportGraph()
             );
             return DB.postGraph(
