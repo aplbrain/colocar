@@ -135,6 +135,15 @@ export default class TraceManager {
 
     insertGraph(graph: Object, activeNodeId: string) {
         this.g = graph;
+        if (activeNodeId) {
+            this.activeNode = this.g.node(activeNodeId);
+        }
+        else {
+            this._assignActiveNodeAndProtect();
+        }
+    }
+
+    _assignActiveNodeAndProtect() {
         // handle starting synapse
         if (this.g.nodeCount() === 1) {
             let startingSynapseId = this.g.nodes()[0];
@@ -142,24 +151,27 @@ export default class TraceManager {
             startingSynapse.protected = true;
             startingSynapse.type = "initial";
             this.g.setNode(startingSynapseId, startingSynapse);
+            this.activeNode = startingSynapse;
         }
-        // handle previous graph
+        // handle parent graph
         else {
-            // handle parent graph
-            if (!activeNodeId) {
-                let activeNodeId;
-                this.g.nodes.forEach(n => {
-
-                });
-                if (!activeNodeId) {
-                    let activeNodeId = this.g.nodes()[0];
+            let startingSynapse;
+            let nodeIds = this.g.nodes();
+            nodeIds.forEach(nodeId => {
+                let node = this.g.node(nodeId);
+                node.protected = true;
+                this.g.setNode(nodeId, node);
+                if (node.type === "initial") {
+                    if (startingSynapse) {
+                        console.warn("more than one active node!");
+                    }
+                    else {
+                        startingSynapse = node;
+                    }
                 }
-            }
+            });
+            this.activeNode = startingSynapse;
         }
-        // graph.links.forEach(l => {
-        //     this.g.setEdge();
-        // });
-        this.activeNode = this.g.node(activeNodeId);
     }
 
     extendGraph(newNodeId: string, newNode: NodeMeta): void {
