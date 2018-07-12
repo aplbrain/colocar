@@ -447,8 +447,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
         graph.links.forEach(e => {
             let newEdge = {};
-            newEdge.source = e.v;
-            newEdge.target = e.w;
+            newEdge.v = e.source;
+            newEdge.w = e.target;
             output.setEdge(newEdge);
         });
         return output;
