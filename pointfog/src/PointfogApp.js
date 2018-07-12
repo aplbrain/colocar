@@ -44,6 +44,9 @@ const STYLES = {
     controlToolInline: {
         float: "right",
     },
+    qid: {
+        userSelect: "text"
+    },
     save: {
         position: "fixed",
         left: "2em",
@@ -475,7 +478,7 @@ export default class PointfogApp extends Component<any, any> {
 
                             <tr>
                                 <td colSpan={2}>
-                                    <small>
+                                    <small style={STYLES["qid"]}>
                                         <code>
                                             {this.questionId || ""}
                                         </code>
