@@ -137,8 +137,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        imageURIs,
-                        startingZ: 0
+                        imageURIs
                     });
 
                     self.layers["traceManager"] = new TraceManager({
@@ -297,6 +296,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     updateUIStatus(): void {
         this.setState({
+            currentZ: this.layers.imageManager.currentZ,
             nodeCount: this.layers.traceManager.g.nodes().length
         });
     }
@@ -343,7 +343,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({
             scale: this.layers.imageManager.scale,
             currentZ: curZ
-            // currentZ: this.layers.imageManager.currentZ,
         });
     }
 
@@ -381,16 +380,25 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     insertStoredGraph(parentGraph: Object) {
+        this.setState({
+            saveInProgress: true
+        });
         localForage.getItem(
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
             let storedGraph = graphlib.json.read(storedData.graphStr);
             this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
-            this.layers.imageManager.reset();
+            this.setState({
+                saveInProgress: false
+            });
+            this.reset();
             this.updateUIStatus();
         }).catch((err) => {
             this.layers.traceManager.insertGraph(parentGraph);
-            this.layers.imageManager.reset();
+            this.setState({
+                saveInProgress: false
+            });
+            this.reset();
             this.updateUIStatus();
         });
     }
