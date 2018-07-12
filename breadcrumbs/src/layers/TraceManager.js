@@ -42,7 +42,6 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
-    nodeStack: Array<NodeMeta>;
 
     drawHinting: boolean;
     visibility: boolean;
@@ -52,7 +51,6 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
-        activeNodeId: string
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
@@ -63,20 +61,6 @@ export default class TraceManager {
         window.tm = this;
         this.drawHinting = false;
         this.visibility = true;
-
-        // Contain all previous nodes as added, in order. This enables
-        // a "popping" action when deleting nodes.
-        this.nodeStack = [];
-
-        if (opts.startingGraph) {
-            // TODO: Allow arbitrary graph instead of single-node graph
-            this.insertGraph(
-                opts.startingGraph,
-                opts.activeNodeId
-            );
-        } else {
-            throw "Must supply a starting graph";
-        }
     }
 
     exportGraph(): Object {
@@ -136,7 +120,6 @@ export default class TraceManager {
             // TODO: Pick smarter than this
             if (closeNodes.length) {
                 let n = closeNodes[0];
-                this.nodeStack.push(this.activeNode);
                 this.activeNode = n;
             }
         } else {
@@ -145,41 +128,64 @@ export default class TraceManager {
     }
 
     insertGraph(graph: Object, activeNodeId: string) {
-        graph.nodes.forEach(n => {
-            n.id = n.id || uuidv4();
-            this.g.setNode(n.id, n);
-        });
+        this.g = graph;
+        if (activeNodeId) {
+            this.activeNode = this.g.node(activeNodeId);
+        }
+        else {
+            this._assignActiveNodeAndProtect();
+        }
+    }
+
+    _assignActiveNodeAndProtect() {
+        // handle starting synapse
         if (this.g.nodeCount() === 1) {
             let startingSynapseId = this.g.nodes()[0];
             let startingSynapse = this.g.node(startingSynapseId);
+            this.g.removeNode(startingSynapseId);
+            startingSynapse.id = startingSynapse.id || uuidv4();
             startingSynapse.protected = true;
             startingSynapse.type = "initial";
             this.g.setNode(startingSynapseId, startingSynapse);
+            this.activeNode = startingSynapse;
         }
-        // graph.links.forEach(l => {
-        //     this.g.setEdge();
-        // });
-        this.activeNode = this.g.node(activeNodeId);
+        // handle parent graph
+        else {
+            let startingSynapse;
+            let nodeIds = this.g.nodes();
+            nodeIds.forEach(nodeId => {
+                let node = this.g.node(nodeId);
+                node.id = nodeId || uuidv4();
+                node.protected = true;
+                this.g.setNode(nodeId, node);
+                if (node.type === "initial") {
+                    if (startingSynapse) {
+                        console.warn("more than one active node!");
+                    }
+                    else {
+                        startingSynapse = node;
+                    }
+                }
+            });
+            this.activeNode = startingSynapse;
+        }
     }
 
     extendGraph(newNodeId: string, newNode: NodeMeta): void {
-        newNodeId = newNodeId || uuidv4();
-        // Verify that the node IDs line up
-        newNode.id = newNodeId;
-        this.g.setNode(newNodeId, newNode);
-
-        // Create an edge from the active node.
         if (this.activeNode) {
+            newNodeId = newNodeId || uuidv4();
+            // Verify that the node IDs line up
+            newNode.id = newNodeId;
+            this.g.setNode(newNodeId, newNode);
+
+            // Create an edge from the active node.
             let newEdge = {
                 v: this.activeNode.id,
                 w: newNodeId
             };
             this.g.setEdge(newEdge);
-            this.nodeStack.push(this.activeNode);
-        } else {
-            throw "No active node. Ask an admin.";
+            this.activeNode = newNode;
         }
-        this.activeNode = newNode;
     }
 
     mouseClicked(): void {
@@ -208,7 +214,7 @@ export default class TraceManager {
     markNodeType(nodeType: string): void {
         let node = this.g.node(this.activeNode.id)
         if (!node.protected) {
-            if (node.type == nodeType) {
+            if (node.type === nodeType) {
                 node.type = undefined;
             } else {
                 node.type = nodeType;
@@ -226,7 +232,8 @@ export default class TraceManager {
     }
 
     popBookmark(): {x: number, y: number, z: number} {
-        let bmarks = this.nodeStack.reverse().filter(n => n.bookmarked);
+        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId))
+        let bmarks = nodes.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ
             return {
@@ -252,15 +259,14 @@ export default class TraceManager {
             return;
         }
 
-        if (this.g.neighbors(this.activeNode.id).length > 1) {
+        if (!this.g.isLeaf(this.activeNode.id)) {
             return;
         }
 
-        // Delete from graph
+        let replacementId = this.g.neighbors(this.activeNode.id)[0];
+        let replacement = this.g.node(replacementId);
         this.g.removeNode(this.activeNode.id);
-        // Assign new last-node to `activeNode`
-        this.nodeStack = this.nodeStack.filter(n => n.id !== this.activeNode.id);
-        this.activeNode = this.nodeStack.pop();
+        this.activeNode = replacement;
     }
 
     // Denormalize the node to scale it to the correct position.
