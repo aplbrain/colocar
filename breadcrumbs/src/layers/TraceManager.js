@@ -185,7 +185,7 @@ export default class TraceManager {
             };
             this.g.setEdge(newEdge);
         } else {
-            throw "No active node. Ask an admin.";
+            throw new Error("No active node. Ask an admin.");
         }
         this.activeNode = newNode;
     }

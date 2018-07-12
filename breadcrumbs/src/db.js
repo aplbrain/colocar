@@ -1,7 +1,5 @@
 // @flow
 
-import * as graphlib from "graphlib";
-
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
@@ -72,7 +70,6 @@ class Colocard implements Database {
         let openQuestions = questions.filter(question => question.status === "open");
         let nOpen = openQuestions.length;
         if (nOpen > 1) {
-            // throw "cannot have more than one open question - ask an admin";
             question = openQuestions[0];
         } else if (nOpen === 1) {
             question = openQuestions[0];
@@ -80,7 +77,7 @@ class Colocard implements Database {
             let pendingQuestions = questions.filter(question => question.status === "pending");
             let nPending = pendingQuestions.length;
             if (nPending === 0) {
-                throw "you don't have any open or pending questions - ask an admin";
+                throw new Error("You don't have any open or pending questions. Ask an admin.");
             } else {
                 let prioritizedQuestions = pendingQuestions.sort(function(a, b) {
                     return a.priority - b.priority;

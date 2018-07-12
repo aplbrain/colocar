@@ -367,6 +367,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.traceManager.markBookmark();
     }
     popBookmark(): void {
+        // eslint-disable-next-line no-unused-vars
         let {x, y, z} = this.layers.traceManager.popBookmark();
         this.layers.imageManager.setZ(z);
     }
