@@ -127,6 +127,10 @@ def deploy(project: str, profile_name: str):
         print_warn("Check your AWS permissions?")
         sys.exit(1)
 
+    os.chdir(starting_directory)
+    print_succeed("Deploy complete.")
+    sys.exit(0)
+
 
 def main():
     cli()
