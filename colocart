@@ -21,7 +21,6 @@ import sys
 import subprocess
 import configparser
 
-
 import boto3
 import click
 import colored
