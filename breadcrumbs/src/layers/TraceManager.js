@@ -161,8 +161,7 @@ export default class TraceManager {
                 if (node.type === "initial") {
                     if (startingSynapse) {
                         console.warn("more than one active node!");
-                    }
-                    else {
+                    } else {
                         startingSynapse = node;
                     }
                 }
@@ -212,14 +211,14 @@ export default class TraceManager {
     }
 
     markNodeType(nodeType: string): void {
-        let node = this.g.node(this.activeNode.id)
+        let node = this.g.node(this.activeNode.id);
         if (!node.protected) {
             if (node.type === nodeType) {
                 node.type = undefined;
             } else {
                 node.type = nodeType;
             }
-            this.g.setNode(this.activeNode.id, node)
+            this.g.setNode(this.activeNode.id, node);
         }
     }
 
