@@ -151,7 +151,8 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
-                        imageManager: self.layers.imageManager
+                        imageManager: self.layers.imageManager,
+                        traceManager: self.layers.traceManager,
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -411,7 +412,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             saveInProgress: true
         });
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
-        let activeNodeId = this.layers.traceManager.activeNode.id;
+        let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
         localForage.setItem(
             `breadcrumbsStorage-${this.questionId}`,
             {

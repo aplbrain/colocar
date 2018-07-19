@@ -154,7 +154,8 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
-                        imageManager: self.layers.imageManager
+                        imageManager: self.layers.imageManager,
+                        pointcloudManager: self.layers.pointcloudManager,
                     });
 
                     // Set the order in which to render the layers. Removing layers

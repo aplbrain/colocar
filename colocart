@@ -59,6 +59,10 @@ def print_succeed(val: str):
     """
     Print in green!
     """
+    if len(val.split("\n")) > 1:
+        val = val
+    else:
+        val = "🛒   {}".format(val)
     click.echo(stylize(val, colored.fg("green"), colored.attr('bold')))
 
 
@@ -66,6 +70,10 @@ def print_warn(val: str):
     """
     Print a warning.
     """
+    if len(val.split("\n")) > 1:
+        val = val
+    else:
+        val = "🛒   {}".format(val)
     click.echo(stylize(val, colored.fg("yellow")))
 
 
@@ -73,6 +81,10 @@ def print_error(val: str):
     """
     Print an error.
     """
+    if len(val.split("\n")) > 1:
+        val = val
+    else:
+        val = "🛒   {}".format(val)
     click.echo(stylize(val, colored.fg("red"), colored.attr("bold")))
 
 
@@ -80,6 +92,10 @@ def print_info(val: str):
     """
     Print in green!
     """
+    if len(val.split("\n")) > 1:
+        val = val
+    else:
+        val = "🛒   {}".format(val)
     click.echo(stylize(val, colored.fg("blue")))
 
 
