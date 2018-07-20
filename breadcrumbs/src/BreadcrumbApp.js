@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import * as graphlib from "graphlib";
+import uuidv4 from "uuid/v4";
 
 
 import type { P5Type } from "./types/p5Types";
@@ -454,7 +455,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.created = oldNode.created;
             newNode.namespace = DB.breadcrumbs_name;
             newNode.type = oldNode.type;
-            newNode.id = oldNode.id;
+            newNode.id = oldNode.id || uuidv4();
             newNode.volume = this.volume._id;
             output.setNode(newNode.id, newNode);
         });
