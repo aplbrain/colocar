@@ -143,7 +143,6 @@ export default class TraceManager {
             let startingSynapseId = this.g.nodes()[0];
             let startingSynapse = this.g.node(startingSynapseId);
             this.g.removeNode(startingSynapseId);
-            startingSynapse.id = startingSynapse.id || uuidv4();
             startingSynapse.protected = true;
             startingSynapse.type = "initial";
             this.g.setNode(startingSynapseId, startingSynapse);
@@ -155,7 +154,6 @@ export default class TraceManager {
             let nodeIds = this.g.nodes();
             nodeIds.forEach(nodeId => {
                 let node = this.g.node(nodeId);
-                node.id = nodeId || uuidv4();
                 node.protected = true;
                 this.g.setNode(nodeId, node);
                 if (node.type === "initial") {
@@ -170,17 +168,14 @@ export default class TraceManager {
         }
     }
 
-    extendGraph(newNodeId: string, newNode: NodeMeta): void {
+    extendGraph(newNode: NodeMeta): void {
         if (this.activeNode) {
-            newNodeId = newNodeId || uuidv4();
-            // Verify that the node IDs line up
-            newNode.id = newNodeId;
-            this.g.setNode(newNodeId, newNode);
+            this.g.setNode(newNode.id, newNode);
 
             // Create an edge from the active node.
             let newEdge = {
                 v: this.activeNode.id,
-                w: newNodeId
+                w: newNode.id
             };
             this.g.setEdge(newEdge);
             this.activeNode = newNode;
@@ -204,7 +199,7 @@ export default class TraceManager {
                 id: newNodeId
             });
 
-            this.extendGraph(newNodeId, newNode);
+            this.extendGraph(newNode);
         }
 
         this.drawHinting = false;
