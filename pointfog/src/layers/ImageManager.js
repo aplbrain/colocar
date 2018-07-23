@@ -8,6 +8,7 @@ let scaleIncrement: number = .1;
 export default class ImageManager {
 
     p: P5Type;
+    nImages: number;
     imageURIs: Array<string>;
     images: Array<P5Image>;
     readiness: Array<boolean>;
@@ -16,15 +17,16 @@ export default class ImageManager {
     position: {x: number, y: number};
 
     // Expects an array of image URIs to be loaded
-    constructor(opts: {p: P5Type, imageURIs: Array<string>}): void {
+    constructor(opts: {p: P5Type, nImages: number, imageURIs: Array<string>}): void {
         this.p = opts.p;
         this.scale = 1;
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
 
+        this.nImages = opts.nImages;
         this.imageURIs = opts.imageURIs;
-        this.images = new Array(this.imageURIs.length);
-        this.readiness = new Array(this.imageURIs.length);
-        this.currentZ = Math.floor((this.imageURIs.length) / 2); // Starts in the middle
+        this.images = new Array(this.nImages);
+        this.readiness = new Array(this.nImages);
+        this.currentZ = Math.floor((this.nImages) / 2); // Starts in the middle
 
         // Load the middle image first
         this.images[this.currentZ] = this.p.loadImage(
@@ -46,7 +48,7 @@ export default class ImageManager {
 
     // Loads in all the images.
     loadAllImages(): void {
-        for (let i = 0; i < this.imageURIs.length; i++) {
+        for (let i = 0; i < this.nImages; i++) {
             this.images[i] = this.p.loadImage(
                 this.imageURIs[i],
                 () => {
@@ -63,8 +65,8 @@ export default class ImageManager {
     // Loads in all the images, working outwards from the center.
     // This hopes to load the images that the user is most likely to move to first, first.
     zigZagLoad(): void {
-        let centerZ = Math.floor((this.imageURIs.length) / 2);
-        let maxDistance = Math.floor((this.imageURIs.length) / 2);
+        let centerZ = Math.floor((this.nImages) / 2);
+        let maxDistance = Math.floor((this.nImages) / 2);
 
         for (let i = 1; i <= maxDistance; i++) {
             // The next image moving down the z-axis
@@ -83,7 +85,7 @@ export default class ImageManager {
             // The next image moving up the z-axis.
             // Due to the rounding and 0-indexing, this executes one less time than the previous.
             let topIndexToLoad = centerZ + i;
-            if (topIndexToLoad < this.imageURIs.length) {
+            if (topIndexToLoad < this.nImages) {
                 this.images[topIndexToLoad] = this.p.loadImage(
                     this.imageURIs[topIndexToLoad],
                     () => {
@@ -118,7 +120,7 @@ export default class ImageManager {
     }
 
     setZ(index: number) {
-        if (index % 1 === 0 && index >= 0 && index < this.images.length) {
+        if (index % 1 === 0 && index >= 0 && index < this.nImages) {
             this.currentZ = index;
         } else {
             console.error("Invalid index requested.");
@@ -154,7 +156,7 @@ export default class ImageManager {
     }
 
     maxZ(): number {
-        return this.images.length - 1;
+        return this.nImages - 1;
     }
 
     incrementZ(): void {

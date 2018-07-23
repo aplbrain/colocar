@@ -131,6 +131,7 @@ export default class PointfogApp extends Component<any, any> {
                     let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
                     let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
                     let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
+                    let nImages = zBounds[1] - zBounds[0];
                     let imageURIs = [
                         ...Array(zBounds[1] - zBounds[0]).keys()
                     ].map(i => i + zBounds[0]).map(_z => {
@@ -145,6 +146,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
+                        nImages,
                         imageURIs,
                     });
 
