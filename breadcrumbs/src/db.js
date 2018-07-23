@@ -3,13 +3,8 @@
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
-interface Database {
-    getNextQuestion(string, string): Promise<Object>;
-    postGraph(Object): any;
-}
 
-
-class Colocard implements Database {
+class Colocard {
 
     url: string;
     headers: Object;
@@ -33,10 +28,11 @@ class Colocard implements Database {
     }
 
     getNextQuestion(user: string, type: string) {
+        let self = this;
         return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}", "active": true }`, {
             headers: this.headers,
             method: "GET"
-        }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
+        }).then(res => self._onQuestionSuccess(res)).catch(err => self._onException(err));
     }
 
     _onQuestionSuccess(res: Response): Promise<Question> {

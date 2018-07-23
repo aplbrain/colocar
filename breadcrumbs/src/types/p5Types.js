@@ -1,11 +1,12 @@
 // @flow
 
-export type P5Image = {
-    height: number,
-    width: number,
-};
 
 export type P5Type = {
+
+    // These members are required for our p5 loadImage shim.
+    prototype: any,
+    _validateParameters: Function,
+    _friendlyFileLoadError: Function,
 
     width: number,
     height: number,
@@ -61,8 +62,8 @@ export type P5Type = {
     CENTER: number,
 
     // Image
-    loadImage: (string, Function, Function, Object) => P5Image,
-    Image: P5Image,
+    loadImage: (string, Function, Function, Object) => any,
+    Image: any,
     image: (Object, number, number, number, number) => void,
     imageMode: Function,
 

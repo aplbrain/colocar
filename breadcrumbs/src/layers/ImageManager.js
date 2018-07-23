@@ -1,6 +1,6 @@
 // @flow
 
-import type { P5Type, P5Image } from "../types/p5Types";
+import type { P5Type } from "../types/p5Types";
 
 let panIncrement: number = 50;
 let scaleIncrement: number = .1;
@@ -9,7 +9,7 @@ export default class ImageManager {
 
     p: P5Type;
     imageURIs: Array<string>;
-    images: Array<P5Image>;
+    images: Array<any>;
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;
@@ -241,7 +241,7 @@ export default class ImageManager {
         return true;
     }
 
-    getCurrentImage(): P5Image {
+    getCurrentImage() {
         return this.images[this.currentZ];
     }
 

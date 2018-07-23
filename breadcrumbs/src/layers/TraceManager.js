@@ -50,7 +50,7 @@ export default class TraceManager {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        startingGraph: Object,
+        startingGraph?: Object,
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
@@ -226,7 +226,7 @@ export default class TraceManager {
     }
 
     popBookmark(): {x: number, y: number, z: number} {
-        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId))
+        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId));
         let bmarks = nodes.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ

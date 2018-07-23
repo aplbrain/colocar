@@ -6,6 +6,7 @@ import uuidv4 from "uuid/v4";
 
 
 import type { P5Type } from "./types/p5Types";
+import type { Node } from "./types/colocardTypes";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
@@ -72,8 +73,9 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     state: {
         ready?: boolean,
-        scale?: number,
+        scale: number,
         currentZ?: number,
+        nodeCount: number,
         saveInProgress: boolean
     };
 
@@ -85,7 +87,9 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
-            saveInProgress: false
+            saveInProgress: false,
+            scale: 1,
+            nodeCount: 0,
         };
 
         // Create p5 sketch
@@ -147,7 +151,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers["traceManager"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: null
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
@@ -398,7 +401,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             });
             this.reset();
             this.updateUIStatus();
-        }).catch((err) => {
+        }).catch(() => {
             this.layers.traceManager.insertGraph(parentGraph);
             this.setState({
                 saveInProgress: false
@@ -420,7 +423,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 graphStr,
                 activeNodeId
             }
-        ).then((storedData, errorSaving) => {
+        ).then(() => {
             this.setState({
                 saveInProgress: false
             });
