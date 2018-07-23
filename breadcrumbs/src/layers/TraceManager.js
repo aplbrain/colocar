@@ -226,7 +226,7 @@ export default class TraceManager {
     }
 
     popBookmark(): {x: number, y: number, z: number} {
-        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId))
+        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId));
         let bmarks = nodes.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
             // If you have set no bookmarks, return current XYZ
