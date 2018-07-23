@@ -9,7 +9,7 @@ export default class ImageManager {
 
     p: P5Type;
     imageURIs: Array<string>;
-    images: Array<P5Image>;
+    images: Array<any>;
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;
@@ -241,7 +241,7 @@ export default class ImageManager {
         return true;
     }
 
-    getCurrentImage(): P5Image {
+    getCurrentImage() {
         return this.images[this.currentZ];
     }
 

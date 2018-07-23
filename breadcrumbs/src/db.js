@@ -28,10 +28,11 @@ class Colocard {
     }
 
     getNextQuestion(user: string, type: string) {
+        let self = this;
         return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}", "active": true }`, {
             headers: this.headers,
             method: "GET"
-        }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
+        }).then(res => self._onQuestionSuccess(res)).catch(err => self._onException(err));
     }
 
     _onQuestionSuccess(res: Response): Promise<Question> {
