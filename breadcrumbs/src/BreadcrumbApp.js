@@ -134,7 +134,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let imageURIs = [
                         ...Array(zBounds[1] - zBounds[0]).keys()
                     ].map(i => i + zBounds[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/${volume.resolution}/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
+                        let xStr = `${xBounds[0]}:${xBounds[1]}`;
+                        let yStr = `${yBounds[0]}:${yBounds[1]}`;
+                        let zStr = `${_z}`;
+                        let coordStr = `${xStr}/${yStr}/${zStr}`;
+                        return `https://api.theboss.io/v1/image/` +
+                        `${volume.collection}/${volume.experiment}/${volume.channel}/` +
+                        `xy/${volume.resolution}/${coordStr}/?no-cache=true`;
                     });
 
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
