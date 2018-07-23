@@ -118,7 +118,7 @@ def build(project: str):
     os.chdir(project)
     build_output = subprocess.getoutput("yarn build")
 
-    if "Compiled with warnings" not in build_output:
+    if "Compiled" not in build_output:
         print_error("Build failed:")
         print_error("="*80)
         print_error(build_output)
