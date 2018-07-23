@@ -7,6 +7,11 @@ export type P5Image = {
 
 export type P5Type = {
 
+    // These members are required for our p5 loadImage shim.
+    prototype: any,
+    _validateParameters: Function,
+    _friendlyFileLoadError: Function,
+
     width: number,
     height: number,
 

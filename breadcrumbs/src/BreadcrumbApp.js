@@ -6,6 +6,7 @@ import uuidv4 from "uuid/v4";
 
 
 import type { P5Type } from "./types/p5Types";
+import type { Node } from "./types/colocardTypes";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
@@ -72,7 +73,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     state: {
         ready?: boolean,
-        scale?: number,
+        scale: number,
         currentZ?: number,
         saveInProgress: boolean
     };
@@ -85,7 +86,8 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
-            saveInProgress: false
+            saveInProgress: false,
+            scale: 1,
         };
 
         // Create p5 sketch
