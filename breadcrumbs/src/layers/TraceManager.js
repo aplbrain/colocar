@@ -50,7 +50,7 @@ export default class TraceManager {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        startingGraph: Object,
+        startingGraph?: Object,
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;

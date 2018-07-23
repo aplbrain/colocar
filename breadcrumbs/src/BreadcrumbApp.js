@@ -75,6 +75,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         ready?: boolean,
         scale: number,
         currentZ?: number,
+        nodeCount: number,
         saveInProgress: boolean
     };
 
@@ -88,6 +89,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.state = {
             saveInProgress: false,
             scale: 1,
+            nodeCount: 0,
         };
 
         // Create p5 sketch

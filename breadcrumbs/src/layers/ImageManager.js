@@ -1,6 +1,6 @@
 // @flow
 
-import type { P5Type, P5Image } from "../types/p5Types";
+import type { P5Type } from "../types/p5Types";
 
 let panIncrement: number = 50;
 let scaleIncrement: number = .1;
