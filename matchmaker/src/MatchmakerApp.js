@@ -139,7 +139,8 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManagerA,
+                        traceManagerA: self.layers.traceManagerA,
+                        traceManagerB: self.layers.traceManagerB
                     });
 
                     // Set the order in which to render the layers. Removing layers

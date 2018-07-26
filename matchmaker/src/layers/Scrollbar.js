@@ -11,7 +11,8 @@ export default class Scrollbar {
 
     p: any;
     im: ImageManager;
-    tm: TraceManager;
+    tmA: TraceManager;
+    tmB: TraceManager;
     visible: boolean;
 
     left: number;
@@ -23,11 +24,13 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        traceManager: TraceManager
+        traceManagerA: TraceManager,
+        traceManagerB: TraceManager
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.tm = opts.traceManager;
+        this.tmA = opts.traceManagerA;
+        this.tmB = opts.traceManagerB;
 
         this.left = 20;
         this.top = 30;
@@ -38,8 +41,8 @@ export default class Scrollbar {
     mouseClicked(): void {}
     mousePressed(): void {}
 
-    getEntities() {
-        return this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
+    getEntitiesA() {
+        return this.tmA.g.nodes().map(i => this.tmA.g.node(i)).map(i => {
             return {
                 z: i.z,
                 color: [0, 255, 100]
@@ -47,6 +50,14 @@ export default class Scrollbar {
         });
     }
 
+    getEntitiesB() {
+        return this.tmB.g.nodes().map(i => this.tmB.g.node(i)).map(i => {
+            return {
+                z: i.z,
+                color: [255, 0, 100]
+            };
+        });
+    }
     draw(): void {
         this.p.rectMode(this.p.CORNER);
         this.p.noFill();
@@ -55,7 +66,17 @@ export default class Scrollbar {
         this.p.rect(this.left, this.top, this.width, this.height);
         this.p.fill(200);
         this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.imageURIs.length));
-        this.getEntities().forEach(e => {
+        this.getEntitiesA().forEach(e => {
+            this.p.stroke(...e.color, 50);
+            let _z = this.top + (this.height * (e.z / this.im.imageURIs.length));
+            this.p.line(
+                this.left,
+                _z,
+                this.width + this.left,
+                _z
+            );
+        });
+        this.getEntitiesB().forEach(e => {
             this.p.stroke(...e.color, 50);
             let _z = this.top + (this.height * (e.z / this.im.imageURIs.length));
             this.p.line(
