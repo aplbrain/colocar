@@ -96,7 +96,7 @@ export default class MatchmakerApp extends Component<any, any> {
                         return;
                     }
                     let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
+                    let colocardGraphA = question.instructions.graph.structure;
                     let volume = res.volume;
                     console.log(question);
                     console.log(volume);
@@ -114,7 +114,7 @@ export default class MatchmakerApp extends Component<any, any> {
                         return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/${volume.resolution}/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
                     });
 
-                    let graphlibGraph = self.graphlibFromColocard(colocardGraph);
+                    let graphlibGraphA = self.graphlibFromColocard(colocardGraphA);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -130,7 +130,9 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.layers["traceManagerB"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: null
+                        startingGraph: null,
+                        DEFAULT_COLOR: { r: 200, g: 90, b: 200 },
+                        EDGE_COLOR: { r: 170, g: 60, b: 170 }
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
@@ -156,7 +158,9 @@ export default class MatchmakerApp extends Component<any, any> {
                         nodeCount: self.layers.traceManagerA.g.nodeCount()
                     });
 
-                    self.insertGraph(graphlibGraph);
+                    self.layers.traceManagerA.insertGraph(graphlibGraphA);
+                    self.reset();
+                    self.updateUIStatus();
 
                 });
 
@@ -324,12 +328,6 @@ export default class MatchmakerApp extends Component<any, any> {
 
     componentDidMount() {
         new p5(this.sketch);
-    }
-
-    insertGraph(parentGraph: Object) {
-        this.layers.traceManagerA.insertGraph(parentGraph);
-        this.reset();
-        this.updateUIStatus();
     }
 
     graphlibFromColocard(graph: Object) {

@@ -42,6 +42,8 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
+    DEFAULT_COLOR: ?Object;
+    EDGE_COLOR: ?Object;
 
     visibility: boolean;
 
@@ -49,9 +51,13 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
+        DEFAULT_COLOR?: Object,
+        EDGE_COLOR?: Object
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
+        this.DEFAULT_COLOR = opts.DEFAULT_COLOR || DEFAULT_COLOR;
+        this.EDGE_COLOR = opts.EDGE_COLOR || EDGE_COLOR;
         this.g = new graphlib.Graph({
             directed: true
         });
@@ -179,7 +185,7 @@ export default class TraceManager {
         for (let node of this.g.nodes().map(n => this.g.node(n))) {
             let nodePos = this.transformCoords(node.x, node.y);
 
-            let color = DEFAULT_COLOR;
+            let color = this.DEFAULT_COLOR;
             let radius = DEFAULT_RADIUS;
 
             if (node.bookmarked) {
@@ -223,7 +229,7 @@ export default class TraceManager {
                 this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
             } else {
                 this.p.strokeWeight(3);
-                this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
+                this.p.stroke(this.EDGE_COLOR.r, this.EDGE_COLOR.g, this.EDGE_COLOR.b);
             }
             this.p.line(nodePosU.x, nodePosU.y, nodePosV.x, nodePosV.y);
         }
