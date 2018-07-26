@@ -31,80 +31,46 @@ class Colocard implements Database {
         this.matchmaker_name = "breadcrumbs";
     }
 
-    getNextQuestion(user: string, type: string) {
-        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}", "active": true }`, {
+    getGraphsAndVolume(graphIdA: string, graphIdB: string) {
+        return fetch(`${this.url}/graphs?q={"namespace": "${this.matchmaker_name}", "active": true}`, {
             headers: this.headers,
             method: "GET"
-        }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
+        }).then(res => this._onQuestionSuccess(res, graphIdA, graphIdB)).catch(err => this._onException(err));
     }
 
-    _onQuestionSuccess(res: Response): Promise<Question> {
+    _onQuestionSuccess(res: Response, graphIdA: string, graphIdB: string): Promise<Question> {
         return res.json().then((json: any) => {
-            let questions: Array<Question> = json;
-            let question: Question = this._extractPrioritizedQuestion(questions);
-            let volume = question.volume;
-            console.log(question);
-            let splitUri = volume.uri.split('/');
-            let nUri = splitUri.length;
-            volume.collection = splitUri[nUri - 3];
-            volume.experiment = splitUri[nUri - 2];
-            volume.channel = splitUri[nUri - 1];
-            let graphId = question.instructions.graph;
-            return fetch(`${this.url}/graphs/${graphId}`, {
+            console.log(json);
+            let graphMetaA: Object = json.filter(g => g._id === graphIdA)[0];
+            let graphMetaB: Object = json.filter(g => g._id === graphIdB)[0];
+            let volume: Object;
+            console.log(graphMetaA);
+            console.log(graphMetaB);
+            console.assert(graphMetaA.volume === graphMetaB.volume);
+            let volumeId: string = graphMetaA.volume;
+            let graphA = graphMetaA.structure;
+            let graphB = graphMetaB.structure;
+
+            return fetch(`${this.url}/volumes/${volumeId}`, {
                 headers: this.headers
             }).then((res: Response) => res.json()).then((json: any) => {
-                question.instructions.graph = json;
-                return this._setOpenStatus(question);
-            }).then(() => {
+                volume = json;
+                let splitUri = volume.uri.split('/');
+                let nUri = splitUri.length;
+                volume.collection = splitUri[nUri - 3];
+                volume.experiment = splitUri[nUri - 2];
+                volume.channel = splitUri[nUri - 1];
                 return {
-                    question,
+                    graphA,
+                    graphB,
                     volume
                 };
             });
         });
     }
 
-    _extractPrioritizedQuestion(questions: Array<Question>): Question {
-        let question: Question = null;
-        let openQuestions = questions.filter(question => question.status === "open");
-        let nOpen = openQuestions.length;
-        if (nOpen > 1) {
-            question = openQuestions[0];
-        } else if (nOpen === 1) {
-            question = openQuestions[0];
-        } else {
-            let pendingQuestions = questions.filter(question => question.status === "pending");
-            let nPending = pendingQuestions.length;
-            if (nPending === 0) {
-                throw new Error("You don't have any open or pending questions. Ask an admin.");
-            } else {
-                let prioritizedQuestions = pendingQuestions.sort(function(a, b) {
-                    return a.priority - b.priority;
-                });
-                question = prioritizedQuestions[nPending-1];
-            }
-        }
-        return question;
-    }
-
-    _setOpenStatus(question: Question) {
-        return fetch(`${this.url}/questions/${question._id}/status`, {
-            headers: this.headers,
-            method: "PATCH",
-            body: JSON.stringify({"status": "open"})
-        });
-    }
-
     _onException(reason: any) {
         console.log(reason);
-    }
-
-    updateQuestionStatus(questionId: string, status: string): Promise<Response> {
-        return fetch(`${this.url}/questions/${questionId}/status`, {
-            headers: this.headers,
-            method: "PATCH",
-            body: JSON.stringify({status})
-        });
     }
 
 }

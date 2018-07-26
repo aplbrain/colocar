@@ -61,7 +61,6 @@ export default class MatchmakerApp extends Component<any, any> {
         currentZ?: number
     };
 
-    questionId: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -87,21 +86,22 @@ export default class MatchmakerApp extends Component<any, any> {
                 self.layers = {};
                 self.renderOrder = [];
 
-                DB.getNextQuestion(
-                    window.keycloak.profile.username,
-                    DB.matchmaker_name
-                ).then((res: { question: Object, volume: Object }) => {
-                    if (!res || !res.question) {
-                        alert("No remaining questions.");
+                let graphIdA = window.prompt("Enter first graph id.");
+                let graphIdB = window.prompt("Enter second graph id.");
+
+                DB.getGraphsAndVolume(
+                    graphIdA,
+                    graphIdB
+                ).then((res: { graphA: Object, graphB: Object, volume: Object }) => {
+                    if (!res) {
+                        alert("Failed to fetch.");
                         return;
                     }
-                    let question = res.question;
-                    let colocardGraphA = question.instructions.graph.structure;
+                    let colocardGraphA = res.graphA;
+                    let colocardGraphB = res.graphB;
                     let volume = res.volume;
-                    console.log(question);
                     console.log(volume);
 
-                    self.questionId = question._id;
                     self.volume = volume;
 
                     // The electron microscopy imagery layer
@@ -115,6 +115,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     });
 
                     let graphlibGraphA = self.graphlibFromColocard(colocardGraphA);
+                    let graphlibGraphB = self.graphlibFromColocard(colocardGraphB);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -153,12 +154,12 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                         nodeCount: self.layers.traceManagerA.g.nodeCount()
                     });
 
                     self.layers.traceManagerA.insertGraph(graphlibGraphA);
+                    self.layers.traceManagerB.insertGraph(graphlibGraphB);
                     self.reset();
                     self.updateUIStatus();
 
