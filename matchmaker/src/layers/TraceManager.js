@@ -20,20 +20,21 @@ const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
 // Default edge color
 const EDGE_COLOR = { r: 60, g: 170, b: 60 };
+const EDGE_WIDTH = 6;
 
 // Radius of an axon marker
-const AXON_RADIUS = 25;
+const AXON_RADIUS = 15;
 // Radius of a marker for a node that is marked as a bookmark
-const BOOKMARK_RADIUS = 25;
+const BOOKMARK_RADIUS = 15;
 // Radius of a dendrite marker
-const DENDRITE_RADIUS = 25;
+const DENDRITE_RADIUS = 15;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
 // Number of z-slices after which a node is no longer selectable
-const SELECTION_RADIUS_Z = 20;
+const SELECTION_RADIUS_Z = 5;
 
 
 export default class TraceManager {
@@ -225,10 +226,10 @@ export default class TraceManager {
                 if (diminishingFactor > 1) {
                     diminishingFactor = 1 / diminishingFactor;
                 }
-                this.p.strokeWeight(3 * diminishingFactor);
+                this.p.strokeWeight(EDGE_WIDTH * diminishingFactor);
                 this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
             } else {
-                this.p.strokeWeight(3);
+                this.p.strokeWeight(EDGE_WIDTH);
                 this.p.stroke(this.EDGE_COLOR.r, this.EDGE_COLOR.g, this.EDGE_COLOR.b);
             }
             this.p.line(nodePosU.x, nodePosU.y, nodePosV.x, nodePosV.y);
