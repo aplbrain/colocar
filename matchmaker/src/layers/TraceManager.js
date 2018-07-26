@@ -43,9 +43,7 @@ export default class TraceManager {
     im: ImageManager;
     activeNode: NodeMeta;
 
-    drawHinting: boolean;
     visibility: boolean;
-    newSubgraph: boolean;
 
     constructor(opts: {
         p: P5Type,
@@ -59,16 +57,7 @@ export default class TraceManager {
         });
 
         window.tm = this;
-        this.drawHinting = false;
         this.visibility = true;
-    }
-
-    exportGraph(): Object {
-        /*
-        Remap nodes to data-space and return COPY OF graph.
-        */
-        let graphCopy = graphlib.json.read(graphlib.json.write(this.g));
-        return graphCopy;
     }
 
     getSelectedNodeZ(): number {
@@ -77,10 +66,6 @@ export default class TraceManager {
         } else {
             return this.im.currentZ;
         }
-    }
-
-    stopHinting(): void {
-        this.drawHinting = false;
     }
 
     toggleVisibility(): void {
@@ -122,8 +107,6 @@ export default class TraceManager {
                 let n = closeNodes[0];
                 this.activeNode = n;
             }
-        } else {
-            this.drawHinting = true;
         }
     }
 
@@ -168,101 +151,6 @@ export default class TraceManager {
         }
     }
 
-    extendGraph(newNode: NodeMeta): void {
-        if (this.activeNode) {
-            this.g.setNode(newNode.id, newNode);
-
-            // Create an edge from the active node.
-            let newEdge = {
-                v: this.activeNode.id,
-                w: newNode.id
-            };
-            this.g.setEdge(newEdge);
-            this.activeNode = newNode;
-        }
-    }
-
-    mouseClicked(): void {
-        if (this.im.imageCollision(this.p.mouseX, this.p.mouseY)) {
-
-            let newNodeId = uuidv4();
-
-            // Normalize relative to the original image.
-            let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
-            let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
-
-            // TODO: Project xyz into DATA space, not p5 space
-            let newNode = new NodeMeta({
-                x,
-                y,
-                z: this.im.currentZ,
-                id: newNodeId
-            });
-
-            this.extendGraph(newNode);
-        }
-
-        this.drawHinting = false;
-    }
-
-    markNodeType(nodeType: string): void {
-        let node = this.g.node(this.activeNode.id);
-        if (!node.protected) {
-            if (node.type === nodeType) {
-                node.type = undefined;
-            } else {
-                node.type = nodeType;
-            }
-            this.g.setNode(this.activeNode.id, node);
-        }
-    }
-
-    markBookmark(): void {
-        if (this.g.node(this.activeNode.id).bookmarked) {
-            this.g.node(this.activeNode.id).bookmarked = false;
-        } else {
-            this.g.node(this.activeNode.id).bookmarked = true;
-        }
-    }
-
-    popBookmark(): {x: number, y: number, z: number} {
-        let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId))
-        let bmarks = nodes.reverse().filter(n => n.bookmarked);
-        if (!bmarks.length) {
-            // If you have set no bookmarks, return current XYZ
-            return {
-                x: this.activeNode.x,
-                y: this.activeNode.y,
-                z: this.activeNode.z,
-            };
-        } else {
-            return {
-                x: bmarks[0].x,
-                y: bmarks[0].y,
-                z: bmarks[0].z,
-            };
-        }
-    }
-
-    deleteActiveNode(): void {
-        if (!this.activeNode) {
-            return;
-        }
-
-        if (this.activeNode.protected) {
-            return;
-        }
-
-        if (!this.g.isLeaf(this.activeNode.id)) {
-            return;
-        }
-
-        let replacementId = this.g.neighbors(this.activeNode.id)[0];
-        let replacement = this.g.node(replacementId);
-        this.g.removeNode(this.activeNode.id);
-        this.activeNode = replacement;
-    }
-
     // Denormalize the node to scale it to the correct position.
     // Returns SCREEN position
     transformCoords(x: number, y: number) {
@@ -283,20 +171,6 @@ export default class TraceManager {
     draw(): void {
         if (!this.visibility) {
             return;
-        }
-
-        // While the mouse is down, but not released
-        // Draw a transparent node and edge showing where they will appear on release.
-        if (this.drawHinting) {
-            if (this.activeNode) {
-                let lastNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
-                this.p.strokeWeight(3);
-                this.p.stroke("rgba(0, 0, 0, .5)");
-                this.p.line(lastNode.x, lastNode.y, this.p.mouseX, this.p.mouseY);
-            }
-            this.p.fill("rgba(255, 0, 0, 0.5)");
-            this.p.noStroke();
-            this.p.ellipse(this.p.mouseX, this.p.mouseY, 10, 10);
         }
 
         this.p.noStroke();

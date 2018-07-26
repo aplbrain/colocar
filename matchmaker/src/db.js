@@ -5,7 +5,6 @@ import Config from "./_config";
 
 interface Database {
     getNextQuestion(string, string): Promise<Object>;
-    postGraph(Object): any;
 }
 
 
@@ -29,7 +28,7 @@ class Colocard implements Database {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
-        this.matchmaker_name = "matchmaker";
+        this.matchmaker_name = "breadcrumbs";
     }
 
     getNextQuestion(user: string, type: string) {
@@ -98,40 +97,6 @@ class Colocard implements Database {
 
     _onException(reason: any) {
         console.log(reason);
-    }
-
-    postGraph(structure: Object, volume: string, author: string): Promise<string> {
-        /*
-        Post a graph to the colocard API.
-
-        Arguments:
-        graph (Object): The graph to post. Should be fully
-        well-formed graph object
-
-        */
-        structure.multigraph = structure.options.multigraph;
-        structure.directed = structure.options.directed;
-        structure.links = structure.edges;
-        delete structure.edges;
-        delete structure.options;
-
-
-        return fetch(`${this.url}/graphs`, {
-            headers: this.headers,
-            method: "POST",
-            body: JSON.stringify({
-                author: author,
-                namespace: this.matchmaker_name,
-                structure: structure,
-                volume: volume
-            })
-        }).then(values => {
-            console.log(values);
-            return "completed";
-        }).catch(reason => {
-            console.log(reason);
-            return "errored";
-        });
     }
 
     updateQuestionStatus(questionId: string, status: string): Promise<Response> {

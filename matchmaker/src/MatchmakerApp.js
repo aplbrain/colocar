@@ -11,11 +11,6 @@ import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FloatingActionButton from "material-ui/FloatingActionButton";
-import ContentSave from "material-ui/svg-icons/content/save";
-import ContentSend from "material-ui/svg-icons/content/send";
-import localForage from "localforage";
 
 import "./MatchmakerApp.css";
 
@@ -48,16 +43,6 @@ const STYLES = {
     },
     qid: {
         userSelect: "text"
-    },
-    save: {
-        position: "fixed",
-        left: "2em",
-        bottom: "2em"
-    },
-    submit: {
-        position: "fixed",
-        right: "2em",
-        bottom: "2em"
     }
 };
 
@@ -73,8 +58,7 @@ export default class MatchmakerApp extends Component<any, any> {
     state: {
         ready?: boolean,
         scale?: number,
-        currentZ?: number,
-        saveInProgress: boolean
+        currentZ?: number
     };
 
     questionId: string;
@@ -84,9 +68,7 @@ export default class MatchmakerApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        this.state = {
-            saveInProgress: false
-        };
+        this.state = {};
 
         // Create p5 sketch
         let self = this;
@@ -97,12 +79,7 @@ export default class MatchmakerApp extends Component<any, any> {
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
-                    self.layers.traceManager.mousePressed();
-                    self.updateUIStatus();
-                });
-
-                canvas.mouseClicked(function() {
-                    self.layers.traceManager.mouseClicked();
+                    self.layers.traceManagerA.mousePressed();
                     self.updateUIStatus();
                 });
 
@@ -144,7 +121,13 @@ export default class MatchmakerApp extends Component<any, any> {
                         imageURIs
                     });
 
-                    self.layers["traceManager"] = new TraceManager({
+                    self.layers["traceManagerA"] = new TraceManager({
+                        p,
+                        imageManager: self.layers.imageManager,
+                        startingGraph: null
+                    });
+
+                    self.layers["traceManagerB"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: null
@@ -153,14 +136,15 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManager,
+                        traceManager: self.layers.traceManagerA,
                     });
 
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
-                        'traceManager',
+                        'traceManagerA',
+                        'traceManagerB',
                         'scrollbar'
                     ];
 
@@ -169,10 +153,10 @@ export default class MatchmakerApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount()
+                        nodeCount: self.layers.traceManagerA.g.nodeCount()
                     });
 
-                    self.insertStoredGraph(graphlibGraph);
+                    self.insertGraph(graphlibGraph);
 
                 });
 
@@ -188,7 +172,9 @@ export default class MatchmakerApp extends Component<any, any> {
                 const eKey = 69;
                 const hKey = 72;
                 const qKey = 81;
+                const sKey = 83;
                 const tKey = 84;
+                const wKey = 87;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -196,20 +182,21 @@ export default class MatchmakerApp extends Component<any, any> {
                 const plusKey = 187;
                 const minusKey = 189;
                 const escapeKey = 27;
-                const exclamationKey = 49;
-                const atSignKey = 50;
-                const backspaceKey = 8;
                 switch (p.keyCode) {
                 // navigation (move image opposite to camera)
+                case wKey:
                 case upArrowKey:
                     self.panDown();
                     break;
+                case sKey:
                 case downArrowKey:
                     self.panUp();
                     break;
+                case aKey:
                 case leftArrowKey:
                     self.panRight();
                     break;
+                case dKey:
                 case rightArrowKey:
                     self.panLeft();
                     break;
@@ -229,29 +216,8 @@ export default class MatchmakerApp extends Component<any, any> {
                 case escapeKey:
                     self.reset();
                     break;
-                case hKey:
-                    self.stopHinting();
-                    break;
                 case tKey:
                     self.toggleTraceVisibility();
-                    break;
-                // label nodes
-                case aKey:
-                    self.markAxon();
-                    break;
-                case dKey:
-                    self.markDendrite();
-                    break;
-                // bookmarking
-                case exclamationKey:
-                    self.markBookmark();
-                    break;
-                case atSignKey:
-                    self.popBookmark();
-                    break;
-                // deletion
-                case backspaceKey:
-                    self.deleteActiveNode();
                     break;
                 default:
                     break;
@@ -302,7 +268,7 @@ export default class MatchmakerApp extends Component<any, any> {
     updateUIStatus(): void {
         this.setState({
             currentZ: this.layers.imageManager.currentZ,
-            nodeCount: this.layers.traceManager.g.nodes().length
+            nodeCountA: this.layers.traceManagerA.g.nodes().length
         });
     }
 
@@ -343,7 +309,7 @@ export default class MatchmakerApp extends Component<any, any> {
     }
 
     reset(): void {
-        let curZ = this.layers.traceManager.getSelectedNodeZ();
+        let curZ = this.layers.traceManagerA.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
@@ -351,81 +317,19 @@ export default class MatchmakerApp extends Component<any, any> {
         });
     }
 
-    markAxon(): void {
-        this.layers.traceManager.markNodeType("presynaptic");
-    }
-
-    markDendrite(): void {
-        this.layers.traceManager.markNodeType("postsynaptic");
-    }
-
-    stopHinting(): void {
-        this.layers.traceManager.stopHinting();
-    }
-
     toggleTraceVisibility(): void {
-        this.layers.traceManager.toggleVisibility();
-    }
-
-    markBookmark(): void {
-        this.layers.traceManager.markBookmark();
-    }
-    popBookmark(): void {
-        // eslint-disable-next-line no-unused-vars
-        let {x, y, z} = this.layers.traceManager.popBookmark();
-        this.layers.imageManager.setZ(z);
-    }
-
-    deleteActiveNode(): void {
-        this.layers.traceManager.deleteActiveNode();
+        this.layers.traceManagerA.toggleVisibility();
+        this.layers.traceManagerB.toggleVisibility();
     }
 
     componentDidMount() {
         new p5(this.sketch);
     }
 
-    insertStoredGraph(parentGraph: Object) {
-        this.setState({
-            saveInProgress: true
-        });
-        localForage.getItem(
-            `matchmakerStorage-${this.questionId}`
-        ).then(storedData => {
-            let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
-            this.setState({
-                saveInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        }).catch((err) => {
-            this.layers.traceManager.insertGraph(parentGraph);
-            this.setState({
-                saveInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        });
-    }
-
-    saveGraph() {
-        this.setState({
-            saveInProgress: true
-        });
-        let graphStr = graphlib.json.write(this.layers.traceManager.g);
-        let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
-        localForage.setItem(
-            `matchmakerStorage-${this.questionId}`,
-            {
-                graphStr,
-                activeNodeId
-            }
-        ).then((storedData, errorSaving) => {
-            this.setState({
-                saveInProgress: false
-            });
-            console.log("saved graph!");
-        });
+    insertGraph(parentGraph: Object) {
+        this.layers.traceManagerA.insertGraph(parentGraph);
+        this.reset();
+        this.updateUIStatus();
     }
 
     graphlibFromColocard(graph: Object) {
@@ -503,45 +407,6 @@ export default class MatchmakerApp extends Component<any, any> {
         return output;
     }
 
-    submitGraph() {
-        /*
-        Submit the Graph to the database
-        */
-        this.setState({ saveInProgress: true });
-        // eslint-disable-next-line no-restricted-globals
-        let certain = confirm(
-            "Preparing to submit. Are you sure that your data are ready?"
-        );
-        if (certain) {
-            let graph = this.graphlibToColocard(
-                this.layers.traceManager.exportGraph()
-            );
-            return DB.postGraph(
-                graph,
-                this.volume._id,
-                window.keycloak.profile.username
-            ).then(status => {
-                // TODO: Do not reload page if failed; instead,
-                // show error to user
-                return DB.updateQuestionStatus(this.questionId, status);
-            }).then(() => {
-                this.setState({
-                    saveInProgress: true
-                });
-                return localForage.removeItem(
-                    `matchmakerStorage-${this.questionId}`
-                );
-            }).then(() => {
-                // eslint-disable-next-line no-restricted-globals
-                location.reload(true);
-            });
-        } else {
-            this.setState({
-                saveInProgress: false
-            });
-        }
-    }
-
     render() {
         return (
             <div>
@@ -600,24 +465,6 @@ export default class MatchmakerApp extends Component<any, any> {
                             </tr>
                         </tbody>
                     </table>
-
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                secondary={true}
-                                style={STYLES["save"]}
-                                onClick={() => this.saveGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSave />
-                            </FloatingActionButton>
-                            <FloatingActionButton
-                                style={STYLES["submit"]}
-                                onClick={() => this.submitGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSend />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
 
                 </div> : null}
             </div>
