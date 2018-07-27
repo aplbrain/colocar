@@ -16,7 +16,7 @@ const CENTROID_COLOR = { r: 190, g: 10, b: 10 };
 const SELECTION_THRESHOLD = 10;
 // Distance in z-slices inside of which a node can be selected
 const SELECTION_RADIUS_Z = 10;
-const DIMINISH_RATE = 2.7;
+const DIMINISH_RATE = 2.;
 
 
 export default class TraceManager {
@@ -134,7 +134,7 @@ export default class TraceManager {
     draw(): void {
         this.p.noStroke();
         for (let j = 0; j < this.nodes.length; j++) {
-            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.nodes[j].z - this.im.currentZ, DIMINISH_RATE)));
+            let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
             let color = DEFAULT_COLOR;
             this.p.fill(color.r, color.g, color.b, diminishingFactor);
             let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
@@ -152,7 +152,7 @@ export default class TraceManager {
                 ACTIVE_NODE_COLOR.r,
                 ACTIVE_NODE_COLOR.g,
                 ACTIVE_NODE_COLOR.b,
-                180 - (Math.pow(this.selectedNode.z - this.im.currentZ, 2))
+                180 - (DIMINISH_RATE * Math.pow(this.selectedNode.z - this.im.currentZ, 2))
             );
             let transformedNode = this.transformCoords(this.selectedNode.x, this.selectedNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 28, 28);
