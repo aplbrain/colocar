@@ -16,7 +16,7 @@ const CENTROID_COLOR = { r: 190, g: 10, b: 10 };
 const SELECTION_THRESHOLD = 10;
 // Distance in z-slices inside of which a node can be selected
 const SELECTION_RADIUS_Z = 10;
-const DIMINISH_RATE = 2.;
+const DIMINISH_RATE = 3.;
 
 
 export default class TraceManager {
