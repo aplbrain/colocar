@@ -10,11 +10,13 @@ import type ImageManager from "./ImageManager";
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
 // Default node color
 const DEFAULT_COLOR = { r: 30, g: 240, b: 255 };
+const CENTROID_COLOR = { r: 190, g: 10, b: 10 };
 
 // Distance in pixels inside of which a node can be selected
 const SELECTION_THRESHOLD = 10;
 // Distance in z-slices inside of which a node can be selected
 const SELECTION_RADIUS_Z = 10;
+const DIMINISH_RATE = 3.;
 
 
 export default class TraceManager {
@@ -132,11 +134,15 @@ export default class TraceManager {
     draw(): void {
         this.p.noStroke();
         for (let j = 0; j < this.nodes.length; j++) {
-            let diminishingFactor = Math.max(0, 180 - (Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
+            let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
             let color = DEFAULT_COLOR;
             this.p.fill(color.r, color.g, color.b, diminishingFactor);
             let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
             this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor/255 * 20, diminishingFactor/255 * 20);
+            if (Math.abs(diminishingFactor) >= 179.5) {
+                this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+                this.p.ellipse(transformedNode.x, transformedNode.y, 6, 6);
+            }
         }
 
         // Draw the currently active node
@@ -146,9 +152,8 @@ export default class TraceManager {
                 ACTIVE_NODE_COLOR.r,
                 ACTIVE_NODE_COLOR.g,
                 ACTIVE_NODE_COLOR.b,
-                180 - (Math.pow(this.selectedNode.z - this.im.currentZ, 2))
+                180 - (DIMINISH_RATE * Math.pow(this.selectedNode.z - this.im.currentZ, 2))
             );
-            // TODO: Fade with depth
             let transformedNode = this.transformCoords(this.selectedNode.x, this.selectedNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 28, 28);
         }

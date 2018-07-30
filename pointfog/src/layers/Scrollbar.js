@@ -23,7 +23,7 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        pointcloudManager: pointcloudManager
+        pointcloudManager: PointcloudManager
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;

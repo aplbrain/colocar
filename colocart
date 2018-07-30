@@ -15,11 +15,12 @@
 """
 
 
-import os
-import mimetypes
-import sys
-import subprocess
 import configparser
+import datetime
+import mimetypes
+import os
+import subprocess
+import sys
 
 import boto3
 import click
@@ -116,12 +117,28 @@ def build(project: str):
         sys.exit(1)
 
     os.chdir(project)
-    build_output = subprocess.getoutput("yarn build")
 
-    if "Compiled" not in build_output:
+
+    subprocess.check_output("""
+        echo "export default {
+        \\\"commit\\\": \\\"$(git rev-parse HEAD)\\\",
+        \\\"user\\\": \\\"$USER\\\",
+        \\\"creation\\\": new Date(""" + str(
+            int(datetime.datetime.now().timestamp() * 1000)
+            ) + """),
+    };"  > src/_build_info.js
+    """, shell=True)
+
+    build_output = subprocess.run(
+        "yarn build",
+        shell=True,
+        capture_output=True,
+    )
+
+    if "Compiled" not in build_output.stdout.decode('utf8'):
         print_error("Build failed:")
         print_error("="*80)
-        print_error(build_output)
+        print_error(build_output.stdout.decode('utf8'))
         print_error("="*80)
         print_error("Failed with errors, aborting.")
         sys.exit(1)
