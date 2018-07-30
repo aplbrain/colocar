@@ -443,7 +443,7 @@ export default class MatchmakerApp extends Component<any, any> {
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
                                         <button onClick={()=>this.decrementZ()}>-</button>
-                                        {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
+                                        {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
                                         <button onClick={()=>this.incrementZ()}>+</button>
                                     </div>
                                 </td>
