@@ -8,6 +8,9 @@ let scaleIncrement: number = .1;
 export default class ImageManager {
 
     p: P5Type;
+    batchSize: number;
+    imageWidth: number;
+    imageHeight: number;
     nSlices: number;
     images: Array<P5Image>;
     readiness: Array<boolean>;
@@ -22,6 +25,7 @@ export default class ImageManager {
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
         let centerPoint = this.getCenter();
         this.position = {x: centerPoint.x, y: centerPoint.y};
+        this.batchSize = opts.batchSize;
         this.loadAllImages(opts.volume, opts.batchSize);
         this.readiness = new Array(this.nSlices);
         this.currentZ = Math.floor((this.nSlices) / 2); // Starts in the middle
@@ -32,6 +36,8 @@ export default class ImageManager {
         let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
         let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
         let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
+        this.imageWidth = xBounds[1] - xBounds[0];
+        this.imageHeight = yBounds[1] - yBounds[0];
         this.nSlices = zBounds[1] - zBounds[0];
         let nImages = Math.ceil(this.nSlices/batchSize);
         this.images = new Array(nImages);
@@ -48,7 +54,6 @@ export default class ImageManager {
                 metaStr +
                 coordStr +
                 "/?no-cache=true";
-            console.log(imageURI);
             this.images[imageIx] = this.p.loadImage(
                 imageURI,
                 () => {
@@ -210,13 +215,13 @@ export default class ImageManager {
     // Returns an object of the EDGES of the image.
     getBoundingRect(): {right: number, left: number, bottom: number, top: number } {
         // right vertical boundary
-        let right = this.position.x + (this.images[this.currentZ].width/2 * this.scale);
+        let right = this.position.x + (this.imageWidth/2 * this.scale);
         // left vertical boundary
-        let left = this.position.x - (this.images[this.currentZ].width/2 * this.scale);
+        let left = this.position.x - (this.imageWidth/2 * this.scale);
         // bottom horizontal boundary
-        let bottom = this.position.y + (this.images[this.currentZ].height/2 * this.scale);
+        let bottom = this.position.y + (this.imageHeight/2 * this.scale);
         // top horizontal boundary
-        let top = this.position.y - (this.images[this.currentZ].height/2 * this.scale);
+        let top = this.position.y - (this.imageHeight/2 * this.scale);
         return {
             right, left, bottom, top
         };
@@ -253,11 +258,18 @@ export default class ImageManager {
     draw(): void {
         if (this.readiness[this.currentZ]) {
             this.p.imageMode(this.p.CENTER);
-            this.p.image(this.images[this.currentZ],
+            let imageIx = Math.floor(this.currentZ / this.batchSize);
+            let subIx = this.currentZ % this.batchSize;
+            this.p.image(
+                this.images[imageIx],
                 this.position.x,
                 this.position.y,
-                this.images[this.currentZ].width * this.scale,
-                this.images[this.currentZ].height * this.scale,
+                this.imageWidth * this.scale,
+                this.imageHeight * this.scale,
+                0,
+                subIx*this.imageHeight,
+                this.imageWidth,
+                this.imageHeight,
             );
         } else {
             // Image not loaded yet. Filler image.
