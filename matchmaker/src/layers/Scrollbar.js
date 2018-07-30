@@ -65,10 +65,10 @@ export default class Scrollbar {
         this.p.strokeWeight(4);
         this.p.rect(this.left, this.top, this.width, this.height);
         this.p.fill(200);
-        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.imageURIs.length));
+        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.nSlices));
         this.getEntitiesA().forEach(e => {
             this.p.stroke(...e.color, 50);
-            let _z = this.top + (this.height * (e.z / this.im.imageURIs.length));
+            let _z = this.top + (this.height * (e.z / this.im.nSlices));
             this.p.line(
                 this.left,
                 _z,
@@ -78,7 +78,7 @@ export default class Scrollbar {
         });
         this.getEntitiesB().forEach(e => {
             this.p.stroke(...e.color, 50);
-            let _z = this.top + (this.height * (e.z / this.im.imageURIs.length));
+            let _z = this.top + (this.height * (e.z / this.im.nSlices));
             this.p.line(
                 this.left,
                 _z,
