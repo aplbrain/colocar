@@ -23,6 +23,17 @@
 </tr>
 <tr>
     <td>
+        <img align=center src="matchmaker/logo.png" width=100>
+    </td>
+    <td>
+        <h3 align=center><a href="matchmaker/">matchmaker</a></h3>
+    </td>
+    <td>
+        <p>Skeleton 'graph' pairwise visualization</p>
+    </td>
+</tr>
+<tr>
+    <td>
         <img align=center src="pointfog/logo.png" width=100>
     </td>
     <td>

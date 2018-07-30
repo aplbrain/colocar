@@ -1,0 +1,31 @@
+{
+  "name": "matchmaker",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apl-substrate": "^1.0.4",
+    "flow": "^0.2.3",
+    "graphlib": "^2.1.5",
+    "localforage": "^1.7.2",
+    "material-ui": "^0.20.1",
+    "npm": "^6.0.0",
+    "p5": "^0.6.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.1.0",
+    "uuid": "^3.2.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "test": "bash ./run-tests.sh"
+  },
+  "devDependencies": {
+    "ajv": "^6.2.0",
+    "babel-eslint": "^8.2.2",
+    "eslint-plugin-flowtype": "^2.46.1",
+    "eslint-plugin-react": "^7.7.0",
+    "flow-bin": "^0.64.0"
+  }
+}
