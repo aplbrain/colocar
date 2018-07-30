@@ -43,6 +43,15 @@ const STYLES = {
     },
     qid: {
         userSelect: "text"
+    },
+    graphLegendA: {
+        backgroundColor: "rgb(90, 200, 90)",
+        color: "white"
+
+    },
+    graphLegendB: {
+        backgroundColor: "rgb(200, 90, 200)",
+        color: "white"
     }
 };
 
@@ -86,8 +95,14 @@ export default class MatchmakerApp extends Component<any, any> {
                 self.layers = {};
                 self.renderOrder = [];
 
-                let graphIdA = window.prompt("Enter first graph id.");
-                let graphIdB = window.prompt("Enter second graph id.");
+                let graphIdA;
+                while (!graphIdA) {
+                    graphIdA = window.prompt("Enter first graph id.");
+                }
+                let graphIdB;
+                while (!graphIdB) {
+                    graphIdB = window.prompt("Enter second graph id.");
+                }
 
                 DB.getGraphsAndVolume(
                     graphIdA,
@@ -116,6 +131,8 @@ export default class MatchmakerApp extends Component<any, any> {
 
                     let graphlibGraphA = self.graphlibFromColocard(colocardGraphA);
                     let graphlibGraphB = self.graphlibFromColocard(colocardGraphB);
+                    graphlibGraphA.author = colocardGraphA.author;
+                    graphlibGraphB.author = colocardGraphB.author;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -456,6 +473,20 @@ export default class MatchmakerApp extends Component<any, any> {
                                             {this.questionId || ""}
                                         </code>
                                     </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendA"]}>
+                                        {this.layers.traceManagerA.g.author}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendB"]}>
+                                        {this.layers.traceManagerB.g.author}
+                                    </div>
                                 </td>
                             </tr>
                             <tr>

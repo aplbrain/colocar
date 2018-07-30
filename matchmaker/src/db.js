@@ -57,6 +57,8 @@ class Colocard implements Database {
         let volumeId: string = graphMetaA.volume;
         let graphA = graphMetaA.structure;
         let graphB = graphMetaB.structure;
+        graphA.author = graphMetaA.author;
+        graphB.author = graphMetaB.author;
 
         return fetch(`${this.url}/volumes/${volumeId}`, {
             headers: this.headers
