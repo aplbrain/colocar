@@ -118,16 +118,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     console.log(volume);
 
                     self.volume = volume;
-
-                    // The electron microscopy imagery layer
-                    let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
-                    let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
-                    let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
-                    let imageURIs = [
-                        ...Array(zBounds[1] - zBounds[0]).keys()
-                    ].map(i => i + zBounds[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/${volume.resolution}/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
-                    });
+                    let batchSize = 5;
 
                     let graphlibGraphA = self.graphlibFromColocard(colocardGraphA);
                     let graphlibGraphB = self.graphlibFromColocard(colocardGraphB);
@@ -136,7 +127,8 @@ export default class MatchmakerApp extends Component<any, any> {
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        imageURIs
+                        volume,
+                        batchSize
                     });
 
                     self.layers["traceManagerA"] = new TraceManager({
@@ -193,7 +185,6 @@ export default class MatchmakerApp extends Component<any, any> {
                 const aKey = 65;
                 const dKey = 68;
                 const eKey = 69;
-                const hKey = 72;
                 const qKey = 81;
                 const sKey = 83;
                 const tKey = 84;
@@ -451,7 +442,7 @@ export default class MatchmakerApp extends Component<any, any> {
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
                                         <button onClick={()=>this.decrementZ()}>-</button>
-                                        {this.state.currentZ} / {this.layers.imageManager.images.length - 1}
+                                        {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
                                         <button onClick={()=>this.incrementZ()}>+</button>
                                     </div>
                                 </td>

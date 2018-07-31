@@ -8,7 +8,10 @@ let scaleIncrement: number = .1;
 export default class ImageManager {
 
     p: P5Type;
-    imageURIs: Array<string>;
+    batchSize: number;
+    imageWidth: number;
+    imageHeight: number;
+    nSlices: number;
     images: Array<P5Image>;
     readiness: Array<boolean>;
     currentZ: number;
@@ -16,45 +19,54 @@ export default class ImageManager {
     position: {x: number, y: number};
 
     // Expects an array of image URIs to be loaded
-    constructor(opts: {p: P5Type, imageURIs: Array<string>}): void {
+    constructor(opts: {p: P5Type, volume: Object, batchSize: number}): void {
         this.p = opts.p;
         this.scale = 1;
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
-
-        this.imageURIs = opts.imageURIs;
-        this.images = new Array(this.imageURIs.length);
-        this.readiness = new Array(this.imageURIs.length);
-        this.currentZ = Math.floor((this.imageURIs.length) / 2); // Starts in the middle
-
-        // Load the middle image first
-        this.images[this.currentZ] = this.p.loadImage(
-            this.imageURIs[this.currentZ],
-            () => {
-                this.readiness[this.currentZ] = true;
-            },
-            (err: Error) => {console.error(err);},
-            {
-                Authorization: `Bearer ${window.keycloak.token}`
-            }
-        );
-
         let centerPoint = this.getCenter();
         this.position = {x: centerPoint.x, y: centerPoint.y};
-
-        this.loadAllImages();
+        this.batchSize = opts.batchSize;
+        this.loadAllImages(opts.volume, opts.batchSize);
+        this.readiness = new Array(this.nSlices);
+        this.currentZ = Math.floor((this.nSlices) / 2); // Starts in the middle
     }
 
     // Loads in all the images.
-    loadAllImages(): void {
-        for (let i = 0; i < this.imageURIs.length; i++) {
-            this.images[i] = this.p.loadImage(
-                this.imageURIs[i],
+    loadAllImages(volume: Object, batchSize: number): void {
+        let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
+        let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
+        let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
+        this.imageWidth = xBounds[1] - xBounds[0];
+        this.imageHeight = yBounds[1] - yBounds[0];
+        this.nSlices = zBounds[1] - zBounds[0];
+        let nImages = Math.ceil(this.nSlices/batchSize);
+        this.images = new Array(nImages);
+        let xStr = `${xBounds[0]}:${xBounds[1]}`;
+        let yStr = `${yBounds[0]}:${yBounds[1]}`;
+        let endpointStr = "https://api.theboss.io/v1/cutout/";
+        let metaStr = `${volume.collection}/${volume.experiment}/${volume.channel}/${volume.resolution}/`;
+        for (let imageIx = 0; imageIx < nImages; imageIx++) {
+            let zLower = zBounds[0] + batchSize*imageIx;
+            let zUpper = Math.min(zLower + batchSize, zBounds[1]);
+            let zStr = `${zLower}:${zUpper}`;
+            let coordStr = `${xStr}/${yStr}/${zStr}`;
+            let imageURI = endpointStr +
+                metaStr +
+                coordStr +
+                "/?no-cache=true";
+            this.images[imageIx] = this.p.loadImage(
+                imageURI,
                 () => {
-                    this.readiness[i] = true;
+                    let kLower = zLower - zBounds[0];
+                    let kUpper = zUpper - zBounds[0];
+                    for (let subIx = kLower; subIx < kUpper; subIx++) {
+                        this.readiness[subIx] = true;
+                    }
                 },
                 (err: Error) => {console.error(err);},
                 {
-                    Authorization: `Bearer ${window.keycloak.token}`
+                    Authorization: `Bearer ${window.keycloak.token}`,
+                    Accept: "image/jpeg"
                 }
             );
         }
@@ -63,8 +75,8 @@ export default class ImageManager {
     // Loads in all the images, working outwards from the center.
     // This hopes to load the images that the user is most likely to move to first, first.
     zigZagLoad(): void {
-        let centerZ = Math.floor((this.imageURIs.length) / 2);
-        let maxDistance = Math.floor((this.imageURIs.length) / 2);
+        let centerZ = Math.floor((this.nSlices) / 2);
+        let maxDistance = Math.floor((this.nSlices) / 2);
 
         for (let i = 1; i <= maxDistance; i++) {
             // The next image moving down the z-axis
@@ -76,14 +88,15 @@ export default class ImageManager {
                 },
                 (err: Error) => {console.error(err);},
                 {
-                    Authorization: `Bearer ${window.keycloak.token}`
+                    Authorization: `Bearer ${window.keycloak.token}`,
+                    Accept: 'image/jpeg'
                 }
             );
 
             // The next image moving up the z-axis.
             // Due to the rounding and 0-indexing, this executes one less time than the previous.
             let topIndexToLoad = centerZ + i;
-            if (topIndexToLoad < this.imageURIs.length) {
+            if (topIndexToLoad < this.nSlices) {
                 this.images[topIndexToLoad] = this.p.loadImage(
                     this.imageURIs[topIndexToLoad],
                     () => {
@@ -118,7 +131,7 @@ export default class ImageManager {
     }
 
     setZ(index: number) {
-        if (index % 1 === 0 && index >= 0 && index < this.images.length) {
+        if (index % 1 === 0 && index >= 0 && index < this.nSlices) {
             this.currentZ = index;
         } else {
             console.error("Invalid index requested.");
@@ -154,7 +167,7 @@ export default class ImageManager {
     }
 
     maxZ(): number {
-        return this.images.length - 1;
+        return this.nSlices - 1;
     }
 
     incrementZ(): void {
@@ -202,13 +215,13 @@ export default class ImageManager {
     // Returns an object of the EDGES of the image.
     getBoundingRect(): {right: number, left: number, bottom: number, top: number } {
         // right vertical boundary
-        let right = this.position.x + (this.images[this.currentZ].width/2 * this.scale);
+        let right = this.position.x + (this.imageWidth/2 * this.scale);
         // left vertical boundary
-        let left = this.position.x - (this.images[this.currentZ].width/2 * this.scale);
+        let left = this.position.x - (this.imageWidth/2 * this.scale);
         // bottom horizontal boundary
-        let bottom = this.position.y + (this.images[this.currentZ].height/2 * this.scale);
+        let bottom = this.position.y + (this.imageHeight/2 * this.scale);
         // top horizontal boundary
-        let top = this.position.y - (this.images[this.currentZ].height/2 * this.scale);
+        let top = this.position.y - (this.imageHeight/2 * this.scale);
         return {
             right, left, bottom, top
         };
@@ -245,11 +258,18 @@ export default class ImageManager {
     draw(): void {
         if (this.readiness[this.currentZ]) {
             this.p.imageMode(this.p.CENTER);
-            this.p.image(this.images[this.currentZ],
+            let imageIx = Math.floor(this.currentZ / this.batchSize);
+            let subIx = this.currentZ % this.batchSize;
+            this.p.image(
+                this.images[imageIx],
                 this.position.x,
                 this.position.y,
-                this.images[this.currentZ].width * this.scale,
-                this.images[this.currentZ].height * this.scale,
+                this.imageWidth * this.scale,
+                this.imageHeight * this.scale,
+                0,
+                subIx*this.imageHeight,
+                this.imageWidth,
+                this.imageHeight,
             );
         } else {
             // Image not loaded yet. Filler image.

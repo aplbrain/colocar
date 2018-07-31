@@ -118,6 +118,7 @@ def build(project: str):
 
     os.chdir(project)
 
+
     subprocess.check_output("""
         echo "export default {
         \\\"commit\\\": \\\"$(git rev-parse HEAD)\\\",

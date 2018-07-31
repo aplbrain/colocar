@@ -126,20 +126,12 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.questionId = question._id;
                     self.volume = volume;
-
-                    // The electron microscopy imagery layer
-                    let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
-                    let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
-                    let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
-                    let imageURIs = [
-                        ...Array(zBounds[1] - zBounds[0]).keys()
-                    ].map(i => i + zBounds[0]).map(_z => {
-                        return `https://api.theboss.io/v1/image/${volume.collection}/${volume.experiment}/${volume.channel}/xy/${volume.resolution}/${xBounds[0]}:${xBounds[1]}/${yBounds[0]}:${yBounds[1]}/${_z}/?no-cache=true`;
-                    });
+                    let batchSize = 5;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        imageURIs,
+                        volume,
+                        batchSize
                     });
 
                     self.layers["pointcloudManager"] = new PointcloudManager({
@@ -329,7 +321,7 @@ export default class PointfogApp extends Component<any, any> {
         localForage.getItem(`pointfogStorage-${this.questionId}`).then(nodes => {
             nodes = nodes || [];
             nodes.forEach(node => {
-                this.layers.pointcloudManager.addNode(node.id, node)
+                this.layers.pointcloudManager.addNode(node.id, node);
             });
             this.layers.pointcloudManager.selectedNode = nodes.slice(-1)[0];
             this.updateUIStatus();
@@ -373,7 +365,7 @@ export default class PointfogApp extends Component<any, any> {
         localForage.setItem(
             `pointfogStorage-${this.questionId}`,
             nodes,
-        ).then((savedSynapses, errorSaving) => {
+        ).then(() => {
             this.setState({
                 saveInProgress: false
             });
@@ -452,7 +444,7 @@ export default class PointfogApp extends Component<any, any> {
                                             ()=>this.scaleDown()
                                         }>-</button>
                                         {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>{this.scaleUp()}}>+</button>
+                                        <button onClick={()=>{this.scaleUp();}}>+</button>
                                     </div>
                                 </td>
                             </tr>
@@ -463,7 +455,7 @@ export default class PointfogApp extends Component<any, any> {
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
                                         <button onClick={()=>this.decrementZ()}>-</button>
-                                        {this.state.currentZ + 1} / {this.layers.imageManager.images.length}
+                                        {this.state.currentZ + 1} / {this.layers.imageManager.nSlices}
                                         <button onClick={()=>this.incrementZ()}>+</button>
                                     </div>
                                 </td>
