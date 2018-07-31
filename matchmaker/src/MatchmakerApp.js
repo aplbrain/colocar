@@ -185,7 +185,6 @@ export default class MatchmakerApp extends Component<any, any> {
                 const aKey = 65;
                 const dKey = 68;
                 const eKey = 69;
-                const hKey = 72;
                 const qKey = 81;
                 const sKey = 83;
                 const tKey = 84;

@@ -3,7 +3,6 @@
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "../types/p5Types";
-import type { Node } from "../types/colocardTypes";
 import type ImageManager from "./ImageManager";
 
 // Highlight color for active node

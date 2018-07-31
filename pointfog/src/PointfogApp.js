@@ -321,7 +321,7 @@ export default class PointfogApp extends Component<any, any> {
         localForage.getItem(`pointfogStorage-${this.questionId}`).then(nodes => {
             nodes = nodes || [];
             nodes.forEach(node => {
-                this.layers.pointcloudManager.addNode(node.id, node)
+                this.layers.pointcloudManager.addNode(node.id, node);
             });
             this.layers.pointcloudManager.selectedNode = nodes.slice(-1)[0];
             this.updateUIStatus();
@@ -365,7 +365,7 @@ export default class PointfogApp extends Component<any, any> {
         localForage.setItem(
             `pointfogStorage-${this.questionId}`,
             nodes,
-        ).then((savedSynapses, errorSaving) => {
+        ).then(() => {
             this.setState({
                 saveInProgress: false
             });
@@ -444,7 +444,7 @@ export default class PointfogApp extends Component<any, any> {
                                             ()=>this.scaleDown()
                                         }>-</button>
                                         {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>{this.scaleUp()}}>+</button>
+                                        <button onClick={()=>{this.scaleUp();}}>+</button>
                                     </div>
                                 </td>
                             </tr>

@@ -390,7 +390,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             });
             this.reset();
             this.updateUIStatus();
-        }).catch((err) => {
+        }).catch(() => {
             this.layers.traceManager.insertGraph(parentGraph);
             this.setState({
                 saveInProgress: false
@@ -412,7 +412,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 graphStr,
                 activeNodeId
             }
-        ).then((storedData, errorSaving) => {
+        ).then(() => {
             this.setState({
                 saveInProgress: false
             });
