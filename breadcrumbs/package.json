@@ -9,7 +9,6 @@
     "localforage": "^1.7.2",
     "material-ui": "^0.20.1",
     "npm": "^6.0.0",
-    "p5": "^0.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0",

@@ -126,7 +126,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.questionId = question._id;
                     self.volume = volume;
-                    let batchSize = 5;
+                    let batchSize = 10;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
