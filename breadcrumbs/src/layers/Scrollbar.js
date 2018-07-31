@@ -39,24 +39,28 @@ export default class Scrollbar {
     mousePressed(): void {}
 
     getEntities() {
-        return this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
+        return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
             return {
                 z: i.z,
-                color: [0, 255, 100]
+                color: [0, (i.type ? 255 : 150), 200, (i.type ? 150 : 50)]
             };
-        });
+        }).concat((this.tm.activeNode ? [{
+            z: this.tm.activeNode.z,
+            color: [255, 255, 0, 200]
+        }]: [])));
     }
 
     draw(): void {
         this.p.rectMode(this.p.CORNER);
-        this.p.noFill();
-        this.p.stroke(255);
+        // Draw scrollbar:
+        this.p.fill(100);
+        this.p.stroke(100);
         this.p.strokeWeight(4);
         this.p.rect(this.left, this.top, this.width, this.height);
-        this.p.fill(200);
-        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.nSlices));
+
+        // Draw entities:
         this.getEntities().forEach(e => {
-            this.p.stroke(...e.color, 50);
+            this.p.stroke(...e.color);
             let _z = this.top + (this.height * (e.z / this.im.nSlices));
             this.p.line(
                 this.left,
@@ -65,5 +69,12 @@ export default class Scrollbar {
                 _z
             );
         });
+
+        // Draw thumb:
+        this.p.stroke(200);
+        this.p.line(
+            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
+        );
     }
 }
