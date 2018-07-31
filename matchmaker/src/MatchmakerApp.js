@@ -118,7 +118,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     console.log(volume);
 
                     self.volume = volume;
-                    let batchSize = 5;
+                    let batchSize = 10;
 
                     let graphlibGraphA = self.graphlibFromColocard(colocardGraphA);
                     let graphlibGraphB = self.graphlibFromColocard(colocardGraphB);

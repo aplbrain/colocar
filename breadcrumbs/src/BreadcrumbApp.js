@@ -126,7 +126,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.questionId = question._id;
                     self.volume = volume;
-                    let batchSize = 5;
+                    let batchSize = 10;
 
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
