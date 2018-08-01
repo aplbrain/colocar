@@ -22,6 +22,7 @@ export default class TraceManager {
 
     p: any;
     im: ImageManager;
+    visible: boolean;
     selectedNode: NodeMeta;
     nodes: Array<NodeMeta>;
 
@@ -31,6 +32,7 @@ export default class TraceManager {
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
+        this.visible = true;
 
         this.nodes = [];
     }
@@ -113,6 +115,10 @@ export default class TraceManager {
         this.selectedNode = null;
     }
 
+    toggleVisibility(): void {
+        this.visible = !this.visible;
+    }
+
     // Denormalize the node to scale it to the correct position.
     // Returns SCREEN position
     transformCoords(x: number, y: number) {
@@ -131,30 +137,32 @@ export default class TraceManager {
     }
 
     draw(): void {
-        this.p.noStroke();
-        for (let j = 0; j < this.nodes.length; j++) {
-            let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
-            let color = DEFAULT_COLOR;
-            this.p.fill(color.r, color.g, color.b, diminishingFactor);
-            let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor/255 * 20, diminishingFactor/255 * 20);
-            if (Math.abs(diminishingFactor) >= 179.5) {
-                this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
-                this.p.ellipse(transformedNode.x, transformedNode.y, 6, 6);
+        if (this.visible) {
+            this.p.noStroke();
+            for (let j = 0; j < this.nodes.length; j++) {
+                let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
+                let color = DEFAULT_COLOR;
+                this.p.fill(color.r, color.g, color.b, diminishingFactor);
+                let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
+                this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor/255 * 20, diminishingFactor/255 * 20);
+                if (Math.abs(diminishingFactor) >= 179.5) {
+                    this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+                    this.p.ellipse(transformedNode.x, transformedNode.y, 6, 6);
+                }
             }
-        }
 
-        // Draw the currently active node
-        this.p.noStroke();
-        if (this.selectedNode) {
-            this.p.fill(
-                ACTIVE_NODE_COLOR.r,
-                ACTIVE_NODE_COLOR.g,
-                ACTIVE_NODE_COLOR.b,
-                180 - (DIMINISH_RATE * Math.pow(this.selectedNode.z - this.im.currentZ, 2))
-            );
-            let transformedNode = this.transformCoords(this.selectedNode.x, this.selectedNode.y);
-            this.p.ellipse(transformedNode.x, transformedNode.y, 28, 28);
+            // Draw the currently active node
+            this.p.noStroke();
+            if (this.selectedNode) {
+                this.p.fill(
+                    ACTIVE_NODE_COLOR.r,
+                    ACTIVE_NODE_COLOR.g,
+                    ACTIVE_NODE_COLOR.b,
+                    180 - (DIMINISH_RATE * Math.pow(this.selectedNode.z - this.im.currentZ, 2))
+                );
+                let transformedNode = this.transformCoords(this.selectedNode.x, this.selectedNode.y);
+                this.p.ellipse(transformedNode.x, transformedNode.y, 28, 28);
+            }
         }
     }
 

@@ -228,7 +228,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.reset();
                     break;
                 case tKey:
-                    self.toggleCrosshairs();
+                    self.toggleCrossAndSyn();
                     break;
                 // deletion
                 case backspaceKey:
@@ -336,8 +336,9 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    toggleCrosshairs = function () {
+    toggleCrossAndSyn = function () {
         this.layers.crosshairs.toggleVisibility();
+        this.layers.pointcloudManager.toggleVisibility();
     };
 
     deleteActiveNode(): void {
