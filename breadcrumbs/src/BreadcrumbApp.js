@@ -515,7 +515,11 @@ export default class BreadcrumbApp extends Component<any, any> {
             ).then(status => {
                 // TODO: Do not reload page if failed; instead,
                 // show error to user
-                return DB.updateQuestionStatus(this.questionId, status);
+                if (status === "completed") {
+                    return DB.updateQuestionStatus(this.questionId, status);
+                } else {
+                    throw "Failed to post - contact an admin.";
+                }
             }).then(() => {
                 this.setState({
                     saveInProgress: true
@@ -526,7 +530,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
-            });
+            }).catch(err => alert(err));
         } else {
             this.setState({
                 saveInProgress: false
