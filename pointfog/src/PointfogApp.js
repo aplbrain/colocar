@@ -410,7 +410,11 @@ export default class PointfogApp extends Component<any, any> {
                 return newNode;
             });
             return DB.postNodes(transformedNodes).then(status => {
-                return DB.updateQuestionStatus(this.questionId, status);
+                if (status === "completed") {
+                    return DB.updateQuestionStatus(this.questionId, status);
+                } else {
+                    throw "Failed to post - contact an admin.";
+                }
             }).then(() => {
                 this.setState({
                     saveInProgress: false
@@ -419,7 +423,7 @@ export default class PointfogApp extends Component<any, any> {
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
-            });
+            }).catch(err => alert(err));
         } else {
             this.setState({
                 saveInProgress: false
