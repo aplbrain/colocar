@@ -413,7 +413,7 @@ export default class PointfogApp extends Component<any, any> {
                 if (status === "completed") {
                     return DB.updateQuestionStatus(this.questionId, status);
                 } else {
-                    throw "Failed to post - contact an admin.";
+                    throw new Error("Failed to post - contact an admin.");
                 }
             }).then(() => {
                 this.setState({

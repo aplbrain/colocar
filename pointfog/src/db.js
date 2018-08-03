@@ -33,16 +33,35 @@ class Colocard implements Database {
     }
 
     getNextQuestion(user: string, type: string) {
-        return fetch(`${this.url}/questions?q={"assignee": "${user}", "namespace": "${type}", "active": true }`, {
+        let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
             headers: this.headers,
             method: "GET"
-        }).then(res => this._onQuestionSuccess(res)).catch(err => this._onException(err));
+        });
+        let pendingPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "pending"}&sort=-priority`, {
+            headers: this.headers,
+            method: "GET"
+        });
+        return Promise.all(
+            [openPromise, pendingPromise]
+        ).then(resList => this._onQuestionSuccess(resList)
+        ).catch(err => this._onException(err));
     }
 
-    _onQuestionSuccess(res: Response): Promise<Question> {
-        return res.json().then((json: any) => {
-            let questions: Array<Question> = json;
-            let question: Question = this._extractPrioritizedQuestion(questions);
+    _onQuestionSuccess(resList: Array<Response>): Promise<Question> {
+        let jsonList = resList.map(res => res.json());
+        let questionPromise = Promise.all(jsonList).then(questionsList => {
+            let openQuestions: Array<Question> = questionsList[0];
+            let pendingQuestions: Array<Question> = questionsList[1];
+            let question;
+            if (openQuestions.length > 0) {
+                question = openQuestions[0];
+            } else {
+                if (pendingQuestions.length > 0) {
+                    question = pendingQuestions[0];
+                } else {
+                    throw new Error("you don't have any open or pending questions - ask an admin");
+                }
+            }
             let volume = question.volume;
             let splitUri = volume.uri.split('/');
             let nUri = splitUri.length;
@@ -55,29 +74,7 @@ class Colocard implements Database {
                 volume
             };
         });
-    }
-
-    _extractPrioritizedQuestion(questions: Array<Question>): Question {
-        let question: Question = null;
-        let openQuestions = questions.filter(question => question.status === "open");
-        let nOpen = openQuestions.length;
-        if (nOpen > 1) {
-            throw "cannot have more than one open question - ask an admin";
-        } else if (nOpen === 1) {
-            question = openQuestions[0];
-        } else {
-            let pendingQuestions = questions.filter(question => question.status === "pending");
-            let nPending = pendingQuestions.length;
-            if (nPending === 0) {
-                throw "you don't have any open or pending questions - ask an admin";
-            } else {
-                let prioritizedQuestions = pendingQuestions.sort(function(a, b) {
-                    return a.priority - b.priority;
-                });
-                question = prioritizedQuestions[nPending-1];
-            }
-        }
-        return question;
+        return questionPromise;
     }
 
     _setOpenStatus(question: Question) {
