@@ -77,6 +77,7 @@ export default class PointfogApp extends Component<any, any> {
     };
 
     questionId: string;
+    questionPrompt: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -125,6 +126,7 @@ export default class PointfogApp extends Component<any, any> {
                     console.log(volume);
 
                     self.questionId = question._id;
+                    self.questionPrompt = question.instructions.prompt;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -168,6 +170,8 @@ export default class PointfogApp extends Component<any, any> {
                     self.updateUIStatus();
 
                     self.insertStoredNodes();
+
+                    self.showPrompt();
 
                 });
 
@@ -328,6 +332,10 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
+    showPrompt() {
+        alert(this.questionPrompt);
+    }
+
     reset(): void {
         this.layers.imageManager.reset();
         this.setState({
@@ -485,6 +493,9 @@ export default class PointfogApp extends Component<any, any> {
                             </tr>
 
                             <tr>
+                                <td colSpan={2}>
+                                    <button onClick={()=>this.showPrompt()}>Task prompt</button>
+                                </td>
                                 <td colSpan={2}>
                                     <button onClick={()=>this.reset()}>Reset viewport</button>
                                 </td>

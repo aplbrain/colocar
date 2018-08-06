@@ -78,6 +78,7 @@ export default class BreadcrumbApp extends Component<any, any> {
     };
 
     questionId: string;
+    questionPrompt: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -125,6 +126,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(volume);
 
                     self.questionId = question._id;
+                    self.questionPrompt = question.instructions.prompt;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -165,6 +167,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                     });
 
                     self.insertStoredGraph(graphlibGraph);
+
+                    self.showPrompt();
 
                 });
 
@@ -400,6 +404,10 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
+    showPrompt() {
+        alert(this.questionPrompt);
+    }
+
     saveGraph() {
         this.setState({
             saveInProgress: true
@@ -590,6 +598,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 </td>
                             </tr>
                             <tr>
+                                <td colSpan={2}>
+                                    <button onClick={()=>this.showPrompt()}>Task prompt</button>
+                                </td>
                                 <td colSpan={2}>
                                     <button onClick={()=>this.reset()}>Reset viewport</button>
                                 </td>
