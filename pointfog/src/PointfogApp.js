@@ -167,7 +167,6 @@ export default class PointfogApp extends Component<any, any> {
                         questionId: question._id,
                         currentZ: self.layers.imageManager.currentZ,
                     });
-                    self.updateUIStatus();
 
                     self.insertStoredNodes();
 
