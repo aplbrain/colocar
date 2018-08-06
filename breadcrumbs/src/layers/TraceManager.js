@@ -6,22 +6,14 @@ import uuidv4 from "uuid/v4";
 import type { P5Type } from "../types/p5Types";
 import type ImageManager from "./ImageManager";
 
-// Color of node marked as axon
-const AXON_COLOR = { r: 255, g: 0, b: 0 };
-// Color of node marked as boundary of volume
-const BOUNDARY_COLOR = { r: 255, g: 165, b: 0 };
-// Color of node marked as dendrite
-const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
-// Color of the currently selected node "highlight" area
-const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
-// Color of the starting synapse
-const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 };
-// Color of a node that has been marked as a bookmark
-const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
-// Default node color
-const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
-// Default edge color
-const EDGE_COLOR = { r: 60, g: 170, b: 60 };
+const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red
+const BOUNDARY_COLOR = { r: 255, g: 165, b: 0 }; // orange
+const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
+const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
+const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // bright green
+const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
+const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
+const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
 
 // Radius of an axon marker
 const AXON_RADIUS = 25;
