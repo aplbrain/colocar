@@ -8,6 +8,8 @@ import type ImageManager from "./ImageManager";
 
 // Color of node marked as axon
 const AXON_COLOR = { r: 255, g: 0, b: 0 };
+// Color of node marked as boundary of volume
+const BOUNDARY_COLOR = { r: 255, g: 165, b: 0 };
 // Color of node marked as dendrite
 const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
 // Color of the currently selected node "highlight" area
@@ -313,6 +315,9 @@ export default class TraceManager {
                 radius = BOOKMARK_RADIUS;
             } else if (node.type === "initial") {
                 color = STARTING_SYNAPSE_COLOR;
+                radius = BOOKMARK_RADIUS;
+            } else if (node.type === "boundary") {
+                color = BOUNDARY_COLOR;
                 radius = BOOKMARK_RADIUS;
             } else if (node.type === "presynaptic") {
                 color = AXON_COLOR;
