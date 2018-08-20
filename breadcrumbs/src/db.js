@@ -96,7 +96,7 @@ class Colocard implements Database {
         console.log(reason);
     }
 
-    postGraph(structure: Object, volume: string, author: string): Promise<string> {
+    postGraph(author: string, parent: string, structure: Object, volume: string): Promise<string> {
         /*
         Post a graph to the colocard API.
 
@@ -118,6 +118,7 @@ class Colocard implements Database {
             body: JSON.stringify({
                 author: author,
                 namespace: this.breadcrumbs_name,
+                parent: parent,
                 structure: structure,
                 volume: volume
             })

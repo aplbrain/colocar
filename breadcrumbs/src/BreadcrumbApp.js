@@ -77,6 +77,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         saveInProgress: boolean
     };
 
+    graphId: string;
     questionId: string;
     volume: Object;
 
@@ -124,6 +125,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(question);
                     console.log(volume);
 
+                    self.graphId = question.instructions.graph._id;
                     self.questionId = question._id;
                     self.volume = volume;
                     let batchSize = 10;
@@ -509,9 +511,10 @@ export default class BreadcrumbApp extends Component<any, any> {
                 this.layers.traceManager.exportGraph()
             );
             return DB.postGraph(
+                window.keycloak.profile.username,
+                this.graphId,
                 graph,
-                this.volume._id,
-                window.keycloak.profile.username
+                this.volume._id
             ).then(status => {
                 // TODO: Do not reload page if failed; instead,
                 // show error to user
