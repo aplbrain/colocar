@@ -5,7 +5,7 @@ import Config from "./_config";
 
 interface Database {
     getNextQuestion(string, string): Promise<Object>;
-    postGraph(Object): any;
+    postGraph(string, string, Object, string): any;
 }
 
 
