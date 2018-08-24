@@ -52,13 +52,13 @@ const STYLES = {
     },
     yes: {
         position: "fixed",
-        right: "6em",
-        bottom: "2em"
+        right: "2em",
+        bottom: "6em"
     },
     no: {
         position: "fixed",
-        right: "2em",
-        bottom: "6em"
+        right: "6em",
+        bottom: "2em"
     },
     maybe: {
         position: "fixed",
@@ -485,7 +485,12 @@ export default class NazcaApp extends Component<any, any> {
         }).then(() => {
             // eslint-disable-next-line no-restricted-globals
             location.reload(true);
-        }).catch(err => alert(err));
+        }).catch(err => {
+            this.setState({
+                submitInProgress: false
+            });
+            alert(err);
+        });
     }
 
     render() {

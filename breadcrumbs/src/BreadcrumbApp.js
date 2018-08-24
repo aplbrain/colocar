@@ -533,7 +533,12 @@ export default class BreadcrumbApp extends Component<any, any> {
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
-            }).catch(err => alert(err));
+            }).catch(err => {
+                this.setState({
+                    saveInProgress: false
+                });
+                alert(err);
+            });
         } else {
             this.setState({
                 saveInProgress: false
