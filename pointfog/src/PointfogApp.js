@@ -77,6 +77,7 @@ export default class PointfogApp extends Component<any, any> {
     };
 
     questionId: string;
+    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -125,6 +126,7 @@ export default class PointfogApp extends Component<any, any> {
                     console.log(volume);
 
                     self.questionId = question._id;
+                    self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -162,7 +164,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: question._id,
+                        questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
                     });
                     self.updateUIStatus();
@@ -404,7 +406,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
                 newNode.namespace = DB.pointfog_name;
-                newNode.type = "synapse";
+                newNode.type = this.questionType || "synapse";
                 newNode.volume = this.volume._id;
 
                 return newNode;

@@ -78,6 +78,7 @@ export default class BreadcrumbApp extends Component<any, any> {
     };
 
     questionId: string;
+    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -125,6 +126,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     console.log(volume);
 
                     self.questionId = question._id;
+                    self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -159,7 +161,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: question._id,
+                        questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
                         nodeCount: self.layers.traceManager.g.nodeCount()
                     });
@@ -176,6 +178,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
             p.keyPressed = function() {
                 const aKey = 65;
+                const bKey = 66;
                 const dKey = 68;
                 const eKey = 69;
                 const hKey = 72;
@@ -230,6 +233,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                 // label nodes
                 case aKey:
                     self.markAxon();
+                    break;
+                case bKey:
+                    if (self.questionType === "boundary") {
+                        self.markBoundary();
+                    }
                     break;
                 case dKey:
                     self.markDendrite();
@@ -345,6 +353,10 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     markAxon(): void {
         this.layers.traceManager.markNodeType("presynaptic");
+    }
+
+    markBoundary(): void {
+        this.layers.traceManager.markNodeType("boundary");
     }
 
     markDendrite(): void {
