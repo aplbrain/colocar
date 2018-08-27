@@ -24,9 +24,9 @@ This will run a development server in your shell (with linting and transpile out
 
 | Command | Description |
 |---------|-------------|
-| <kbd>LMB</kbd> | Click to place a new node (Trace Mode only) |
 | <kbd>RMB</kbd> | Drag to pan around the scene. Click to select a node |
 | <kbd>MMB</kbd> | Scroll to scrub through the z-stack |
+| <kbd>SHIFT</kbd> + <kbd>MMB</kbd> | Scroll to zoom in or out |
 
 ### Keyboard
 
@@ -34,11 +34,9 @@ This will run a development server in your shell (with linting and transpile out
 |---------|-------------|
 | <kbd>q</kbd>, <kbd>e</kbd> | Pan up and down in the z-stack |
 | <kbd>+</kbd>, <kbd>-</kbd> | Zoom in and out |
-| <kbd>a</kbd> | Mark the current node as an Axon |
-| <kbd>d</kbd> | Mark the current node as a Dendrite |
-| <kbd>!</kbd> | Mark the current node as a bookmark, to return to later. (Press again to toggle) |
-| <kbd>@</kbd> | Return to the previous bookmark |
-| <kbd>delete</kbd> | Delete the currently active node |
+| <kbd>b</kbd> | Send decision of "yes" to server |
+| <kbd>n</kbd> | Send decision of "no" to server |
+| <kbd>m</kbd> | Send decision of "maybe" to server |
 | <kbd>esc</kbd> | Reset the zoom and pan of the scene |
 | <kbd>T</kbd> | Toggle trace visibility |
 
