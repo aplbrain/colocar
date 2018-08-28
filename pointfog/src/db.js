@@ -108,7 +108,7 @@ class Colocard implements Database {
         });
         return Promise.all(
             nodePromises
-        ).then(values => {
+        ).then(() => {
             return "completed";
         }).catch(reason => {
             Log.error(reason);

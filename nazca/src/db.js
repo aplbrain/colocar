@@ -114,7 +114,7 @@ class Colocard implements Database {
                 author: author,
                 decision: decision
             })
-        }).then(values => {
+        }).then(() => {
             return "completed";
         }).catch(reason => {
             Log.error(reason);

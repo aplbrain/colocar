@@ -123,7 +123,7 @@ class Colocard implements Database {
                 structure: structure,
                 volume: volume
             })
-        }).then(values => {
+        }).then(() => {
             return "completed";
         }).catch(reason => {
             Log.error(reason);

@@ -18,7 +18,7 @@ window.keycloak = window.Keycloak({
 // Require a user sign-in:
 window.keycloak.init({
     onLoad: 'login-required',
-}).success(function (authenticated) {
+}).success(function () {
     // Render the React app:
     window.keycloak.loadUserProfile().success(() => {
         ReactDOM.render( <AppContainer /> , document.getElementById('root'));
