@@ -122,8 +122,6 @@ export default class PointfogApp extends Component<any, any> {
                     }
                     let question = res.question;
                     let volume = res.volume;
-                    console.log(question);
-                    console.log(volume);
 
                     self.questionId = question._id;
                     self.questionType = question.instructions.type;
@@ -372,7 +370,6 @@ export default class PointfogApp extends Component<any, any> {
             this.setState({
                 saveInProgress: false
             });
-            console.log("saved nodes!");
         });
     }
 
@@ -385,7 +382,6 @@ export default class PointfogApp extends Component<any, any> {
         });
         // eslint-disable-next-line no-restricted-globals
         let certain = confirm("Attempting to submit. Are you sure that your data are ready?");
-        console.log(certain);
         if (certain) {
             let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
             let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];

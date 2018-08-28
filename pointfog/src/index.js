@@ -22,7 +22,6 @@ window.keycloak.init({
     window.keycloak.loadUserProfile().success(() => {
         ReactDOM.render( <AppContainer /> , document.getElementById('root'));
         registerServiceWorker();
-        console.log(authenticated ? 'Successfully authenticated.' : 'Not authenticated.');
     });
 
 }).error(function () {

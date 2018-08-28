@@ -86,7 +86,7 @@ class Colocard implements Database {
     }
 
     _onException(reason: any) {
-        console.log(reason);
+        console.error(reason);
     }
 
     postNodes(nodes: Array<Node>): Promise<string> {
@@ -108,10 +108,9 @@ class Colocard implements Database {
         return Promise.all(
             nodePromises
         ).then(values => {
-            console.log(values);
             return "completed";
         }).catch(reason => {
-            console.log(reason);
+            console.error(reason);
             return "errored";
         });
     }

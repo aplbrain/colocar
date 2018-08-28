@@ -78,7 +78,6 @@ export default class TraceManager {
     }
 
     toggleVisibility(): void {
-        console.log(this.visibility);
         this.visibility = !this.visibility;
     }
 

@@ -115,7 +115,6 @@ export default class MatchmakerApp extends Component<any, any> {
                     let colocardGraphA = res.graphA;
                     let colocardGraphB = res.graphB;
                     let volume = res.volume;
-                    console.log(volume);
 
                     self.volume = volume;
                     let batchSize = 10;

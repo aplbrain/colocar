@@ -93,7 +93,7 @@ class Colocard implements Database {
     }
 
     _onException(reason: any) {
-        console.log(reason);
+        console.error(reason);
     }
 
     postGraph(author: string, parent: string, structure: Object, volume: string): Promise<string> {
@@ -123,10 +123,9 @@ class Colocard implements Database {
                 volume: volume
             })
         }).then(values => {
-            console.log(values);
             return "completed";
         }).catch(reason => {
-            console.log(reason);
+            console.error(reason);
             return "errored";
         });
     }
