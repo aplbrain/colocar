@@ -5,7 +5,7 @@ import Config from "./_config";
 
 interface Database {
     getNextQuestion(string, string): Promise<Object>;
-    postGraph(string, string, Object, string): any;
+    postGraphProof(string, string, Object, string): any;
 }
 
 
@@ -13,7 +13,7 @@ class Colocard implements Database {
 
     url: string;
     headers: Object;
-    breadcrumbs_name: string;
+    nazca_name: string;
 
     constructor(opts?: {url?: string}) {
         /*
@@ -29,7 +29,7 @@ class Colocard implements Database {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
-        this.breadcrumbs_name = "breadcrumbs";
+        this.nazca_name = "nazca";
     }
 
     getNextQuestion(user: string, type: string) {
@@ -96,31 +96,22 @@ class Colocard implements Database {
         console.log(reason);
     }
 
-    postGraph(author: string, parent: string, structure: Object, volume: string): Promise<string> {
+    postGraphDecision(decision: string, author: string, graphId: string): Promise<string> {
         /*
-        Post a graph to the colocard API.
+        Post a graph decision to the colocard API.
 
         Arguments:
         graph (Object): The graph to post. Should be fully
         well-formed graph object
 
         */
-        structure.multigraph = structure.options.multigraph;
-        structure.directed = structure.options.directed;
-        structure.links = structure.edges;
-        delete structure.edges;
-        delete structure.options;
 
-
-        return fetch(`${this.url}/graphs`, {
+        return fetch(`${this.url}/graphs/${graphId}/decisions`, {
             headers: this.headers,
-            method: "POST",
+            method: "PATCH",
             body: JSON.stringify({
                 author: author,
-                namespace: this.breadcrumbs_name,
-                parent: parent,
-                structure: structure,
-                volume: volume
+                decision: decision
             })
         }).then(values => {
             console.log(values);

@@ -13,11 +13,12 @@ import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from "material-ui/FloatingActionButton";
-import ContentSave from "material-ui/svg-icons/content/save";
-import ContentSend from "material-ui/svg-icons/content/send";
+import ActionThumbsUpDown from 'material-ui/svg-icons/action/thumbs-up-down';
+import ActionThumbDown from 'material-ui/svg-icons/action/thumb-down';
+import ActionThumbUp from 'material-ui/svg-icons/action/thumb-up';
 import localForage from "localforage";
 
-import "./BreadcrumbApp.css";
+import "./NazcaApp.css";
 
 let p5: P5Type = window.p5;
 
@@ -49,19 +50,24 @@ const STYLES = {
     qid: {
         userSelect: "text"
     },
-    save: {
+    yes: {
         position: "fixed",
-        left: "2em",
+        right: "2em",
+        bottom: "6em"
+    },
+    no: {
+        position: "fixed",
+        right: "6em",
         bottom: "2em"
     },
-    submit: {
+    maybe: {
         position: "fixed",
         right: "2em",
         bottom: "2em"
     }
 };
 
-export default class BreadcrumbApp extends Component<any, any> {
+export default class NazcaApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
@@ -74,7 +80,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         ready?: boolean,
         scale?: number,
         currentZ?: number,
-        saveInProgress: boolean
+        submitInProgress: boolean
     };
 
     graphId: string;
@@ -87,7 +93,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
-            saveInProgress: false
+            submitInProgress: false
         };
 
         // Create p5 sketch
@@ -103,18 +109,13 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.updateUIStatus();
                 });
 
-                canvas.mouseClicked(function() {
-                    self.layers.traceManager.mouseClicked();
-                    self.updateUIStatus();
-                });
-
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
                 self.renderOrder = [];
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.breadcrumbs_name
+                    DB.nazca_name
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         alert("No remaining questions.");
@@ -183,9 +184,12 @@ export default class BreadcrumbApp extends Component<any, any> {
                 const bKey = 66;
                 const dKey = 68;
                 const eKey = 69;
-                const hKey = 72;
+                const mKey = 77;
+                const nKey = 78;
                 const qKey = 81;
+                const sKey = 83;
                 const tKey = 84;
+                const wKey = 87;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -193,20 +197,31 @@ export default class BreadcrumbApp extends Component<any, any> {
                 const plusKey = 187;
                 const minusKey = 189;
                 const escapeKey = 27;
-                const exclamationKey = 49;
-                const atSignKey = 50;
-                const backspaceKey = 8;
                 switch (p.keyCode) {
+                // decision logic
+                case bKey:
+                    self.submitGraphDecision("yes");
+                    break;
+                case nKey:
+                    self.submitGraphDecision("no");
+                    break;
+                case mKey:
+                    self.submitGraphDecision("maybe");
+                    break;
                 // navigation (move image opposite to camera)
+                case wKey:
                 case upArrowKey:
                     self.panDown();
                     break;
+                case sKey:
                 case downArrowKey:
                     self.panUp();
                     break;
+                case aKey:
                 case leftArrowKey:
                     self.panRight();
                     break;
+                case dKey:
                 case rightArrowKey:
                     self.panLeft();
                     break;
@@ -226,34 +241,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                 case escapeKey:
                     self.reset();
                     break;
-                case hKey:
-                    self.stopHinting();
-                    break;
                 case tKey:
                     self.toggleTraceVisibility();
-                    break;
-                // label nodes
-                case aKey:
-                    self.markAxon();
-                    break;
-                case bKey:
-                    if (self.questionType === "boundary") {
-                        self.markBoundary();
-                    }
-                    break;
-                case dKey:
-                    self.markDendrite();
-                    break;
-                // bookmarking
-                case exclamationKey:
-                    self.markBookmark();
-                    break;
-                case atSignKey:
-                    self.popBookmark();
-                    break;
-                // deletion
-                case backspaceKey:
-                    self.deleteActiveNode();
                     break;
                 default:
                     break;
@@ -353,22 +342,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
-    markAxon(): void {
-        this.layers.traceManager.markNodeType("presynaptic");
-    }
-
-    markBoundary(): void {
-        this.layers.traceManager.markNodeType("boundary");
-    }
-
-    markDendrite(): void {
-        this.layers.traceManager.markNodeType("postsynaptic");
-    }
-
-    stopHinting(): void {
-        this.layers.traceManager.stopHinting();
-    }
-
     toggleTraceVisibility(): void {
         this.layers.traceManager.toggleVisibility();
     }
@@ -382,55 +355,31 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.imageManager.setZ(z);
     }
 
-    deleteActiveNode(): void {
-        this.layers.traceManager.deleteActiveNode();
-    }
-
     componentDidMount() {
         new p5(this.sketch);
     }
 
     insertStoredGraph(parentGraph: Object) {
         this.setState({
-            saveInProgress: true
+            submitInProgress: true
         });
         localForage.getItem(
-            `breadcrumbsStorage-${this.questionId}`
+            `nazcaStorage-${this.questionId}`
         ).then(storedData => {
             let storedGraph = graphlib.json.read(storedData.graphStr);
             this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
             this.setState({
-                saveInProgress: false
+                submitInProgress: false
             });
             this.reset();
             this.updateUIStatus();
         }).catch(() => {
             this.layers.traceManager.insertGraph(parentGraph);
             this.setState({
-                saveInProgress: false
+                submitInProgress: false
             });
             this.reset();
             this.updateUIStatus();
-        });
-    }
-
-    saveGraph() {
-        this.setState({
-            saveInProgress: true
-        });
-        let graphStr = graphlib.json.write(this.layers.traceManager.g);
-        let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
-        localForage.setItem(
-            `breadcrumbsStorage-${this.questionId}`,
-            {
-                graphStr,
-                activeNodeId
-            }
-        ).then(() => {
-            this.setState({
-                saveInProgress: false
-            });
-            console.log("saved graph!");
         });
     }
 
@@ -459,7 +408,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.y = newY;
             newNode.z = newZ;
             newNode.created = oldNode.created;
-            newNode.namespace = DB.breadcrumbs_name;
+            newNode.namespace = DB.nazca_name;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id || uuidv4();
             newNode.volume = this.volume._id;
@@ -492,7 +441,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
-            newNode.namespace = DB.breadcrumbs_name;
+            newNode.namespace = DB.nazca_name;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
@@ -509,53 +458,39 @@ export default class BreadcrumbApp extends Component<any, any> {
         return output;
     }
 
-    submitGraph() {
+    submitGraphDecision(decision: string) {
         /*
-        Submit the Graph to the database
+        Submit a Decision to the database
         */
-        this.setState({ saveInProgress: true });
-        // eslint-disable-next-line no-restricted-globals
-        let certain = confirm(
-            "Preparing to submit. Are you sure that your data are ready?"
-        );
-        if (certain) {
-            let graph = this.graphlibToColocard(
-                this.layers.traceManager.exportGraph()
-            );
-            return DB.postGraph(
-                window.keycloak.profile.username,
-                this.graphId,
-                graph,
-                this.volume._id
-            ).then(status => {
-                // TODO: Do not reload page if failed; instead,
-                // show error to user
-                if (status === "completed") {
-                    return DB.updateQuestionStatus(this.questionId, status);
-                } else {
-                    throw new Error("Failed to post - contact an admin.");
-                }
-            }).then(() => {
-                this.setState({
-                    saveInProgress: true
-                });
-                return localForage.removeItem(
-                    `breadcrumbsStorage-${this.questionId}`
-                );
-            }).then(() => {
-                // eslint-disable-next-line no-restricted-globals
-                location.reload(true);
-            }).catch(err => {
-                this.setState({
-                    saveInProgress: false
-                });
-                alert(err);
-            });
-        } else {
+        this.setState({ submitInProgress: true });
+        return DB.postGraphDecision(
+            decision,
+            window.keycloak.profile.username,
+            this.graphId
+        ).then(status => {
+            // TODO: Do not reload page if failed; instead,
+            // show error to user
+            if (status === "completed") {
+                return DB.updateQuestionStatus(this.questionId, status);
+            } else {
+                throw new Error("Failed to post - contact an admin.");
+            }
+        }).then(() => {
             this.setState({
-                saveInProgress: false
+                submitInProgress: true
             });
-        }
+            return localForage.removeItem(
+                `nazcaStorage-${this.questionId}`
+            );
+        }).then(() => {
+            // eslint-disable-next-line no-restricted-globals
+            location.reload(true);
+        }).catch(err => {
+            this.setState({
+                submitInProgress: false
+            });
+            alert(err);
+        });
     }
 
     render() {
@@ -620,17 +555,33 @@ export default class BreadcrumbApp extends Component<any, any> {
                     <MuiThemeProvider>
                         <div>
                             <FloatingActionButton
-                                secondary={true}
-                                style={STYLES["save"]}
-                                onClick={() => this.saveGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSave />
+                                style={STYLES["yes"]}
+                                onClick={() => this.submitGraphDecision("yes")}
+                                disabled={this.state.submitInProgress}
+                                backgroundColor={"green"} >
+                                <ActionThumbUp />
                             </FloatingActionButton>
+                        </div>
+                    </MuiThemeProvider>
+                    <MuiThemeProvider>
+                        <div>
                             <FloatingActionButton
-                                style={STYLES["submit"]}
-                                onClick={() => this.submitGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSend />
+                                style={STYLES["no"]}
+                                onClick={() => this.submitGraphDecision("no")}
+                                disabled={this.state.submitInProgress}
+                                backgroundColor={"red"} >
+                                <ActionThumbDown />
+                            </FloatingActionButton>
+                        </div>
+                    </MuiThemeProvider>
+                    <MuiThemeProvider>
+                        <div>
+                            <FloatingActionButton
+                                style={STYLES["maybe"]}
+                                onClick={() => this.submitGraphDecision("maybe")}
+                                disabled={this.state.submitInProgress}
+                                backgroundColor={"orange"} >
+                                <ActionThumbsUpDown />
                             </FloatingActionButton>
                         </div>
                     </MuiThemeProvider>
