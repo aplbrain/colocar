@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import Log from "./log";
 import AppContainer from './AppContainer';
 import registerServiceWorker from './registerServiceWorker';
 
@@ -24,5 +25,5 @@ window.keycloak.init({
     });
 
 }).error(function () {
-    console.error('Failed to initialize.');
+    Log.error('Failed to initialize.');
 });

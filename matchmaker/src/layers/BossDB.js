@@ -1,5 +1,6 @@
 // @flow
 
+import Log from "../log";
 import type { P5Type, P5Image } from "../types/p5Types";
 
 
@@ -78,7 +79,7 @@ export default class BossDB {
             this.img = self.p.loadImage(
                 url + slug,
                 () => { self.ready = true; },
-                (err: Object) => { console.error(err); },
+                (err: Object) => { Log.error(err); },
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }
@@ -100,7 +101,7 @@ export default class BossDB {
                 this._cache[z - 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err: Error) => { console.error(err); },
+                    (err: Error) => { Log.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }
@@ -115,7 +116,7 @@ export default class BossDB {
                 this._cache[z + 1] = self.p.loadImage(
                     url + slug,
                     () => { },
-                    (err: Error) => { console.error(err); },
+                    (err: Error) => { Log.error(err); },
                     {
                         Authorization: `Bearer ${window.keycloak.token}`
                     }

@@ -3,6 +3,7 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
+import Log from "../log";
 import type { P5Type } from "../types/p5Types";
 import type ImageManager from "./ImageManager";
 
@@ -149,7 +150,7 @@ export default class TraceManager {
                 this.g.setNode(nodeId, node);
                 if (node.type === "initial") {
                     if (startingSynapse) {
-                        console.warn("more than one active node!");
+                        Log.warn("more than one active node!");
                     } else {
                         startingSynapse = node;
                     }

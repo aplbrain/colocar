@@ -1,5 +1,6 @@
 // @flow
 
+import Log from "./log";
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
@@ -76,7 +77,7 @@ class Colocard implements Database {
     }
 
     _onException(reason: any) {
-        console.error(reason);
+        Log.error(reason);
     }
 
 }

@@ -1,5 +1,6 @@
 // @flow
 
+import Log from "../log";
 import type { P5Type, P5Image } from "../types/p5Types";
 
 let panIncrement: number = 50;
@@ -63,7 +64,7 @@ export default class ImageManager {
                         this.readiness[subIx] = true;
                     }
                 },
-                (err: Error) => {console.error(err);},
+                (err: Error) => {Log.error(err);},
                 {
                     Authorization: `Bearer ${window.keycloak.token}`,
                     Accept: "image/jpeg"
@@ -86,7 +87,7 @@ export default class ImageManager {
                 () => {
                     this.readiness[bottomIndexToLoad] = true;
                 },
-                (err: Error) => {console.error(err);},
+                (err: Error) => {Log.error(err);},
                 {
                     Authorization: `Bearer ${window.keycloak.token}`
                 }
@@ -101,7 +102,7 @@ export default class ImageManager {
                     () => {
                         this.readiness[topIndexToLoad] = true;
                     },
-                    (err: Error) => {console.error(err);},
+                    (err: Error) => {Log.error(err);},
                     {Authorization: `Bearer ${window.keycloak.token}`}
                 );
             }
@@ -112,7 +113,7 @@ export default class ImageManager {
         if (value >= 0 && value <= this.p.canvas.width) {
             this.position["x"] = value;
         } else {
-            console.error("Invalid position requested.");
+            Log.error("Invalid position requested.");
         }
     }
 
@@ -120,7 +121,7 @@ export default class ImageManager {
         if (value >= 0 && value <= this.p.canvas.height) {
             this.position["y"] = value;
         } else {
-            console.error("Invalid position requested.");
+            Log.error("Invalid position requested.");
         }
     }
 
@@ -133,7 +134,7 @@ export default class ImageManager {
         if (index % 1 === 0 && index >= 0 && index < this.nSlices) {
             this.currentZ = index;
         } else {
-            console.error("Invalid index requested.");
+            Log.error("Invalid index requested.");
         }
     }
 
