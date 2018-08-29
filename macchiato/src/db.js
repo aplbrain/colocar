@@ -1,16 +1,13 @@
 // @flow
 
-import Log from "./log";
-import type {Question} from "./types/colocardTypes";
+import Log from "colocorazon/log";
+
+import type { Question } from "colocorazon/types/colocard";
 import Config from "./_config";
 
-interface Database {
-    getNextQuestion(string, string): Promise<Object>;
-    postGraphProof(string, string, Object, string): any;
-}
 
 
-class Colocard implements Database {
+class Colocard {
 
     url: string;
     headers: Object;

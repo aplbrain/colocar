@@ -1,6 +1,7 @@
 // @flow
 
-import type { P5Type } from "../types/p5Types";
+import type { P5Type } from "colocorazon/types/p5";
+
 import type ImageManager from "./ImageManager";
 
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
@@ -12,12 +13,14 @@ export default class SynapseManager {
     p: any;
     g: any;
     im: ImageManager;
+    node: Object;
 
     visibility: boolean;
 
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
+        node: Object
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
