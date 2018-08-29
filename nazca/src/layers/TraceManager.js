@@ -3,8 +3,9 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import Log from "../log";
-import type { P5Type } from "../types/p5Types";
+import type { P5Type } from "colocorazon/types/p5";
+import Log from "colocorazon/log";
+
 import type ImageManager from "./ImageManager";
 
 const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red

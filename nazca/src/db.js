@@ -1,7 +1,7 @@
 // @flow
 
-import Log from "./log";
-import type {Question} from "./types/colocardTypes";
+import Log from "colocorazon/log";
+import type { Question } from "colocorazon/types/colocard";
 import Config from "./_config";
 
 interface Database {
