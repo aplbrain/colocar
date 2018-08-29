@@ -13,7 +13,7 @@ function info(toLog) {
 }
 
 function warn(toLog) {
-    console.info(toLog);
+    console.warn(toLog);
 }
 
 let Log = {
