@@ -52,11 +52,13 @@ export type P5Type = {
     keyCode: number,
     // Mouse:
     mouseWheel: Function,
+    mouseButton: number,
     mouseX: number,
     mouseY: number,
     pmouseX: number,
     pmouseY: number,
 
+    LEFT: number,
     RIGHT: number,
     CENTER: number,
 
