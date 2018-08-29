@@ -14,7 +14,7 @@ class Colocard implements Database {
 
     url: string;
     headers: Object;
-    nazca_name: string;
+    macchiatoAppName: string;
 
     constructor(opts?: {url?: string}) {
         /*
@@ -30,7 +30,7 @@ class Colocard implements Database {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
-        this.nazca_name = "nazca";
+        this.macchiatoAppName = "macchiato";
     }
 
     getNextQuestion(user: string, type: string) {
@@ -69,12 +69,12 @@ class Colocard implements Database {
             volume.collection = splitUri[nUri-3];
             volume.experiment = splitUri[nUri-2];
             volume.channel = splitUri[nUri-1];
-            let graphId = question.instructions.graph;
-            let graphPromise = fetch(`${this.url}/graphs/${graphId}`, {
+            let nodeId = question.instructions.node;
+            let nodePromise = fetch(`${this.url}/nodes/${nodeId}`, {
                 headers: this.headers
             }).then((res: Response) => res.json());
-            let fullQuestionPromise = graphPromise.then((graph: any) => {
-                question.instructions.graph = graph;
+            let fullQuestionPromise = nodePromise.then((node: any) => {
+                question.instructions.node = node;
                 let statusPromise = this._setOpenStatus(question);
                 return statusPromise.then(() => {
                     return {question, volume};

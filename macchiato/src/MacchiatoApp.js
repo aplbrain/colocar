@@ -1,9 +1,6 @@
 // @flow
 
 import React, { Component } from 'react';
-import * as graphlib from "graphlib";
-import uuidv4 from "uuid/v4";
-
 
 import type { P5Type } from "./types/p5Types";
 
@@ -16,7 +13,6 @@ import FloatingActionButton from "material-ui/FloatingActionButton";
 import ActionThumbsUpDown from 'material-ui/svg-icons/action/thumbs-up-down';
 import ActionThumbDown from 'material-ui/svg-icons/action/thumb-down';
 import ActionThumbUp from 'material-ui/svg-icons/action/thumb-up';
-import localForage from "localforage";
 
 import "./MacchiatoApp.css";
 
@@ -83,7 +79,7 @@ export default class NazcaApp extends Component<any, any> {
         submitInProgress: boolean
     };
 
-    graphId: string;
+    nodeId: string;
     questionId: string;
     questionType: string;
     volume: Object;
@@ -104,34 +100,26 @@ export default class NazcaApp extends Component<any, any> {
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
-                canvas.mousePressed(function() {
-                    self.layers.traceManager.mousePressed();
-                    self.updateUIStatus();
-                });
-
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
                 self.renderOrder = [];
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.nazca_name
+                    DB.macchiatoAppName
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         alert("No remaining questions.");
                         return;
                     }
                     let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
                     let volume = res.volume;
 
-                    self.graphId = question.instructions.graph._id;
+                    self.nodeId = question.instructions.node;
                     self.questionId = question._id;
                     self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
-
-                    let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -165,10 +153,7 @@ export default class NazcaApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount()
                     });
-
-                    self.insertStoredGraph(graphlibGraph);
 
                 });
 
@@ -199,13 +184,13 @@ export default class NazcaApp extends Component<any, any> {
                 switch (p.keyCode) {
                 // decision logic
                 case bKey:
-                    self.submitGraphDecision("yes");
+                    self.submitSynapseDecision("yes");
                     break;
                 case nKey:
-                    self.submitGraphDecision("no");
+                    self.submitSynapseDecision("no");
                     break;
                 case mKey:
-                    self.submitGraphDecision("maybe");
+                    self.submitSynapseDecision("maybe");
                     break;
                 // navigation (move image opposite to camera)
                 case wKey:
@@ -241,7 +226,7 @@ export default class NazcaApp extends Component<any, any> {
                     self.reset();
                     break;
                 case tKey:
-                    self.toggleTraceVisibility();
+                    self.toggleSynapseVisibility();
                     break;
                 default:
                     break;
@@ -292,7 +277,6 @@ export default class NazcaApp extends Component<any, any> {
     updateUIStatus(): void {
         this.setState({
             currentZ: this.layers.imageManager.currentZ,
-            nodeCount: this.layers.traceManager.g.nodes().length
         });
     }
 
@@ -333,7 +317,7 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     reset(): void {
-        let curZ = this.layers.traceManager.getSelectedNodeZ();
+        let curZ = 0;
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
@@ -341,123 +325,15 @@ export default class NazcaApp extends Component<any, any> {
         });
     }
 
-    toggleTraceVisibility(): void {
-        this.layers.traceManager.toggleVisibility();
-    }
-
-    markBookmark(): void {
-        this.layers.traceManager.markBookmark();
-    }
-    popBookmark(): void {
-        // eslint-disable-next-line no-unused-vars
-        let {x, y, z} = this.layers.traceManager.popBookmark();
-        this.layers.imageManager.setZ(z);
+    toggleSynapseVisibility(): void {
+        this.layers.synapse.toggleVisibility();
     }
 
     componentDidMount() {
         new p5(this.sketch);
     }
 
-    insertStoredGraph(parentGraph: Object) {
-        this.setState({
-            submitInProgress: true
-        });
-        localForage.getItem(
-            `nazcaStorage-${this.questionId}`
-        ).then(storedData => {
-            let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        }).catch(() => {
-            this.layers.traceManager.insertGraph(parentGraph);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        });
-    }
-
-    graphlibFromColocard(graph: Object) {
-        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
-        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
-        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
-        let output = new graphlib.Graph({
-            directed: true,
-            compound: false,
-            multigraph: false
-        });
-        graph.nodes.forEach(oldNode => {
-            let newNode = {};
-            // Rescale the node centroids to align with p5-space, not data-space:
-            let newX = oldNode.coordinate[0] - xBounds[0] - (
-                (xBounds[1] - xBounds[0]) / 2
-            );
-            let newY = oldNode.coordinate[1] - yBounds[0] - (
-                (yBounds[1] - yBounds[0]) / 2
-            );
-            let newZ = Math.round(oldNode.coordinate[2] - zBounds[0]);
-
-            newNode.author = oldNode.author || window.keycloak.profile.username;
-            newNode.x = newX;
-            newNode.y = newY;
-            newNode.z = newZ;
-            newNode.created = oldNode.created;
-            newNode.namespace = DB.nazca_name;
-            newNode.type = oldNode.type;
-            newNode.id = oldNode.id || uuidv4();
-            newNode.volume = this.volume._id;
-            output.setNode(newNode.id, newNode);
-        });
-        graph.links.forEach(e => {
-            let newEdge = {};
-            newEdge.v = e.source;
-            newEdge.w = e.target;
-            output.setEdge(newEdge);
-        });
-        return output;
-    }
-
-    graphlibToColocard(graph: Object) {
-        let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
-        let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
-        let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
-        let mappedNodes = graph.nodes().map(n => graph.node(n)).map(oldNode => {
-            let newNode: Node = {};
-            // Rescale the node centroids to align with data-space, not p5-space:
-            let newX = oldNode.x + xBounds[0] + (
-                (xBounds[1] - xBounds[0]) / 2
-            );
-            let newY = oldNode.y + yBounds[0] + (
-                (yBounds[1] - yBounds[0]) / 2
-            );
-            let newZ = oldNode.z + zBounds[0];
-
-            newNode.author = oldNode.author || window.keycloak.profile.username;
-            newNode.coordinate = [newX, newY, newZ];
-            newNode.created = oldNode.created;
-            newNode.namespace = DB.nazca_name;
-            newNode.type = oldNode.type;
-            newNode.id = oldNode.id;
-            newNode.volume = this.volume._id;
-            return newNode;
-        });
-        let output = graphlib.json.write(graph);
-        output.nodes = mappedNodes;
-        output.edges = output.edges.map(e => {
-            let newEdge = {};
-            newEdge.source = e.v;
-            newEdge.target = e.w;
-            return newEdge;
-        });
-        return output;
-    }
-
-    submitGraphDecision(decision: string) {
+    submitSynapseDecision(decision: string) {
         /*
         Submit a Decision to the database
         */
@@ -465,7 +341,7 @@ export default class NazcaApp extends Component<any, any> {
         return DB.postGraphDecision(
             decision,
             window.keycloak.profile.username,
-            this.graphId
+            this.nodeId
         ).then(status => {
             // TODO: Do not reload page if failed; instead,
             // show error to user
@@ -478,9 +354,6 @@ export default class NazcaApp extends Component<any, any> {
             this.setState({
                 submitInProgress: true
             });
-            return localForage.removeItem(
-                `nazcaStorage-${this.questionId}`
-            );
         }).then(() => {
             // eslint-disable-next-line no-restricted-globals
             location.reload(true);
@@ -555,7 +428,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["yes"]}
-                                onClick={() => this.submitGraphDecision("yes")}
+                                onClick={() => this.submitSynapseDecision("yes")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"green"} >
                                 <ActionThumbUp />
@@ -566,7 +439,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["no"]}
-                                onClick={() => this.submitGraphDecision("no")}
+                                onClick={() => this.submitSynapseDecision("no")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"red"} >
                                 <ActionThumbDown />
@@ -577,7 +450,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["maybe"]}
-                                onClick={() => this.submitGraphDecision("maybe")}
+                                onClick={() => this.submitSynapseDecision("maybe")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"orange"} >
                                 <ActionThumbsUpDown />

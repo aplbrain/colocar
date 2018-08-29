@@ -38,15 +38,6 @@ export default class Scrollbar {
     mouseClicked(): void {}
     mousePressed(): void {}
 
-    getEntities() {
-        return this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
-            return {
-                z: i.z,
-                color: [0, 255, 100]
-            };
-        });
-    }
-
     draw(): void {
         this.p.rectMode(this.p.CORNER);
         this.p.noFill();
@@ -55,15 +46,5 @@ export default class Scrollbar {
         this.p.rect(this.left, this.top, this.width, this.height);
         this.p.fill(200);
         this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.nSlices));
-        this.getEntities().forEach(e => {
-            this.p.stroke(...e.color, 50);
-            let _z = this.top + (this.height * (e.z / this.im.nSlices));
-            this.p.line(
-                this.left,
-                _z,
-                this.width + this.left,
-                _z
-            );
-        });
     }
 }

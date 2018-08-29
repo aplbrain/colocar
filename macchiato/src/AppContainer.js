@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import Log from "./log";
 import type { P5Type } from "./types/p5Types";
 
-import NazcaApp from "./NazcaApp";
+import MacchiatoApp from "./MacchiatoApp";
 
 import './AppContainer.css';
 
@@ -90,7 +90,7 @@ type AppContainerProps = {};
 class AppContainer extends Component<AppContainerProps> {
     render() {
         return (
-            <NazcaApp />
+            <MacchiatoApp />
         );
     }
 }
