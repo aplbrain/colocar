@@ -1,7 +1,7 @@
 // @flow
 
-import Log from "../log";
-import type { P5Type, P5Image } from "../types/p5Types";
+import type { P5Type, P5Image } from "colocorazon/types/p5";
+import Log from "colocorazon/log";
 
 let panIncrement: number = 50;
 let scaleIncrement: number = .1;
