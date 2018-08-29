@@ -67,11 +67,10 @@ const STYLES = {
     }
 };
 
-export default class NazcaApp extends Component<any, any> {
+export default class MacchiatoApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
-    ghostLayer: number;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
@@ -102,7 +101,6 @@ export default class NazcaApp extends Component<any, any> {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
-                self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
@@ -136,11 +134,7 @@ export default class NazcaApp extends Component<any, any> {
                         Math.round(node.coordinate[2] + Z_RADIUS),
                     ];
 
-                    node.coordinate = [
-                        0, // node.coordinate[0] - 3 *  XY_RADIUS,
-                        0, // node.coordinate[1] -  3 * XY_RADIUS,
-                        0, // node.coordinate[2] - Z_RADIUS,
-                    ];
+                    node.coordinate = [0, 0, 0];
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -196,7 +190,8 @@ export default class NazcaApp extends Component<any, any> {
                 const tKey = 84;
 
                 // Submit answer
-                const bKey = 66;
+                const bKey = 89;
+                const yKey = 66;
                 const mKey = 77;
                 const nKey = 78;
 
@@ -210,13 +205,14 @@ export default class NazcaApp extends Component<any, any> {
                 switch (p.keyCode) {
                 // decision logic
                 case bKey:
-                    self.submitSynapseDecision("yes");
+                case yKey:
+                    self.submitNodeDecision("yes");
                     break;
                 case nKey:
-                    self.submitSynapseDecision("no");
+                    self.submitNodeDecision("no");
                     break;
                 case mKey:
-                    self.submitSynapseDecision("maybe");
+                    self.submitNodeDecision("maybe");
                     break;
                 // navigation (move image opposite to camera)
                 case wKey:
@@ -356,12 +352,12 @@ export default class NazcaApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
-    submitSynapseDecision(decision: string) {
+    submitNodeDecision(decision: string) {
         /*
         Submit a Decision to the database
         */
         this.setState({ submitInProgress: true });
-        return DB.postSynapseDecision(
+        return DB.postNodeDecision(
             decision,
             window.keycloak.profile.username,
             this.nodeId
@@ -441,7 +437,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["yes"]}
-                                onClick={() => this.submitSynapseDecision("yes")}
+                                onClick={() => this.submitNodeDecision("yes")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"green"} >
                                 <ActionThumbUp />
@@ -452,7 +448,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["no"]}
-                                onClick={() => this.submitSynapseDecision("no")}
+                                onClick={() => this.submitNodeDecision("no")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"red"} >
                                 <ActionThumbDown />
@@ -463,7 +459,7 @@ export default class NazcaApp extends Component<any, any> {
                         <div>
                             <FloatingActionButton
                                 style={STYLES["maybe"]}
-                                onClick={() => this.submitSynapseDecision("maybe")}
+                                onClick={() => this.submitNodeDecision("maybe")}
                                 disabled={this.state.submitInProgress}
                                 backgroundColor={"orange"} >
                                 <ActionThumbsUpDown />

@@ -43,6 +43,17 @@
         <p>Pointcloud generation from data</p>
     </td>
 </tr>
+<tr>
+    <td>
+        <img align=center src="macchiato/logo.png" width=100>
+    </td>
+    <td>
+        <h3 align=center><a href="macchiato/">macchiato</a></h3>
+    </td>
+    <td>
+        <p>forced choice synapse proofreading</p>
+    </td>
+</tr>
 </table>
 
 ---

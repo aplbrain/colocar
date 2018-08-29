@@ -98,17 +98,17 @@ class Colocard implements Database {
         Log.error(reason);
     }
 
-    postGraphDecision(decision: string, author: string, graphId: string): Promise<string> {
+    postNodeDecision(decision: string, author: string, nodeId: string): Promise<string> {
         /*
-        Post a graph decision to the colocard API.
+        Post a node decision to the colocard API.
 
         Arguments:
-        graph (Object): The graph to post. Should be fully
-        well-formed graph object
+        node (Object): The node to post. Should be fully
+        well-formed node object
 
         */
 
-        return fetch(`${this.url}/graphs/${graphId}/decisions`, {
+        return fetch(`${this.url}/nodes/${nodeId}/decisions`, {
             headers: this.headers,
             method: "PATCH",
             body: JSON.stringify({
