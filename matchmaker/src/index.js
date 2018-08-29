@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import AppContainer from './AppContainer';
+import Log from "./log";
 import registerServiceWorker from './registerServiceWorker';
 
 window._appversion = "2.0.0";
@@ -16,14 +17,13 @@ window.keycloak = window.Keycloak({
 // Require a user sign-in:
 window.keycloak.init({
     onLoad: 'login-required',
-}).success(function (authenticated) {
+}).success(function () {
     // Render the React app:
     window.keycloak.loadUserProfile().success(() => {
         ReactDOM.render( <AppContainer /> , document.getElementById('root'));
         registerServiceWorker();
-        console.log(authenticated ? 'Successfully authenticated.' : 'Not authenticated.');
     });
 
 }).error(function () {
-    console.error('Failed to initialize.');
+    Log.error('Failed to initialize.');
 });

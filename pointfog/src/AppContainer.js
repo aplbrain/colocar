@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 
+import Log from "./log";
 import type { P5Type } from "./types/p5Types";
 
 import PointfogApp from "./PointfogApp";
@@ -36,7 +37,7 @@ p5.prototype.loadImage = function (path: string, successCallback: Function, fail
                 img.src = URL.createObjectURL(b);
             });
         } else {
-            console.error(res);
+            Log.error(res);
         }
     });
 

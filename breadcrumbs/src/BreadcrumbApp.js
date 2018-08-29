@@ -123,8 +123,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
                     let volume = res.volume;
-                    console.log(question);
-                    console.log(volume);
 
                     self.graphId = question.instructions.graph._id;
                     self.questionId = question._id;
@@ -430,7 +428,6 @@ export default class BreadcrumbApp extends Component<any, any> {
             this.setState({
                 saveInProgress: false
             });
-            console.log("saved graph!");
         });
     }
 

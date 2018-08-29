@@ -1,5 +1,6 @@
 // @flow
 
+import Log from "./log";
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
@@ -51,8 +52,6 @@ class Colocard implements Database {
 
     _onGraphSuccess(graphMetaA: Object, graphMetaB: Object): Promise<Question> {
         let volume: Object;
-        console.log(graphMetaA);
-        console.log(graphMetaB);
         console.assert(graphMetaA.volume === graphMetaB.volume);
         let volumeId: string = graphMetaA.volume;
         let graphA = graphMetaA.structure;
@@ -78,7 +77,7 @@ class Colocard implements Database {
     }
 
     _onException(reason: any) {
-        console.log(reason);
+        Log.error(reason);
     }
 
 }

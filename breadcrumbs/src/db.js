@@ -1,5 +1,6 @@
 // @flow
 
+import Log from "./log";
 import type {Question} from "./types/colocardTypes";
 import Config from "./_config";
 
@@ -93,7 +94,7 @@ class Colocard implements Database {
     }
 
     _onException(reason: any) {
-        console.log(reason);
+        Log.error(reason);
     }
 
     postGraph(author: string, parent: string, structure: Object, volume: string): Promise<string> {
@@ -122,11 +123,10 @@ class Colocard implements Database {
                 structure: structure,
                 volume: volume
             })
-        }).then(values => {
-            console.log(values);
+        }).then(() => {
             return "completed";
         }).catch(reason => {
-            console.log(reason);
+            Log.error(reason);
             return "errored";
         });
     }
