@@ -1,0 +1,4 @@
+**/_build_info.js
+**/build/
+**/node_modules/
+**/*.min.js
