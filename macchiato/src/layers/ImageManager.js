@@ -41,7 +41,6 @@ export default class ImageManager {
         this.imageHeight = yBounds[1] - yBounds[0];
         this.nSlices = zBounds[1] - zBounds[0];
         let nImages = Math.ceil(this.nSlices/batchSize);
-        console.log(nImages);
         this.images = new Array(nImages);
         let xStr = `${xBounds[0]}:${xBounds[1]}`;
         let yStr = `${yBounds[0]}:${yBounds[1]}`;
