@@ -1,6 +1,6 @@
 <p align=center><img align=center src='./logo.png' width=100 /></p>
-<h3 align=center>n a z c a</h3>
-<h6 align=center>simple and scalable graph validation</h6>
+<h3 align=center>m a c c h i a t o</h3>
+<h6 align=center>forced choice synapse proofreading</h6>
 
 <p align=center><img align=center src="https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square" /></p>
 
@@ -38,7 +38,7 @@ This will run a development server in your shell (with linting and transpile out
 | <kbd>n</kbd> | Send decision of "no" to server |
 | <kbd>m</kbd> | Send decision of "maybe" to server |
 | <kbd>esc</kbd> | Reset the zoom and pan of the scene |
-| <kbd>T</kbd> | Toggle trace visibility |
+| <kbd>T</kbd> | Toggle synapse visibility |
 
 ## Contributors
 
