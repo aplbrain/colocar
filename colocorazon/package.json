@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "babel-eslint": "^9.0.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "flow-bin": "^0.79.1"
+  }
+}
