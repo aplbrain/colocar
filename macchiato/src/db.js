@@ -69,6 +69,7 @@ class Colocard implements Database {
             volume.collection = splitUri[nUri-3];
             volume.experiment = splitUri[nUri-2];
             volume.channel = splitUri[nUri-1];
+            console.log({question});
             let nodeId = question.instructions.node;
             let nodePromise = fetch(`${this.url}/nodes/${nodeId}`, {
                 headers: this.headers

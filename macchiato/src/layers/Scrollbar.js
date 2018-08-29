@@ -45,6 +45,6 @@ export default class Scrollbar {
         this.p.strokeWeight(4);
         this.p.rect(this.left, this.top, this.width, this.height);
         this.p.fill(200);
-        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.nSlices));
+        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / (this.im.nSlices - 1)));
     }
 }

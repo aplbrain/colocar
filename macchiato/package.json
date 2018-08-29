@@ -1,11 +1,9 @@
 {
-  "name": "nazca",
+  "name": "macchiato",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "flow": "^0.2.3",
-    "graphlib": "^2.1.5",
-    "localforage": "^1.7.2",
     "material-ui": "^0.20.1",
     "npm": "^6.0.0",
     "react": "^16.2.0",

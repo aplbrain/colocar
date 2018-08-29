@@ -4,7 +4,7 @@ import Log from "../log";
 import type { P5Type, P5Image } from "../types/p5Types";
 
 let panIncrement: number = 50;
-let scaleIncrement: number = .1;
+let scaleIncrement: number = .05;
 
 export default class ImageManager {
 
@@ -22,7 +22,7 @@ export default class ImageManager {
     // Expects an array of image URIs to be loaded
     constructor(opts: {p: P5Type, volume: Object, batchSize: number, startingZ?: number}): void {
         this.p = opts.p;
-        this.scale = 1;
+        this.scale = 3;
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
         let centerPoint = this.getCenter();
         this.position = {x: centerPoint.x, y: centerPoint.y};
@@ -41,6 +41,7 @@ export default class ImageManager {
         this.imageHeight = yBounds[1] - yBounds[0];
         this.nSlices = zBounds[1] - zBounds[0];
         let nImages = Math.ceil(this.nSlices/batchSize);
+        console.log(nImages);
         this.images = new Array(nImages);
         let xStr = `${xBounds[0]}:${xBounds[1]}`;
         let yStr = `${yBounds[0]}:${yBounds[1]}`;
@@ -272,27 +273,27 @@ export default class ImageManager {
             );
         } else {
             // Image not loaded yet. Filler image.
-            this.p.stroke(255, 0, 0);
-            this.p.fill(255);
+            // this.p.stroke(255, 0, 0);
+            // this.p.fill(255);
 
-            this.p.rectMode(this.p.CENTER);
-            this.p.rect(
-                this.position.x,
-                this.position.y,
-                500 * this.scale,
-                500 * this.scale,
-            );
+            // this.p.rectMode(this.p.CENTER);
+            // this.p.rect(
+            //     this.position.x,
+            //     this.position.y,
+            //     500 * this.scale,
+            //     500 * this.scale,
+            // );
 
-            let offset = 250 * this.scale;
-            this.p.line(this.position.x + offset, this.position.y + offset, this.position.x - offset, this.position.y - offset);
-            this.p.line(this.position.x - offset, this.position.y + offset, this.position.x + offset, this.position.y - offset);
+            // let offset = 250 * this.scale;
+            // this.p.line(this.position.x + offset, this.position.y + offset, this.position.x - offset, this.position.y - offset);
+            // this.p.line(this.position.x - offset, this.position.y + offset, this.position.x + offset, this.position.y - offset);
 
-            this.p.fill(0);
-            this.p.noStroke();
-            this.p.strokeWeight(4);
-            this.p.textSize(24);
-            this.p.textAlign(this.p.CENTER, this.p.CENTER);
-            this.p.text("Loading...", this.position.x, this.position.y);
+            // this.p.fill(0);
+            // this.p.noStroke();
+            // this.p.strokeWeight(4);
+            // this.p.textSize(24);
+            // this.p.textAlign(this.p.CENTER, this.p.CENTER);
+            // this.p.text("Loading...", this.position.x, this.position.y);
         }
     }
 }

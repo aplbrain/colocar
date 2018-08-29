@@ -20,6 +20,10 @@ let p5: P5Type = window.p5;
 
 let DB = new Colocard();
 
+const XY_RADIUS = 100;
+const Z_RADIUS = 10;
+const BATCH_SIZE = 1;
+
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
@@ -115,23 +119,39 @@ export default class NazcaApp extends Component<any, any> {
                     let question = res.question;
                     let volume = res.volume;
 
-                    self.nodeId = question.instructions.node;
+                    self.nodeId = question.instructions.node._id;
                     self.questionId = question._id;
                     self.questionType = question.instructions.type;
                     self.volume = volume;
-                    let batchSize = 10;
+                    // Tighten the crop around the node:
+                    let node = question.instructions.node;
+                    self.volume.bounds[0] = [
+                        Math.round(node.coordinate[0] - XY_RADIUS),
+                        Math.round(node.coordinate[1] - XY_RADIUS),
+                        Math.round(node.coordinate[2] - Z_RADIUS),
+                    ];
+                    self.volume.bounds[1] = [
+                        Math.round(node.coordinate[0] + XY_RADIUS),
+                        Math.round(node.coordinate[1] + XY_RADIUS),
+                        Math.round(node.coordinate[2] + Z_RADIUS),
+                    ];
+
+                    node.coordinate = [
+                        0, // node.coordinate[0] - 3 *  XY_RADIUS,
+                        0, // node.coordinate[1] -  3 * XY_RADIUS,
+                        0, // node.coordinate[2] - Z_RADIUS,
+                    ];
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        volume,
-                        batchSize
+                        volume: self.volume,
+                        batchSize: BATCH_SIZE
                     });
 
                     self.layers["synapse"] = new SynapseManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        // Location defaults to center slice
-                        slice: 0
+                        node: node
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
@@ -164,16 +184,22 @@ export default class NazcaApp extends Component<any, any> {
             };
 
             p.keyPressed = function() {
+                // Navigation
                 const aKey = 65;
-                const bKey = 66;
-                const dKey = 68;
                 const eKey = 69;
-                const mKey = 77;
-                const nKey = 78;
+                const dKey = 68;
                 const qKey = 81;
                 const sKey = 83;
-                const tKey = 84;
                 const wKey = 87;
+
+                // Interaction
+                const tKey = 84;
+
+                // Submit answer
+                const bKey = 66;
+                const mKey = 77;
+                const nKey = 78;
+
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -237,13 +263,10 @@ export default class NazcaApp extends Component<any, any> {
 
             p.mouseDragged = function() {
                 if (p.mouseButton === p.RIGHT) {
-                    // Only drag the image if mouse is in the image.
-                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
-                        let dX = p.pmouseX - p.mouseX;
-                        let dY = p.pmouseY - p.mouseY;
+                    let dX = p.pmouseX - p.mouseX;
+                    let dY = p.pmouseY - p.mouseY;
 
-                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
-                    }
+                    self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
                 }
             };
 
@@ -338,7 +361,7 @@ export default class NazcaApp extends Component<any, any> {
         Submit a Decision to the database
         */
         this.setState({ submitInProgress: true });
-        return DB.postGraphDecision(
+        return DB.postSynapseDecision(
             decision,
             window.keycloak.profile.username,
             this.nodeId
@@ -394,16 +417,6 @@ export default class NazcaApp extends Component<any, any> {
                                         <button onClick={()=>this.decrementZ()}>-</button>
                                         {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
                                         <button onClick={()=>this.incrementZ()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Nodes</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        {this.state.nodeCount}
                                     </div>
                                 </td>
                             </tr>
