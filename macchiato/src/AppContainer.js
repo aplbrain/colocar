@@ -1,9 +1,8 @@
-// @flow
-
 import React, { Component } from 'react';
 
-import Log from "./log";
-import type { P5Type } from "./types/p5Types";
+import Log from "colocorazon/log";
+import type { P5Type } from "colocorazon/types/p5";
+
 
 import MacchiatoApp from "./MacchiatoApp";
 

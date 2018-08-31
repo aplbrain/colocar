@@ -1,17 +1,14 @@
 // @flow
 
-import type {
-    P5Type
-} from "../types/p5Types";
+import type { P5Type } from "colocorazon/types/p5";
+
 import type ImageManager from "./ImageManager";
-import type TraceManager from "./TraceManager";
 
 
 export default class Scrollbar {
 
     p: any;
     im: ImageManager;
-    tm: TraceManager;
     visible: boolean;
 
     left: number;
@@ -23,11 +20,9 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        traceManager: TraceManager
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.tm = opts.traceManager;
 
         this.left = 20;
         this.top = 30;

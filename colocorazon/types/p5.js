@@ -20,8 +20,8 @@ export type P5Type = {
     canvas: Object,
 
     // Drawing
-    background: (r: number, g: ?number, b: ?number, a: ?number) => void,
-    fill: (r: number, g: ?number, b: ?number, a: ?number) => void,
+    background: (r: number, g: ? number, b : ? number, a : ? number) => void,
+    fill: (r: number, g: ? number, b : ? number, a : ? number) => void,
 
     line: (x0: number, y0: number, x1: number, y1: number) => void,
 
@@ -29,7 +29,7 @@ export type P5Type = {
     rect: (number, number, number, number) => void,
     rectMode: Function,
 
-    stroke: (r: number, g: ?number, b: ?number, a: ?number) => void,
+    stroke: (r: number, g: ? number, b : ? number, a : ? number) => void,
     noStroke: () => void,
     strokeWeight: (number) => void,
 
@@ -52,11 +52,13 @@ export type P5Type = {
     keyCode: number,
     // Mouse:
     mouseWheel: Function,
+    mouseButton: number,
     mouseX: number,
     mouseY: number,
     pmouseX: number,
     pmouseY: number,
 
+    LEFT: number,
     RIGHT: number,
     CENTER: number,
 

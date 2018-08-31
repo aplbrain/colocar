@@ -1,7 +1,7 @@
 // @flow
 
-import Log from "../log";
-import type { P5Type, P5Image } from "../types/p5Types";
+import type { P5Type, P5Image } from "colocorazon/types/p5";
+import Log from "colocorazon/log";
 
 let panIncrement: number = 50;
 let scaleIncrement: number = .05;
@@ -13,7 +13,7 @@ export default class ImageManager {
     imageWidth: number;
     imageHeight: number;
     nSlices: number;
-    images: Array<P5Image>;
+    images: Array<P5Image | string>;
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;

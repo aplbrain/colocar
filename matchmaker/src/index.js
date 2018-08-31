@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import AppContainer from './AppContainer';
-import Log from "./log";
+
+import Log from "colocorazon/log";
 import registerServiceWorker from './registerServiceWorker';
 
 window._appversion = "2.0.0";

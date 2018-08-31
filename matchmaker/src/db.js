@@ -1,15 +1,10 @@
 // @flow
-
-import Log from "./log";
-import type {Question} from "./types/colocardTypes";
+import type { Question } from "colocorazon/types/colocard";
+import Log from "colocorazon/log";
 import Config from "./_config";
 
-interface Database {
-    getNextQuestion(string, string): Promise<Object>;
-}
 
-
-class Colocard implements Database {
+class Colocard {
 
     url: string;
     headers: Object;

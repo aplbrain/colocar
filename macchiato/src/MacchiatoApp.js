@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 
-import type { P5Type } from "./types/p5Types";
+import type { P5Type } from "colocorazon/types/p5";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
