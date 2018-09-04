@@ -5,24 +5,19 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/types/p5";
 import Log from "colocorazon/log";
+import CHash from "colocorazon/colorhash";
 
 import type ImageManager from "./ImageManager";
 
-const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red
-const BOUNDARY_COLOR = { r: 255, g: 165, b: 0 }; // orange
-const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
-const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // bright green
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
 const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
 
-// Radius of an axon marker
-const AXON_RADIUS = 25;
+// Radius of a marker when it has a node.type
+const SPECIAL_RADIUS = 25;
 // Radius of a marker for a node that is marked as a bookmark
 const BOOKMARK_RADIUS = 25;
-// Radius of a dendrite marker
-const DENDRITE_RADIUS = 25;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
 
@@ -306,18 +301,9 @@ export default class TraceManager {
             if (node.bookmarked) {
                 color = BOOKMARK_COLOR;
                 radius = BOOKMARK_RADIUS;
-            } else if (node.type === "initial") {
-                color = STARTING_SYNAPSE_COLOR;
-                radius = BOOKMARK_RADIUS;
-            } else if (node.type === "boundary") {
-                color = BOUNDARY_COLOR;
-                radius = BOOKMARK_RADIUS;
-            } else if (node.type === "presynaptic") {
-                color = AXON_COLOR;
-                radius = AXON_RADIUS;
-            } else if (node.type === "postsynaptic") {
-                color = DENDRITE_COLOR;
-                radius = DENDRITE_RADIUS;
+            } else if (node.type) {
+                color = CHash(node.type);
+                radius = SPECIAL_RADIUS;
             } else {
                 color = DEFAULT_COLOR;
                 radius = DEFAULT_RADIUS;
