@@ -1,28 +1,60 @@
 import ColorHash from 'color-hash';
 
-export default function CHash(str, opts) {
+export default function CHash(str, mode, opts) {
     opts = opts || {};
+    mode = mode ? mode.toLowerCase() : "rgb";
 
     const _defaults = {
         // Axon-like
-        "presynaptic": "#ff0000",
-        "axon": "#ff0000",
-        "Axon": "#ff0000",
+        "presynaptic": {
+            hex: "#ff0000",
+            rgb: { r: 255,    g: 0,   b: 0 },
+        },
+        "axon": {
+            hex: "#ff0000",
+            rgb: { r: 255,    g: 0,   b: 0 },
+        },
+        "Axon": {
+            hex: "#ff0000",
+            rgb: { r: 255,    g: 0,   b: 0 },
+        },
 
         // Dendrite-like
-        "postsynaptic": "#00ffff",
-        "dendrite": "#00ffff",
-        "Dendrite": "#00ffff",
+        "postsynaptic": {
+            hex: "#00ffff",
+            rgb: { r: 0,    g: 255,   b: 255 },
+        },
+        "dendrite": {
+            hex: "#00ffff",
+            rgb: { r: 0,    g: 255,   b: 255 },
+        },
+        "Dendrite": {
+            hex: "#00ffff",
+            rgb: { r: 0,    g: 255,   b: 255 },
+        },
 
         // Breadcrumbs starting synapse
-        "initial": "#00ff00",
+        "initial": {
+            hex: "#00ff00",
+            rgb: { r: 0,    g: 255,   b: 0 },
+        },
 
         // Boundary-like
-        "boundary": "#FA7407",
+        "boundary": {
+            hex: "#FF8000",
+            rgb: { r: 255,    g: 128,   b: 0 },
+        },
     };
 
     if (str in _defaults) {
-        return _defaults[str];
+        return _defaults[str][mode];
     }
-    return new ColorHash(opts).hex(str);
+
+    if (mode == "rgb") {
+        let c = new ColorHash(opts).rgb(str);
+        rgb = {r: c[0], g: c[1], b: c[2]};
+        return rgb;
+    } else {
+        return new ColorHash(opts).hex(str);
+    }
 }

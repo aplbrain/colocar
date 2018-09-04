@@ -7,6 +7,7 @@ import type { P5Type } from "colocorazon/types/p5";
 import Log from "colocorazon/log";
 import CHash from "colocorazon/colorhash";
 
+
 import type ImageManager from "./ImageManager";
 
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
@@ -26,6 +27,7 @@ const SELECTION_THRESHOLD = 15;
 // Number of z-slices after which a node is no longer selectable
 const SELECTION_RADIUS_Z = 20;
 
+window.CHash = CHash;
 
 export default class TraceManager {
 
