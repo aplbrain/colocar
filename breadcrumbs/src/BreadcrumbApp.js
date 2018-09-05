@@ -5,15 +5,20 @@ import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/types/p5";
+import CHash from "colocorazon/colorhash";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FloatingActionButton from "material-ui/FloatingActionButton";
-import ContentSave from "material-ui/svg-icons/content/save";
-import ContentSend from "material-ui/svg-icons/content/send";
+
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import Chip from '@material-ui/core/Chip';
+import Tooltip from '@material-ui/core/Tooltip';
+
+import SaveIcon from "@material-ui/icons/Save";
+import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./BreadcrumbApp.css";
@@ -26,24 +31,6 @@ const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
         position:"fixed",
-    },
-    controlContainer: {
-        position: "fixed",
-        top: "15px",
-        right: "15px",
-        padding: "15px 15px 0 15px",
-        userSelect: "none",
-        backgroundColor: "#FFF",
-    },
-    controlRow: {
-        marginBottom: '15px',
-    },
-    controlLabel: {
-        float: "left",
-        marginRight: "20px",
-    },
-    controlToolInline: {
-        float: "right",
     },
     qid: {
         userSelect: "text"
@@ -125,6 +112,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         "postsynaptic": { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
                     };
                     self.nodeTypes = nodeTypes;
+
                     let volume = res.volume;
 
                     self.graphId = question.instructions.graph._id;
@@ -348,18 +336,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
-    // markAxon(): void {
-    //     this.layers.traceManager.markNodeType("presynaptic");
-    // }
-
-    // markBoundary(): void {
-    //     this.layers.traceManager.markNodeType("boundary");
-    // }
-
-    // markDendrite(): void {
-    //     this.layers.traceManager.markNodeType("postsynaptic");
-    // }
-
     markNodeType(type: string): void {
         this.layers.traceManager.markNodeType(type);
     }
@@ -557,81 +533,61 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     render() {
+        let chipHTML = [];
+        for (let n in this.nodeTypes) {
+            chipHTML.push(
+                < div key = {
+                    n
+                } >
+                    <div style={{ float: "right" }}>
+                        <Tooltip title={this.nodeTypes[n].description}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={n}
+                                classes={{
+                                    colorPrimary: "red"
+                                }}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: CHash(n, 'hex') }}>{ this.nodeTypes[n].key.toUpperCase() }</Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div>
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
 
-                {this.state.ready ? <div style={STYLES["controlContainer"]}>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Zoom</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.scaleDown()}>-</button>
-                                        {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>this.scaleUp()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Layer</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.decrementZ()}>-</button>
-                                        {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
-                                        <button onClick={()=>this.incrementZ()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Nodes</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        {this.state.nodeCount}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <small style={STYLES["qid"]}>
-                                        <code>
-                                            {this.questionId || ""}
-                                        </code>
-                                    </small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <button onClick={()=>this.reset()}>Reset viewport</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                secondary={true}
-                                style={STYLES["save"]}
-                                onClick={() => this.saveGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSave />
-                            </FloatingActionButton>
-                            <FloatingActionButton
-                                style={STYLES["submit"]}
-                                onClick={() => this.submitGraph()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSend />
-                            </FloatingActionButton>
+                {this.state.ready ? <div>
+                    <div>
+                        <div style={{
+                            position: "fixed",
+                            right: 0,
+                            top: 0,
+                            margin: "2em"
+                        }}>
+                            { chipHTML }
                         </div>
-                    </MuiThemeProvider>
+                        <Button
+                            variant="fab"
+                            color="secondary"
+                            style={STYLES["save"]}
+                            onClick={() => this.saveGraph()}
+                            disabled={this.state.saveInProgress}>
+                            <SaveIcon />
+                        </Button>
+                        <Button
+                            variant="fab"
+                            color="primary"
+                            style={STYLES["submit"]}
+                            onClick={() => this.submitGraph()}
+                            disabled={this.state.saveInProgress}>
+                            <SendIcon />
+                        </Button>
+                    </div>
 
                 </div> : null}
             </div>

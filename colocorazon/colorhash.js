@@ -52,7 +52,7 @@ export default function CHash(str, mode, opts) {
 
     if (mode == "rgb") {
         let c = new ColorHash(opts).rgb(str);
-        rgb = {r: c[0], g: c[1], b: c[2]};
+        let rgb = {r: c[0], g: c[1], b: c[2]};
         return rgb;
     } else {
         return new ColorHash(opts).hex(str);
