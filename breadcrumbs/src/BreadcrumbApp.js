@@ -66,7 +66,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
-    ghostLayer: number;
+    nodeTypes: Object;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
@@ -97,7 +97,6 @@ export default class BreadcrumbApp extends Component<any, any> {
             p.setup = function() {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
-                self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
                     self.layers.traceManager.mousePressed();
@@ -123,6 +122,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
+                    let nodeTypes = question.instructions.nodeTypes || {
+                        "presynaptic": { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
+                        "postsynaptic": { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
+                    };
+                    self.nodeTypes = nodeTypes;
                     let volume = res.volume;
 
                     self.graphId = question.instructions.graph._id;
@@ -178,9 +182,16 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
 
             p.keyPressed = function() {
-                const aKey = 65;
-                const bKey = 66;
-                const dKey = 68;
+
+                // Check the instruction-specified keys first. Note that this
+                // has the potential to break functionality if the assigning
+                // instructions overwrite the normal behavior of the key!
+                for (let n in self.nodeTypes) {
+                    if (p.key == self.nodeTypes[n].key) {
+                        self.markNodeType(n);
+                    }
+                }
+
                 const eKey = 69;
                 const hKey = 72;
                 const qKey = 81;
@@ -231,19 +242,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                 case tKey:
                     self.toggleTraceVisibility();
                     break;
-                // label nodes
-                case aKey:
-                    self.markAxon();
-                    break;
-                case bKey:
-                    if (self.questionType === "boundary") {
-                        self.markBoundary();
-                    }
-                    break;
-                case dKey:
-                    self.markDendrite();
-                    break;
-                // bookmarking
                 case exclamationKey:
                     self.markBookmark();
                     break;
@@ -352,16 +350,20 @@ export default class BreadcrumbApp extends Component<any, any> {
         });
     }
 
-    markAxon(): void {
-        this.layers.traceManager.markNodeType("presynaptic");
-    }
+    // markAxon(): void {
+    //     this.layers.traceManager.markNodeType("presynaptic");
+    // }
 
-    markBoundary(): void {
-        this.layers.traceManager.markNodeType("boundary");
-    }
+    // markBoundary(): void {
+    //     this.layers.traceManager.markNodeType("boundary");
+    // }
 
-    markDendrite(): void {
-        this.layers.traceManager.markNodeType("postsynaptic");
+    // markDendrite(): void {
+    //     this.layers.traceManager.markNodeType("postsynaptic");
+    // }
+
+    markNodeType(type: string): void {
+        this.layers.traceManager.markNodeType(type);
     }
 
     stopHinting(): void {
