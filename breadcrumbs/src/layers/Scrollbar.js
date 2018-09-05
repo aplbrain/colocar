@@ -2,6 +2,8 @@
 
 import type { P5Type } from "colocorazon/types/p5";
 
+import CHash from "colocorazon/colorhash";
+
 import type ImageManager from "./ImageManager";
 import type TraceManager from "./TraceManager";
 
@@ -39,9 +41,14 @@ export default class Scrollbar {
 
     getEntities() {
         return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
+            let c = [150, 200, 50];
+            if (i.type) {
+                let h = CHash(i.type);
+                c = [h.r, h.g, h.b];
+            }
             return {
                 z: i.z,
-                color: [0, (i.type ? 255 : 150), 200, (i.type ? 150 : 50)]
+                color: c
             };
         }).concat((this.tm.activeNode ? [{
             z: this.tm.activeNode.z,
