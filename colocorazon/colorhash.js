@@ -14,21 +14,13 @@ export default function CHash(str, mode, opts) {
             hex: "#ff0000",
             rgb: { r: 255,    g: 0,   b: 0 },
         },
-        "Axon": {
-            hex: "#ff0000",
-            rgb: { r: 255,    g: 0,   b: 0 },
-        },
-
+        
         // Dendrite-like
         "postsynaptic": {
             hex: "#00ffff",
             rgb: { r: 0,    g: 255,   b: 255 },
         },
         "dendrite": {
-            hex: "#00ffff",
-            rgb: { r: 0,    g: 255,   b: 255 },
-        },
-        "Dendrite": {
             hex: "#00ffff",
             rgb: { r: 0,    g: 255,   b: 255 },
         },
