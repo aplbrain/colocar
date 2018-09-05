@@ -16,7 +16,9 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
+import Snackbar from "@material-ui/core/Snackbar";
 
+import InfoIcon from "@material-ui/icons/Info";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
@@ -60,7 +62,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         ready?: boolean,
         scale?: number,
         currentZ?: number,
-        saveInProgress: boolean
+        saveInProgress: boolean,
+        instructions: Object
     };
 
     graphId: string;
@@ -110,6 +113,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let nodeTypes = question.instructions.nodeTypes || {
                         "presynaptic": { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
                         "postsynaptic": { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
+                        "puppy": { name: "puppy", key: "p", description: "Can you find any puppies?" },
                     };
                     self.nodeTypes = nodeTypes;
 
@@ -154,7 +158,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount()
+                        nodeCount: self.layers.traceManager.g.nodeCount(),
+                        instructions: question.instructions,
+                        snackbarOpen: true,
                     });
 
                     self.insertStoredGraph(graphlibGraph);
@@ -282,6 +288,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 }
             };
         };
+
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+        this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
 
     updateUIStatus(): void {
@@ -532,21 +541,23 @@ export default class BreadcrumbApp extends Component<any, any> {
         }
     }
 
+    handleSnackbarClose() {
+        this.setState({ snackbarOpen: false });
+    }
+    handleSnackbarOpen() {
+        this.setState({ snackbarOpen: true });
+    }
+
     render() {
         let chipHTML = [];
         for (let n in this.nodeTypes) {
             chipHTML.push(
-                < div key = {
-                    n
-                } >
+                <div key={n}>
                     <div style={{ float: "right" }}>
                         <Tooltip title={this.nodeTypes[n].description}>
                             <Chip
                                 style={{ margin: "0.5em 0" }}
                                 label={n}
-                                classes={{
-                                    colorPrimary: "red"
-                                }}
                                 avatar={
                                     <Avatar style={{ backgroundColor: CHash(n, 'hex') }}>{ this.nodeTypes[n].key.toUpperCase() }</Avatar>
                                 }
@@ -570,7 +581,34 @@ export default class BreadcrumbApp extends Component<any, any> {
                             margin: "2em"
                         }}>
                             { chipHTML }
+                            <div style={{ float: "right", fontSize: "0.9em" }}>
+                                <br />
+                                <Button style={{ opacity: 0.9 }}
+                                    variant="fab"
+                                    mini={true}
+                                    onClick={ this.handleSnackbarOpen }
+                                >
+                                    <InfoIcon />
+                                </Button>
+                            </div>
                         </div>
+
+
+
+                        <Snackbar
+                            open={this.state.snackbarOpen}
+                            onClose={this.handleSnackbarClose}
+                            ContentProps={{
+                                'aria-describedby': 'message-id',
+                            }}
+                            action={[
+                                <Button key="undo" color="secondary" size="small" onClick={this.handleSnackbarClose}>
+                                GOT IT
+                                </Button>
+                            ]}
+                            message={<span id="message-id">{ this.state.instructions.prompt }</span>}
+                        />
+
                         <Button
                             variant="fab"
                             color="secondary"
