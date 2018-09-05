@@ -113,7 +113,6 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let nodeTypes = question.instructions.nodeTypes || {
                         "presynaptic": { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
                         "postsynaptic": { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
-                        "puppy": { name: "puppy", key: "p", description: "Can you find any puppies?" },
                     };
                     self.nodeTypes = nodeTypes;
 
