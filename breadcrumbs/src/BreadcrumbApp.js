@@ -4,8 +4,6 @@ import React, { Component } from 'react';
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-
-
 import type { P5Type } from "colocorazon/types/p5";
 
 import { Colocard } from "./db";
