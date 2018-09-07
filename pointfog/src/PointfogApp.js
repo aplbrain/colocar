@@ -15,7 +15,7 @@ import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
 import Snackbar from "@material-ui/core/Snackbar";
- import InfoIcon from "@material-ui/icons/Info";
+import InfoIcon from "@material-ui/icons/Info";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
