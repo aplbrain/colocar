@@ -50,6 +50,7 @@ export default class PointfogApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
+    nodeType: string;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
@@ -109,6 +110,7 @@ export default class PointfogApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.questionId = question._id;
+                    self.nodeType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -391,7 +393,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
                 newNode.namespace = DB.pointfog_name;
-                newNode.type = this.questionType || "synapse";
+                newNode.type = this.nodeType || "synapse";
                 newNode.volume = this.volume._id;
 
                 return newNode;
