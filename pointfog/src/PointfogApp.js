@@ -3,16 +3,21 @@
 import React, { Component } from 'react';
 
 import type { P5Type } from "colocorazon/types/p5";
+import CHash from "colocorazon/colorhash";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
 import Scrollbar from "./layers/Scrollbar";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FloatingActionButton from "material-ui/FloatingActionButton";
-import ContentSave from "material-ui/svg-icons/content/save";
-import ContentSend from "material-ui/svg-icons/content/send";
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import Chip from "@material-ui/core/Chip";
+import Tooltip from "@material-ui/core/Tooltip";
+import Snackbar from "@material-ui/core/Snackbar";
+import InfoIcon from "@material-ui/icons/Info";
+import SaveIcon from "@material-ui/icons/Save";
+import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
@@ -25,24 +30,6 @@ const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
         position:"fixed",
-    },
-    controlContainer: {
-        position: "fixed",
-        top: "15px",
-        right: "15px",
-        padding: "15px 15px 0 15px",
-        userSelect: "none",
-        backgroundColor: "#FFF",
-    },
-    controlRow: {
-        marginBottom: '15px',
-    },
-    controlLabel: {
-        float: "left",
-        marginRight: "20px",
-    },
-    controlToolInline: {
-        float: "right",
     },
     qid: {
         userSelect: "text"
@@ -63,7 +50,7 @@ export default class PointfogApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
-    ghostLayer: number;
+    nodeType: string;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
@@ -73,11 +60,11 @@ export default class PointfogApp extends Component<any, any> {
         scale?: number,
         currentZ?: number,
         nodeCount: number,
-        saveInProgress: boolean
+        saveInProgress: boolean,
+        instructions: Object
     };
 
     questionId: string;
-    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -87,6 +74,7 @@ export default class PointfogApp extends Component<any, any> {
         this.state = {
             nodeCount: 0,
             saveInProgress: false,
+            instructions: {prompt: "", type: ""}
         };
 
         // Create p5 sketch
@@ -106,8 +94,6 @@ export default class PointfogApp extends Component<any, any> {
                     self.updateUIStatus();
                 });
 
-                self.ghostLayer = p.createGraphics(p.width, p.height);
-
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
                 self.renderOrder = [];
@@ -124,7 +110,7 @@ export default class PointfogApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.questionId = question._id;
-                    self.questionType = question.instructions.type;
+                    self.nodeType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -164,6 +150,8 @@ export default class PointfogApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
+                        instructions: question.instructions,
+                        snackbarOpen: true
                     });
                     self.updateUIStatus();
 
@@ -279,6 +267,9 @@ export default class PointfogApp extends Component<any, any> {
                 }
             };
         };
+
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+        this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
 
     panUp(): void {
@@ -402,7 +393,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
                 newNode.namespace = DB.pointfog_name;
-                newNode.type = this.questionType || "synapse";
+                newNode.type = this.nodeType || "synapse";
                 newNode.volume = this.volume._id;
 
                 return newNode;
@@ -434,84 +425,88 @@ export default class PointfogApp extends Component<any, any> {
         }
     }
 
+    handleSnackbarClose() {
+        this.setState({ snackbarOpen: false });
+    }
+    handleSnackbarOpen() {
+        this.setState({ snackbarOpen: true });
+    }
+
     render() {
+        let prompt = this.state.instructions.prompt;
+        let nodeType = this.state.instructions.type;
+        let nodeKey = nodeType[0]? nodeType[0].toUpperCase(): "";
+        let chipHTML = (
+            <div>
+                <div style={{ float: "right" }}>
+                    <Tooltip title={prompt}>
+                        <Chip
+                            style={{ margin: "0.5em 0" }}
+                            label={nodeType}
+                            avatar={
+                                <Avatar style={{ backgroundColor: CHash(nodeType, 'hex') }}>{ nodeKey }</Avatar>
+                            }
+                        />
+                    </Tooltip>
+                </div>
+            </div>
+        );
         return (
             <div>
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
 
-                {this.state.ready ? <div style={STYLES["controlContainer"]}>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Zoom</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={
-                                            ()=>this.scaleDown()
-                                        }>-</button>
-                                        {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>{this.scaleUp();}}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Layer</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.decrementZ()}>-</button>
-                                        {this.state.currentZ + 1} / {this.layers.imageManager.nSlices}
-                                        <button onClick={()=>this.incrementZ()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style={STYLES["controlRow"]}>
-                                    <div style={STYLES["controlLabel"]}>Nodes</div>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        {this.state.nodeCount}
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colSpan={2}>
-                                    <small style={STYLES["qid"]}>
-                                        <code>
-                                            {this.questionId || ""}
-                                        </code>
-                                    </small>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colSpan={2}>
-                                    <button onClick={()=>this.reset()}>Reset viewport</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                secondary={true}
-                                style={STYLES["save"]}
-                                onClick={() => this.saveNodes()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSave />
-                            </FloatingActionButton>
-                            <FloatingActionButton
-                                style={STYLES["submit"]}
-                                onClick={() => this.submitNodes()}
-                                disabled={this.state.saveInProgress}>
-                                <ContentSend />
-                            </FloatingActionButton>
+                {this.state.ready ? <div>
+                    <div>
+                        <div style={{
+                            position: "fixed",
+                            right: 0,
+                            top: 0,
+                            margin: "2em"
+                        }}>
+                            { chipHTML }
+                            <div style={{ float: "right", fontSize: "0.9em" }}>
+                                <br />
+                                <Button style={{ opacity: 0.9 }}
+                                    variant="fab"
+                                    mini={true}
+                                    onClick={ this.handleSnackbarOpen }
+                                >
+                                    <InfoIcon />
+                                </Button>
+                            </div>
                         </div>
-                    </MuiThemeProvider>
+
+                        <Snackbar
+                            open={this.state.snackbarOpen}
+                            onClose={this.handleSnackbarClose}
+                            ContentProps={{
+                                'aria-describedby': 'message-id',
+                            }}
+                            action={[
+                                <Button key="undo" color="secondary" size="small" onClick={this.handleSnackbarClose}>
+                                GOT IT
+                                </Button>
+                            ]}
+                            message={<span id="message-id">{ this.state.instructions.prompt }</span>}
+                        />
+
+                        <Button
+                            variant="fab"
+                            color="secondary"
+                            style={STYLES["save"]}
+                            onClick={() => this.saveNodes()}
+                            disabled={this.state.saveInProgress}>
+                            <SaveIcon />
+                        </Button>
+                        <Button
+                            variant="fab"
+                            color="primary"
+                            style={STYLES["submit"]}
+                            onClick={() => this.submitNodes()}
+                            disabled={this.state.saveInProgress}>
+                            <SendIcon />
+                        </Button>
+                    </div>
 
                 </div> : null}
             </div>

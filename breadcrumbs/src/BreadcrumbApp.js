@@ -53,7 +53,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
-    nodeTypes: Object;
+    nodeTypes: Array<Object>;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
@@ -68,7 +68,6 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     graphId: string;
     questionId: string;
-    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -76,6 +75,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
+            instructions: {},
             saveInProgress: false
         };
 
@@ -110,17 +110,16 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
-                    let nodeTypes = question.instructions.nodeTypes || {
-                        "presynaptic": { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
-                        "postsynaptic": { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
-                    };
+                    let nodeTypes = question.instructions.type || [
+                        { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
+                        { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
+                    ];
                     self.nodeTypes = nodeTypes;
 
                     let volume = res.volume;
 
                     self.graphId = question.instructions.graph._id;
                     self.questionId = question._id;
-                    self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -177,9 +176,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 // Check the instruction-specified keys first. Note that this
                 // has the potential to break functionality if the assigning
                 // instructions overwrite the normal behavior of the key!
-                for (let n in self.nodeTypes) {
-                    if (p.key == self.nodeTypes[n].key) {
-                        self.markNodeType(n);
+                for (let nIndex = 0; nIndex < self.nodeTypes.length; nIndex++) {
+                    if (p.key === self.nodeTypes[nIndex].key) {
+                        self.markNodeType(self.nodeTypes[nIndex].name);
                     }
                 }
 
@@ -549,16 +548,18 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     render() {
         let chipHTML = [];
-        for (let n in this.nodeTypes) {
+        let nodeTypes = this.state.instructions.type || [];
+        for (let nIndex = 0; nIndex < nodeTypes.length; nIndex++) {
+            let n = nodeTypes[nIndex];
             chipHTML.push(
-                <div key={n}>
+                <div key={n.key}>
                     <div style={{ float: "right" }}>
-                        <Tooltip title={this.nodeTypes[n].description}>
+                        <Tooltip title={n.description}>
                             <Chip
                                 style={{ margin: "0.5em 0" }}
-                                label={n}
+                                label={n.name}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: CHash(n, 'hex') }}>{ this.nodeTypes[n].key.toUpperCase() }</Avatar>
+                                    <Avatar style={{ backgroundColor: CHash(n.name, 'hex') }}>{ n.key.toUpperCase() }</Avatar>
                                 }
                             />
                         </Tooltip>
