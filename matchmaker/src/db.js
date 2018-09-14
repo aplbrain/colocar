@@ -58,7 +58,7 @@ class Colocard {
             headers: this.headers
         }).then((res: Response) => res.json()).then((json: any) => {
             volume = json;
-            let splitUri = volume.uri.split('/');
+            let splitUri = volume.uri.split("/");
             let nUri = splitUri.length;
             volume.collection = splitUri[nUri - 3];
             volume.experiment = splitUri[nUri - 2];
