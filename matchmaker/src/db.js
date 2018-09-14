@@ -71,8 +71,9 @@ class Colocard {
         });
     }
 
-    _onException(reason: any) {
+    _onException(reason: Error) {
         Log.error(reason);
+        throw reason;
     }
 
 }
