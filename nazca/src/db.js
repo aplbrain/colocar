@@ -26,11 +26,15 @@ class Colocard implements Database {
         */
         opts = opts || {};
         this.url = opts.url || Config.colocardUrl;
-        this.headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
         this.nazca_name = "nazca";
+    }
+
+    get headers() {
+        return {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${window.keycloak.token}`,
+            "Content-Type": "application/json",
+        };
     }
 
     getNextQuestion(user: string, type: string) {
