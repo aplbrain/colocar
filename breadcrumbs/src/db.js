@@ -26,8 +26,8 @@ class Colocard implements Database {
         opts = opts || {};
         this.url = opts.url || Config.colocardUrl;
         this.headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         };
         this.breadcrumbs_name = "breadcrumbs";
     }
@@ -43,11 +43,11 @@ class Colocard implements Database {
         });
         return Promise.all(
             [openPromise, pendingPromise]
-        ).then(resList => this._onQuestionSuccess(resList)
+        ).then(resList => this._onQuestionSuccess(user, resList)
         ).catch(err => this._onException(err));
     }
 
-    _onQuestionSuccess(resList: Array<Response>): Promise<Question> {
+    _onQuestionSuccess(user: string, resList: Array<Response>): Promise<Question> {
         let jsonList = resList.map(res => res.json());
         let questionPromise = Promise.all(jsonList).then(questionsList => {
             let openQuestions: Array<Question> = questionsList[0];
@@ -62,8 +62,11 @@ class Colocard implements Database {
                     throw new Error("you don't have any open or pending questions - ask an admin");
                 }
             }
+            if (question.assignee !== user) {
+                throw new Error("this question is assigned to a different user - ask an admin");
+            }
             let volume = question.volume;
-            let splitUri = volume.uri.split('/');
+            let splitUri = volume.uri.split("/");
             let nUri = splitUri.length;
             volume.collection = splitUri[nUri-3];
             volume.experiment = splitUri[nUri-2];

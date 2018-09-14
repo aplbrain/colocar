@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
@@ -105,8 +105,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     DB.breadcrumbs_name
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
-                        alert("No remaining questions.");
-                        return;
+                        throw new Error("failed to fetch question");
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
@@ -146,9 +145,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
-                        'imageManager',
-                        'traceManager',
-                        'scrollbar'
+                        "imageManager",
+                        "traceManager",
+                        "scrollbar"
                     ];
 
                     self.setState({
@@ -163,7 +162,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.insertStoredGraph(graphlibGraph);
 
-                });
+                }).catch(err => alert(err));
 
             };
 
