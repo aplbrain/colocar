@@ -111,8 +111,7 @@ export default class MacchiatoApp extends Component<any, any> {
                     DB.macchiatoAppName
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
-                        alert("No remaining questions.");
-                        return;
+                        throw new Error("failed to fetch question");
                     }
                     let question = res.question;
                     let volume = res.volume;
@@ -157,9 +156,9 @@ export default class MacchiatoApp extends Component<any, any> {
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
-                        'imageManager',
-                        'synapse',
-                        'scrollbar'
+                        "imageManager",
+                        "synapse",
+                        "scrollbar"
                     ];
 
                     self.setState({
@@ -169,7 +168,7 @@ export default class MacchiatoApp extends Component<any, any> {
                         currentZ: self.layers.imageManager.currentZ,
                     });
 
-                });
+                }).catch(err => alert(err));
 
             };
 

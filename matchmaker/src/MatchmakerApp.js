@@ -109,8 +109,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     graphIdB
                 ).then((res: { graphA: Object, graphB: Object, volume: Object }) => {
                     if (!res) {
-                        alert("Failed to fetch.");
-                        return;
+                        throw new Error("failed to fetch question");
                     }
                     let colocardGraphA = res.graphA;
                     let colocardGraphB = res.graphB;
@@ -172,7 +171,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.reset();
                     self.updateUIStatus();
 
-                });
+                }).catch(err => alert(err));
 
             };
 

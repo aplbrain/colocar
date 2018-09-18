@@ -103,8 +103,7 @@ export default class PointfogApp extends Component<any, any> {
                     DB.pointfog_name
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
-                        alert("No remaining questions.");
-                        return;
+                        throw new Error("failed to fetch question");
                     }
                     let question = res.question;
                     let volume = res.volume;
@@ -157,7 +156,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.insertStoredNodes();
 
-                });
+                }).catch(err => alert(err));
 
             };
 

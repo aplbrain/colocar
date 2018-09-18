@@ -118,8 +118,7 @@ export default class NazcaApp extends Component<any, any> {
                     DB.nazca_name
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
-                        alert("No remaining questions.");
-                        return;
+                        throw new Error("failed to fetch question");
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
@@ -169,7 +168,7 @@ export default class NazcaApp extends Component<any, any> {
 
                     self.insertStoredGraph(graphlibGraph);
 
-                });
+                }).catch(err => alert(err));
 
             };
 
