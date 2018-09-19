@@ -14,6 +14,7 @@ const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
 const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
+const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 
 // Radius of a marker when it has a node.type
 const SPECIAL_RADIUS = 25;
@@ -21,6 +22,8 @@ const SPECIAL_RADIUS = 25;
 const BOOKMARK_RADIUS = 25;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
+// Radius of centroid marker
+const CENTROID_RADIUS = 12;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
@@ -311,10 +314,8 @@ export default class TraceManager {
                 radius = DEFAULT_RADIUS;
             }
 
-            this.p.fill(
-                color.r, color.g, color.b,
-                (255 - (Math.pow(node.z - this.im.currentZ, 2)))
-            );
+            let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
+            this.p.fill(color.r, color.g, color.b, nodeDiminish);
             this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
         }
 
@@ -326,13 +327,13 @@ export default class TraceManager {
             let nodePosV = this.transformCoords(w.x, w.y);
 
             if (Math.abs(w.z - this.im.currentZ) > SELECTION_RADIUS_Z) {
-                let diminishingFactor = (v.z + 1) / (this.im.currentZ + 1);
+                let edgeDiminish = (v.z + 1) / (this.im.currentZ + 1);
                 // TODO: I'm exhausted but this is dumb, do better
-                if (diminishingFactor > 1) {
-                    diminishingFactor = 1 / diminishingFactor;
+                if (edgeDiminish > 1) {
+                    edgeDiminish = 1 / edgeDiminish;
                 }
-                this.p.strokeWeight(3 * diminishingFactor);
-                this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
+                this.p.strokeWeight(3 * edgeDiminish);
+                this.p.stroke(`rgba(0, 0, 0, ${edgeDiminish * .5})`);
             } else {
                 this.p.strokeWeight(3);
                 this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
@@ -352,6 +353,17 @@ export default class TraceManager {
             let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
         }
+
+        // Draw centroids
+        for (let node of this.g.nodes().map(n => this.g.node(n))) {
+            let nodePos = this.transformCoords(node.x, node.y);
+            let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
+            if (nodeDiminish >= 254.5) {
+                this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+                this.p.ellipse(nodePos.x, nodePos.y, CENTROID_RADIUS, CENTROID_RADIUS);
+            }
+        }
+
     }
 
 }
