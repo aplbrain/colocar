@@ -435,13 +435,14 @@ export default class PointfogApp extends Component<any, any> {
         let prompt = this.state.instructions.prompt;
         let nodeType = this.state.instructions.type;
         let nodeKey = nodeType[0]? nodeType[0].toUpperCase(): "";
+        let nodeCount = this.layers? this.layers.pointcloudManager.getNodes().length: 0;
         let chipHTML = (
             <div>
                 <div style={{ float: "right" }}>
                     <Tooltip title={prompt}>
                         <Chip
                             style={{ margin: "0.5em 0" }}
-                            label={nodeType}
+                            label={`${nodeType}: ${nodeCount}`}
                             avatar={
                                 <Avatar style={{ backgroundColor: CHash(nodeType, 'hex') }}>{ nodeKey }</Avatar>
                             }
