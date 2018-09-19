@@ -14,7 +14,7 @@ const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
 const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
-const CENTROID_COLOR = { r: 190, g: 10, b: 10 }; // dark red
+const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 
 // Radius of a marker when it has a node.type
 const SPECIAL_RADIUS = 25;
