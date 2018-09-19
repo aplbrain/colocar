@@ -548,15 +548,18 @@ export default class BreadcrumbApp extends Component<any, any> {
     render() {
         let chipHTML = [];
         let nodeTypes = this.state.instructions.type || [];
+        let graph = this.layers? this.layers.traceManager.exportGraph(): null;
+        let nodes = graph? graph.nodes().map(n => graph.node(n)): [];
         for (let nIndex = 0; nIndex < nodeTypes.length; nIndex++) {
             let n = nodeTypes[nIndex];
+            let count = nodes.filter(node => node.type === n.name).length;
             chipHTML.push(
                 <div key={n.key}>
                     <div style={{ float: "right" }}>
                         <Tooltip title={n.description}>
                             <Chip
                                 style={{ margin: "0.5em 0" }}
-                                label={n.name}
+                                label={`${n.name}: ${count}`}
                                 avatar={
                                     <Avatar style={{ backgroundColor: CHash(n.name, 'hex') }}>{ n.key.toUpperCase() }</Avatar>
                                 }
