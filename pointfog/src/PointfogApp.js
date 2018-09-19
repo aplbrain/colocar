@@ -486,7 +486,10 @@ export default class PointfogApp extends Component<any, any> {
                                 GOT IT
                                 </Button>
                             ]}
-                            message={<span id="message-id">{ this.state.instructions.prompt }</span>}
+                            message={<div id="message-id">
+                                <div>{this.state.instructions.prompt}</div>
+                                <div>Task ID: {this.questionId}</div>
+                            </div>}
                         />
 
                         <Button
