@@ -1,6 +1,6 @@
 // @flow
 
-import type { P5Type } from "colocorazon/types/p5";
+import type { P5Type } from "colocorazon/dist/types/p5";
 
 import type ImageManager from "./ImageManager";
 

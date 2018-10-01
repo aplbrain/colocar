@@ -2,8 +2,8 @@
 
 import React, { Component } from 'react';
 
-import type { P5Type } from "colocorazon/types/p5";
-import Log from "colocorazon/log";
+import type { P5Type } from "colocorazon/dist/types/p5";
+import Log from "colocorazon/dist/log";
 
 import NazcaApp from "./NazcaApp";
 

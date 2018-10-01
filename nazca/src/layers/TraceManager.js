@@ -3,8 +3,8 @@
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import type { P5Type } from "colocorazon/types/p5";
-import Log from "colocorazon/log";
+import type { P5Type } from "colocorazon/dist/types/p5";
+import Log from "colocorazon/dist/log";
 
 import type ImageManager from "./ImageManager";
 
