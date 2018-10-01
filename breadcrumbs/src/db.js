@@ -1,6 +1,6 @@
 // @flow
 
-import Log from "colocorazon/log";
+import Log from "colocorazon/dist/log";
 import Config from "./_config";
 
 interface Database {
