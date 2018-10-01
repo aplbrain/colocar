@@ -5,7 +5,7 @@ import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
 
-import type { P5Type } from "./types/p5Types";
+import type { P5Type } from "colocorazon/dist/types/p5Types";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";

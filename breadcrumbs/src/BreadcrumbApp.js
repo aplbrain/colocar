@@ -4,8 +4,8 @@ import React, { Component } from "react";
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
-import type { P5Type } from "colocorazon/types/p5";
-import CHash from "colocorazon/colorhash";
+import type { P5Type } from "colocorazon/dist/types/p5";
+import CHash from "colocorazon/dist/colorhash";
 
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";

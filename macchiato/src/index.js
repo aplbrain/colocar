@@ -1,4 +1,4 @@
-import Log from "colocorazon/log";
+import Log from "colocorazon/dist/log";
 
 
 import React from 'react';

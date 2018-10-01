@@ -1,8 +1,8 @@
 // @flow
 
-import type { P5Type } from "colocorazon/types/p5";
+import type { P5Type } from "colocorazon/dist/types/p5";
 
-import CHash from "colocorazon/colorhash";
+import CHash from "colocorazon/dist/colorhash";
 
 import type ImageManager from "./ImageManager";
 import type TraceManager from "./TraceManager";

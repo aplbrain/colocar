@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Log from "colocorazon/log";
+import Log from "colocorazon/dist/log";
 import AppContainer from './AppContainer';
 import registerServiceWorker from './registerServiceWorker';
 
