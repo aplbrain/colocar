@@ -3,6 +3,10 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^9.0.0",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-flow-comments": "^6.22.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-flow": "^6.23.0",
     "eslint-plugin-flowtype": "^2.50.0",
     "flow-bin": "^0.79.1",
@@ -17,5 +21,8 @@
   "dependencies": {
     "color-hash": "^1.0.3",
     "flow": "^0.2.3"
+  },
+  "scripts": {
+    "build": "babel ./src --out-dir ./dist"
   }
 }

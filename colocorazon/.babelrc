@@ -1,0 +1,20 @@
+{
+    "presets": ["babel-preset-es2015"],
+    "plugins": ["transform-flow-strip-types", "transform-flow-comments"],
+    "env": {
+      "test": {
+        "sourceMaps": "both"
+      },
+      "docs-production": {
+        "plugins": [
+          ["transform-replace-object-assign", "simple-assign"]
+        ]
+      },
+      "release": {
+        "plugins": [
+          "transform-runtime"
+        ]
+      }
+    }
+  }
+  
