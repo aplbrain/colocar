@@ -5,7 +5,9 @@ import type { P5Type } from "colocorazon/dist/types/p5";
 import type ImageManager from "./ImageManager";
 
 const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
+const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 const MARKER_RADIUS = 30; // size of marker on screen
+const CENTROID_RADIUS = 12; // size of pupil
 
 
 export default class SynapseManager {
@@ -59,12 +61,17 @@ export default class SynapseManager {
         let color = DEFAULT_COLOR;
         this.p.fill(
             color.r, color.g, color.b,
-            200 - 20 * (Math.abs(this.node.coordinate[1] - (this.im.currentZ -10)))
+            200 - 20 * (Math.abs(this.node.coordinate[2] - (this.im.currentZ - 10)))
         );
         let {x, y} = this.transformCoords(
             this.node.coordinate[0],
             this.node.coordinate[1]
         );
         this.p.ellipse(x, y, MARKER_RADIUS);
+        if (Math.abs(this.node.coordinate[2] - (this.im.currentZ - 10)) < 1) {
+            this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+            this.p.ellipse(x, y, CENTROID_RADIUS, CENTROID_RADIUS);
+        }
+
     }
 }
