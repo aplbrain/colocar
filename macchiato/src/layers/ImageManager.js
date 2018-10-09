@@ -34,9 +34,9 @@ export default class ImageManager {
 
     // Loads in all the images.
     loadAllImages(volume: Object, batchSize: number): void {
-        let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
-        let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
-        let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
+        let xBounds = [Math.max(0, volume.bounds[0][0]), volume.bounds[1][0]];
+        let yBounds = [Math.max(0, volume.bounds[0][1]), volume.bounds[1][1]];
+        let zBounds = [Math.max(0, volume.bounds[0][2]), volume.bounds[1][2]];
         this.imageWidth = xBounds[1] - xBounds[0];
         this.imageHeight = yBounds[1] - yBounds[0];
         this.nSlices = zBounds[1] - zBounds[0];
