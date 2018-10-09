@@ -132,7 +132,7 @@ def build(project: str):
     build_output = subprocess.run(
         "yarn build",
         shell=True,
-        capture_output=True,
+        stdout=subprocess.PIPE,
     )
 
     if "Compiled" not in build_output.stdout.decode('utf8'):
