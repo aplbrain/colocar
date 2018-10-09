@@ -122,6 +122,13 @@ export default class MacchiatoApp extends Component<any, any> {
                     self.volume = volume;
                     // Tighten the crop around the node:
                     let node = question.instructions.node;
+                    // Use JSON to deep copy
+                    let lowerLimits = JSON.parse(
+                        JSON.stringify(self.volume.bounds[0])
+                    );
+                    let upperLimits = JSON.parse(
+                        JSON.stringify(self.volume.bounds[1])
+                    );
                     self.volume.bounds[0] = [
                         Math.round(node.coordinate[0] - XY_RADIUS),
                         Math.round(node.coordinate[1] - XY_RADIUS),
@@ -134,6 +141,20 @@ export default class MacchiatoApp extends Component<any, any> {
                     ];
 
                     node.coordinate = [0, 0, 0];
+
+                    // Handle floor and ceiling values
+                    for (let coordIx = 0; coordIx < 3; coordIx++) {
+                        let lowerOffset = self.volume.bounds[0][coordIx] - lowerLimits[coordIx];
+                        let upperOffset = self.volume.bounds[1][coordIx] - upperLimits[coordIx];
+                        if (lowerOffset < 0) {
+                            node.coordinate[coordIx] += lowerOffset/2;
+                            self.volume.bounds[0][coordIx] = lowerLimits[coordIx];
+                        }
+                        else if (upperOffset > 0) {
+                            node.coordinate[coordIx] += upperOffset/2;
+                            self.volume.bounds[1][coordIx] = upperLimits[coordIx];
+                        }
+                    }
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
