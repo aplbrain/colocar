@@ -135,6 +135,14 @@ export default class MacchiatoApp extends Component<any, any> {
 
                     node.coordinate = [0, 0, 0];
 
+                    // Handle floor and ceiling values
+                    for (let coordIx = 0; coordIx < 3; coordIx++) {
+                        if (self.volume.bounds[0][coordIx] < 0) {
+                            node.coordinate[coordIx] += self.volume.bounds[0][coordIx]/2;
+                            self.volume.bounds[0][coordIx] = 0;
+                        }
+                    }
+
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         volume: self.volume,
