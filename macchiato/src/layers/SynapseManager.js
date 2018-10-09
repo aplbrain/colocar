@@ -59,7 +59,7 @@ export default class SynapseManager {
         let color = DEFAULT_COLOR;
         this.p.fill(
             color.r, color.g, color.b,
-            200 - 20 * (Math.abs(this.node.coordinate[1] - (this.im.currentZ -10)))
+            200 - 20 * (Math.abs(this.node.coordinate[2] - (this.im.currentZ-10)))
         );
         let {x, y} = this.transformCoords(
             this.node.coordinate[0],
