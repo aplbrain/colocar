@@ -123,6 +123,9 @@ export default class MacchiatoApp extends Component<any, any> {
                     // Tighten the crop around the node:
                     let node = question.instructions.node;
                     // Use JSON to deep copy
+                    let lowerLimits = JSON.parse(
+                        JSON.stringify(self.volume.bounds[0])
+                    );
                     let upperLimits = JSON.parse(
                         JSON.stringify(self.volume.bounds[1])
                     );
@@ -141,13 +144,14 @@ export default class MacchiatoApp extends Component<any, any> {
 
                     // Handle floor and ceiling values
                     for (let coordIx = 0; coordIx < 3; coordIx++) {
-                        if (self.volume.bounds[0][coordIx] < 0) {
-                            node.coordinate[coordIx] += self.volume.bounds[0][coordIx]/2;
-                            self.volume.bounds[0][coordIx] = 0;
+                        let lowerOffset = self.volume.bounds[0][coordIx] - lowerLimits[coordIx];
+                        let upperOffset = self.volume.bounds[1][coordIx] - upperLimits[coordIx];
+                        if (lowerOffset < 0) {
+                            node.coordinate[coordIx] += lowerOffset/2;
+                            self.volume.bounds[0][coordIx] = lowerLimits[coordIx];
                         }
-                        else if (self.volume.bounds[1][coordIx] > upperLimits[coordIx]) {
-                            let offset = self.volume.bounds[1][coordIx] - upperLimits[coordIx];
-                            node.coordinate[coordIx] += offset/2;
+                        else if (upperOffset > 0) {
+                            node.coordinate[coordIx] += upperOffset/2;
                             self.volume.bounds[1][coordIx] = upperLimits[coordIx];
                         }
                     }
