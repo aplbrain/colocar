@@ -272,29 +272,39 @@ export default class ImageManager {
             );
             this.p.noStroke();
             this.p.fill(192, 192, 192, 128);
+
+            let highlightFrac = 0.05
+            let scaledWidth = this.imageWidth * this.scale;
+            let scaledHeight = this.imageHeight * this.scale;
+            let wallWidth = highlightFrac * scaledWidth;
+            let wallHeight = highlightFrac * scaledHeight;
+
+            let lowerX = this.position.x - scaledWidth / 2;
+            let lowerY = this.position.y - scaledHeight / 2;
+
             this.p.rect(
-                this.position.x - this.imageWidth * this.scale / 2,
-                this.position.y - this.imageHeight * this.scale / 2,
-                0.05 * this.imageWidth * this.scale,
-                this.imageHeight * this.scale
+                lowerX,
+                lowerY,
+                wallWidth,
+                scaledHeight
             );
             this.p.rect(
-                this.position.x - this.imageWidth * this.scale / 2 + this.imageWidth * this.scale - 0.05 * this.imageWidth * this.scale,
-                this.position.y - this.imageHeight * this.scale / 2,
-                0.05 * this.imageWidth * this.scale,
-                this.imageHeight * this.scale
+                lowerX + scaledWidth - wallWidth,
+                lowerY,
+                wallWidth,
+                scaledHeight
             );
             this.p.rect(
-                this.position.x - this.imageWidth * this.scale / 2 + 0.05 * this.imageWidth * this.scale,
-                this.position.y - this.imageHeight * this.scale / 2,
-                this.imageWidth * this.scale - 2 * 0.05 * this.imageWidth * this.scale,
-                0.05 * this.imageHeight * this.scale
+                lowerX + wallWidth,
+                lowerY,
+                scaledWidth - 2 * wallWidth,
+                wallHeight
             );
             this.p.rect(
-                this.position.x - this.imageWidth * this.scale / 2 + 0.05 * this.imageWidth * this.scale,
-                this.position.y - this.imageHeight * this.scale / 2 + this.imageHeight * this.scale - 0.05 * this.imageHeight * this.scale,
-                this.imageWidth * this.scale - 2 * 0.05 * this.imageWidth * this.scale,
-                0.05 * this.imageHeight * this.scale
+                lowerX + wallWidth,
+                lowerY + scaledHeight - wallHeight,
+                scaledWidth - 2 * wallWidth,
+                wallHeight
             );
         } else {
             // Image not loaded yet. Filler image.
