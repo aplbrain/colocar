@@ -24,6 +24,7 @@ import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./BreadcrumbApp.css";
+import BorderHighlight from "./layers/BorderHighlight";
 
 let p5: P5Type = window.p5;
 
@@ -130,6 +131,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                         batchSize
                     });
 
+                    self.layers["borderHighlight"] = new BorderHighlight({
+                        p,
+                        imageManager: self.layers.imageManager
+                    });
+
                     self.layers["traceManager"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
@@ -146,6 +152,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         "imageManager",
+                        "borderHighlight",
                         "traceManager",
                         "scrollbar"
                     ];
