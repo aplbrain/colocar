@@ -21,6 +21,7 @@ import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
+import BorderHighlight from '../../breadcrumbs/src/layers/BorderHighlight';
 
 let p5: P5Type = window.p5;
 
@@ -119,6 +120,11 @@ export default class PointfogApp extends Component<any, any> {
                         batchSize
                     });
 
+                    self.layers["borderHighlight"] = new BorderHighlight({
+                        p,
+                        imageManager: self.layers.imageManager
+                    });
+
                     self.layers["pointcloudManager"] = new PointcloudManager({
                         p,
                         imageManager: self.layers.imageManager
@@ -138,10 +144,11 @@ export default class PointfogApp extends Component<any, any> {
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
-                        'imageManager',
-                        'crosshairs',
-                        'pointcloudManager',
-                        'scrollbar'
+                        "imageManager",
+                        "borderHighlight",
+                        "crosshairs",
+                        "pointcloudManager",
+                        "scrollbar"
                     ];
 
                     self.setState({
