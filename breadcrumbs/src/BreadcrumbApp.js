@@ -271,7 +271,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     cursorX: (p.mouseX - im.position.x)/im.scale,
                     cursorY:(p.mouseY - im.position.y)/im.scale
                 });
-            }
+            };
 
             p.mouseWheel = function(e) {
                 // Handle pinch-to-zoom functionality
