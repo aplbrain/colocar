@@ -275,8 +275,8 @@ export default class ImageManager {
             this.p.rect(
                 this.position.x - this.imageWidth * this.scale / 2,
                 this.position.y - this.imageHeight * this.scale / 2,
-                0.05 * this.imageWidth,
-                this.imageHeight
+                0.05 * this.imageWidth * this.scale,
+                this.imageHeight * this.scale
             );
         } else {
             // Image not loaded yet. Filler image.
