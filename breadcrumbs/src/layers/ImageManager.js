@@ -273,7 +273,7 @@ export default class ImageManager {
             this.p.noStroke();
             this.p.fill(192, 192, 192, 128);
 
-            let highlightFrac = 0.05
+            let highlightFrac = 0.05;
             let scaledWidth = this.imageWidth * this.scale;
             let scaledHeight = this.imageHeight * this.scale;
             let wallWidth = highlightFrac * scaledWidth;
