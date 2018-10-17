@@ -21,7 +21,7 @@ import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
-import BorderHighlight from '../../breadcrumbs/src/layers/BorderHighlight';
+import BorderHighlight from './layers/BorderHighlight';
 
 let p5: P5Type = window.p5;
 
