@@ -58,6 +58,8 @@ export default class PointfogApp extends Component<any, any> {
     state: {
         ready?: boolean,
         scale?: number,
+        cursorX: number,
+        cursorY: number,
         currentZ?: number,
         nodeCount: number,
         saveInProgress: boolean,
@@ -72,6 +74,8 @@ export default class PointfogApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
+            cursorX: 0,
+            cursorY: 0,
             nodeCount: 0,
             saveInProgress: false,
             instructions: {prompt: "", type: ""}
@@ -228,6 +232,27 @@ export default class PointfogApp extends Component<any, any> {
                 self.updateUIStatus();
             };
 
+            p.mouseDragged = function () {
+                if (p.mouseButton === p.RIGHT) {
+                    // Only drag the image if mouse is in the image.
+                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
+                        let dX = p.pmouseX - p.mouseX;
+                        let dY = p.pmouseY - p.mouseY;
+
+                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
+                    }
+                }
+                self.updateUIStatus();
+            };
+
+            p.mouseMoved = function() {
+                let im = self.layers.imageManager;
+                self.setState({
+                    cursorX: (p.mouseX - im.position.x)/im.scale,
+                    cursorY:(p.mouseY - im.position.y)/im.scale
+                });
+            };
+
             p.mouseWheel = function (e) {
                 // Handle pinch-to-zoom functionality
                 if (e.ctrlKey || e.shiftKey) {
@@ -243,20 +268,8 @@ export default class PointfogApp extends Component<any, any> {
                         self.decrementZ();
                     }
                 }
+                self.updateUIStatus();
             };
-
-            p.mouseDragged = function () {
-                if (p.mouseButton === p.RIGHT) {
-                    // Only drag the image if mouse is in the image.
-                    if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
-                        let dX = p.pmouseX - p.mouseX;
-                        let dY = p.pmouseY - p.mouseY;
-
-                        self.layers.imageManager.setPosition(self.layers.imageManager.position.x - dX, self.layers.imageManager.position.y - dY);
-                    }
-                }
-            };
-
 
             p.draw = function() {
                 p.clear();
@@ -451,6 +464,32 @@ export default class PointfogApp extends Component<any, any> {
                 </div>
             </div>
         );
+
+        let oldX = this.state.cursorX;
+        let oldY = this.state.cursorY;
+        let oldZ = this.state.currentZ;
+        let newX = oldX;
+        let newY = oldY;
+        let newZ = oldZ;
+
+        if (this.volume && this.volume.bounds) {
+            let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+            let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+            let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+
+            newX = Math.floor(oldX + xBounds[0] + (
+                (xBounds[1] - xBounds[0]) / 2
+            ));
+            newY = Math.floor(oldY + yBounds[0] + (
+                (yBounds[1] - yBounds[0]) / 2
+            ));
+            newZ = oldZ + zBounds[0];
+        }
+
+        let xString = String(newX).padStart(5, "0");
+        let yString = String(newY).padStart(5, "0");
+        let zString = String(newZ).padStart(5, "0");
+
         return (
             <div>
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
@@ -464,8 +503,14 @@ export default class PointfogApp extends Component<any, any> {
                             margin: "2em"
                         }}>
                             { chipHTML }
+                            <div style={{ float: "right", fontSize: "1.2em" }}>
+                                <Chip
+                                    style={{ margin: "0.5em 0" }}
+                                    label={`x: ${xString}; y: ${yString}; z: ${zString}`}
+                                />
+                            </div>
+                            <br/>
                             <div style={{ float: "right", fontSize: "0.9em" }}>
-                                <br />
                                 <Button style={{ opacity: 0.9 }}
                                     variant="fab"
                                     mini={true}
