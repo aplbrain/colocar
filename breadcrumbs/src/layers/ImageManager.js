@@ -278,6 +278,24 @@ export default class ImageManager {
                 0.05 * this.imageWidth * this.scale,
                 this.imageHeight * this.scale
             );
+            this.p.rect(
+                this.position.x - this.imageWidth * this.scale / 2 + this.imageWidth * this.scale - 0.05 * this.imageWidth * this.scale,
+                this.position.y - this.imageHeight * this.scale / 2,
+                0.05 * this.imageWidth * this.scale,
+                this.imageHeight * this.scale
+            );
+            this.p.rect(
+                this.position.x - this.imageWidth * this.scale / 2 + 0.05 * this.imageWidth * this.scale,
+                this.position.y - this.imageHeight * this.scale / 2,
+                this.imageWidth * this.scale - 2 * 0.05 * this.imageWidth * this.scale,
+                0.05 * this.imageHeight * this.scale
+            );
+            this.p.rect(
+                this.position.x - this.imageWidth * this.scale / 2 + 0.05 * this.imageWidth * this.scale,
+                this.position.y - this.imageHeight * this.scale / 2 + this.imageHeight * this.scale - 0.05 * this.imageHeight * this.scale,
+                this.imageWidth * this.scale - 2 * 0.05 * this.imageWidth * this.scale,
+                0.05 * this.imageHeight * this.scale
+            );
         } else {
             // Image not loaded yet. Filler image.
             this.p.stroke(255, 0, 0);
