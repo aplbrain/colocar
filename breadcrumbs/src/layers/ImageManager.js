@@ -270,6 +270,14 @@ export default class ImageManager {
                 this.imageWidth,
                 this.imageHeight,
             );
+            this.p.noStroke();
+            this.p.fill(192, 192, 192, 128);
+            this.p.rect(
+                this.position.x - this.imageWidth * this.scale / 2,
+                this.position.y - this.imageHeight * this.scale / 2,
+                0.05 * this.imageWidth,
+                this.imageHeight
+            );
         } else {
             // Image not loaded yet. Filler image.
             this.p.stroke(255, 0, 0);
