@@ -8,6 +8,7 @@ export default class BorderHighlight {
 
     p: any;
     im: ImageManager;
+    visible: boolean;
 
     constructor(opts: {
         p: P5Type,
@@ -15,13 +16,18 @@ export default class BorderHighlight {
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
+        this.visible = true;
     }
 
     mouseClicked(): void {}
     mousePressed(): void {}
 
+    toggleVisibility() {
+        this.visible = !this.visible;
+    }
+
     draw(): void {
-        if (this.im.readiness[this.im.currentZ]) {
+        if (this.visible && this.im.readiness[this.im.currentZ]) {
             this.p.noStroke();
             this.p.fill(192, 192, 192, 128);
 

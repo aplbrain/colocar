@@ -236,7 +236,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.stopHinting();
                     break;
                 case tKey:
-                    self.toggleTraceVisibility();
+                    self.toggleOverlay();
                     break;
                 case exclamationKey:
                     self.markBookmark();
@@ -357,7 +357,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.traceManager.stopHinting();
     }
 
-    toggleTraceVisibility(): void {
+    toggleOverlay(): void {
+        this.layers.borderHighlight.toggleVisibility();
         this.layers.traceManager.toggleVisibility();
     }
 

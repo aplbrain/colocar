@@ -222,7 +222,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.reset();
                     break;
                 case tKey:
-                    self.toggleCrossAndSyn();
+                    self.toggleOverlay();
                     break;
                 // deletion
                 case backspaceKey:
@@ -333,7 +333,8 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    toggleCrossAndSyn = function () {
+    toggleOverlay = function () {
+        this.layers.borderHighlight.toggleVisibility();
         this.layers.crosshairs.toggleVisibility();
         this.layers.pointcloudManager.toggleVisibility();
     };
