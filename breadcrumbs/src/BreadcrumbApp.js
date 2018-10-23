@@ -401,14 +401,14 @@ export default class BreadcrumbApp extends Component<any, any> {
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
             let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
+            this.layers.traceManager.insertCachedGraph(storedGraph, storedData.activeNodeId);
             this.setState({
                 saveInProgress: false
             });
             this.reset();
             this.updateUIStatus();
         }).catch(() => {
-            this.layers.traceManager.insertGraph(parentGraph);
+            this.layers.traceManager.insertDownloadedGraph(parentGraph);
             this.setState({
                 saveInProgress: false
             });

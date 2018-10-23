@@ -4,7 +4,6 @@ import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
-import Log from "colocorazon/dist/log";
 import CHash from "colocorazon/dist/colorhash";
 
 
@@ -122,45 +121,32 @@ export default class TraceManager {
         }
     }
 
-    insertGraph(graph: Object, activeNodeId: string) {
+    insertCachedGraph(graph: Object, activeNodeId: string) {
         this.g = graph;
-        if (activeNodeId) {
-            this.activeNode = this.g.node(activeNodeId);
-        }
-        else {
-            this._assignActiveNodeAndProtect();
-        }
+        this.activeNode = this.g.node(activeNodeId);
     }
 
-    _assignActiveNodeAndProtect() {
-        // handle starting synapse
+    insertDownloadedGraph(graph: Object, activeNodeId: string) {
+        this.g = graph;
+        // assign active node arbitrarily if missing
+        if (!activeNodeId) {
+            activeNodeId = this.g.nodes()[0];
+        }
+        this.activeNode = this.g.node(activeNodeId);
+        // set type to "initial" if single node
         if (this.g.nodeCount() === 1) {
-            let startingSynapseId = this.g.nodes()[0];
-            let startingSynapse = this.g.node(startingSynapseId);
-            this.g.removeNode(startingSynapseId);
-            startingSynapse.protected = true;
-            startingSynapse.type = "initial";
-            this.g.setNode(startingSynapseId, startingSynapse);
-            this.activeNode = startingSynapse;
+            let nodeId = this.g.nodes()[0];
+            let node = this.g.node(nodeId);
+            node.type = "initial";
+            this.g.setNode(nodeId, node);
         }
-        // handle parent graph
-        else {
-            let startingSynapse;
-            let nodeIds = this.g.nodes();
-            nodeIds.forEach(nodeId => {
-                let node = this.g.node(nodeId);
-                node.protected = true;
-                this.g.setNode(nodeId, node);
-                if (node.type === "initial") {
-                    if (startingSynapse) {
-                        Log.warn("more than one active node!");
-                    } else {
-                        startingSynapse = node;
-                    }
-                }
-            });
-            this.activeNode = startingSynapse;
-        }
+        // protect downloaded graph
+        let nodeIds = this.g.nodes();
+        nodeIds.forEach(nodeId => {
+            let node = this.g.node(nodeId);
+            node.protected = true;
+            this.g.setNode(nodeId, node);
+        });
     }
 
     extendGraph(newNode: NodeMeta): void {
