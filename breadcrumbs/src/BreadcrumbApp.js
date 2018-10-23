@@ -275,10 +275,12 @@ export default class BreadcrumbApp extends Component<any, any> {
 
             p.mouseMoved = function() {
                 let im = self.layers.imageManager;
-                self.setState({
-                    cursorX: (p.mouseX - im.position.x)/im.scale,
-                    cursorY:(p.mouseY - im.position.y)/im.scale
-                });
+                if (im) {
+                    self.setState({
+                        cursorX: (p.mouseX - im.position.x)/im.scale,
+                        cursorY:(p.mouseY - im.position.y)/im.scale
+                    });
+                }
             };
 
             p.mouseWheel = function(e) {
