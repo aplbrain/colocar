@@ -114,6 +114,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
+                    let activeNodeId = question.instructions.activeNodeId;
                     let nodeTypes = question.instructions.type || [
                         { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
                         { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
@@ -171,7 +172,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         snackbarOpen: true,
                     });
 
-                    self.insertStoredGraph(graphlibGraph);
+                    self.insertStoredGraph(graphlibGraph, activeNodeId);
 
                 }).catch(err => alert(err));
 
@@ -393,7 +394,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
-    insertStoredGraph(parentGraph: Object) {
+    insertStoredGraph(parentGraph: Object, activeNodeId: string) {
         this.setState({
             saveInProgress: true
         });
@@ -408,7 +409,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             this.reset();
             this.updateUIStatus();
         }).catch(() => {
-            this.layers.traceManager.insertDownloadedGraph(parentGraph);
+            this.layers.traceManager.insertDownloadedGraph(parentGraph, activeNodeId);
             this.setState({
                 saveInProgress: false
             });
