@@ -114,6 +114,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
+                    let activeNodeId = question.instructions.activeNodeId;
                     let nodeTypes = question.instructions.type || [
                         { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
                         { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
@@ -171,7 +172,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         snackbarOpen: true,
                     });
 
-                    self.insertStoredGraph(graphlibGraph);
+                    self.insertStoredGraph(graphlibGraph, activeNodeId);
 
                 }).catch(err => alert(err));
 
@@ -274,10 +275,12 @@ export default class BreadcrumbApp extends Component<any, any> {
 
             p.mouseMoved = function() {
                 let im = self.layers.imageManager;
-                self.setState({
-                    cursorX: (p.mouseX - im.position.x)/im.scale,
-                    cursorY:(p.mouseY - im.position.y)/im.scale
-                });
+                if (im) {
+                    self.setState({
+                        cursorX: (p.mouseX - im.position.x)/im.scale,
+                        cursorY:(p.mouseY - im.position.y)/im.scale
+                    });
+                }
             };
 
             p.mouseWheel = function(e) {
@@ -393,7 +396,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         new p5(this.sketch);
     }
 
-    insertStoredGraph(parentGraph: Object) {
+    insertStoredGraph(parentGraph: Object, activeNodeId: string) {
         this.setState({
             saveInProgress: true
         });
@@ -401,14 +404,14 @@ export default class BreadcrumbApp extends Component<any, any> {
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
             let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
+            this.layers.traceManager.insertCachedGraph(storedGraph, storedData.activeNodeId);
             this.setState({
                 saveInProgress: false
             });
             this.reset();
             this.updateUIStatus();
         }).catch(() => {
-            this.layers.traceManager.insertGraph(parentGraph);
+            this.layers.traceManager.insertDownloadedGraph(parentGraph, activeNodeId);
             this.setState({
                 saveInProgress: false
             });
