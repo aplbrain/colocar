@@ -356,12 +356,12 @@ export default class PointfogApp extends Component<any, any> {
 
     toggleAnnotation(): void {
         this.layers.pointcloudManager.toggleVisibility();
-    };
+    }
 
     toggleOverlay(): void {
         this.layers.borderHighlight.toggleVisibility();
         this.layers.crosshairs.toggleVisibility();
-    };
+    }
 
     deleteActiveNode(): void {
         this.layers.pointcloudManager.deleteActiveNode();
