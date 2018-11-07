@@ -195,6 +195,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                 const eKey = 69;
                 const hKey = 72;
+                const oKey = 79;
                 const qKey = 81;
                 const tKey = 84;
                 const upArrowKey = 38;
@@ -240,8 +241,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                 case hKey:
                     self.stopHinting();
                     break;
-                case tKey:
+                case oKey:
                     self.toggleOverlay();
+                    break;
+                case tKey:
+                    self.toggleAnnotation();
                     break;
                 case exclamationKey:
                     self.markBookmark();
@@ -374,9 +378,12 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.traceManager.stopHinting();
     }
 
+    toggleAnnotation(): void {
+        this.layers.traceManager.toggleVisibility();
+    }
+
     toggleOverlay(): void {
         this.layers.borderHighlight.toggleVisibility();
-        this.layers.traceManager.toggleVisibility();
     }
 
     markBookmark(): void {

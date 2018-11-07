@@ -179,6 +179,7 @@ export default class PointfogApp extends Component<any, any> {
                 const aKey = 65;
                 const dKey = 68;
                 const eKey = 69;
+                const oKey = 79;
                 const qKey = 81;
                 const sKey = 83;
                 const tKey = 84;
@@ -225,8 +226,11 @@ export default class PointfogApp extends Component<any, any> {
                 case escapeKey:
                     self.reset();
                     break;
-                case tKey:
+                case oKey:
                     self.toggleOverlay();
+                    break;
+                case tKey:
+                    self.toggleAnnotation();
                     break;
                 // deletion
                 case backspaceKey:
@@ -348,10 +352,13 @@ export default class PointfogApp extends Component<any, any> {
         });
     }
 
-    toggleOverlay = function () {
+    toggleAnnotation(): void {
+        this.layers.pointcloudManager.toggleVisibility();
+    };
+
+    toggleOverlay(): void {
         this.layers.borderHighlight.toggleVisibility();
         this.layers.crosshairs.toggleVisibility();
-        this.layers.pointcloudManager.toggleVisibility();
     };
 
     deleteActiveNode(): void {
