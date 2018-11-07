@@ -155,6 +155,8 @@ export default class PointfogApp extends Component<any, any> {
                         "scrollbar"
                     ];
 
+                    self.toggleOverlay();
+
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,

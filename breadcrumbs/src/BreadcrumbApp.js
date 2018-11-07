@@ -162,6 +162,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                         "scrollbar"
                     ];
 
+                    self.toggleOverlay();
+
                     self.setState({
                         ready: true,
                         scale: self.layers.imageManager.scale,
