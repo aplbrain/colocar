@@ -106,6 +106,13 @@ export default class TraceManager {
         }
     }
 
+    markLowConfidence(): void {
+        let node = this.selectedNode;
+        if (node && !node.protected) {
+            node.lowConfidence = !node.lowConfidence;
+        }
+    }
+
     deleteActiveNode(): void {
         if (!this.selectedNode) { return; }
         if (this.selectedNode.protected) { return; }
