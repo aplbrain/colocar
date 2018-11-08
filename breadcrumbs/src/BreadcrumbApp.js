@@ -54,6 +54,13 @@ const STYLES = {
     }
 };
 
+const QUALITIES = [
+    "dropped",
+    "cracked",
+    "folded",
+    "stained"
+];
+
 export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
@@ -70,7 +77,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         cursorY: number,
         currentZ?: number,
         saveInProgress: boolean,
-        instructions: Object
+        instructions: Object,
+        qualities: Object
     };
 
     graphId: string;
@@ -81,10 +89,15 @@ export default class BreadcrumbApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
+        let emptyQualities = {};
+        for (let qIndex=0; qIndex < QUALITIES.length; qIndex++) {
+            emptyQualities[QUALITIES[qIndex]] = false;
+        }
         this.state = {
             cursorX: 0,
             cursorY: 0,
             instructions: {},
+            qualities: emptyQualities,
             saveInProgress: false,
             metadataModalOpen: false
         };
@@ -619,6 +632,17 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
         }
 
+        let checkHTML = [];
+        for (let qIndex = 0; qIndex < QUALITIES.length; qIndex++) {
+            let quality = QUALITIES[qIndex];
+            checkHTML.push(
+                <div>
+                    <Checkbox/>
+                    <span>{quality}</span>
+                </div>
+            );
+        }
+
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
         let oldZ = this.state.currentZ;
@@ -689,22 +713,14 @@ export default class BreadcrumbApp extends Component<any, any> {
                             style={{left: "25%", width: "50%", top: "25%"}}
                             open={this.state.metadataModalOpen}
                             onClose={this.handleMetadataModalClose}
-                            children={
-                                <Paper>
-                                    <div>
-                                        Volume Qualities
-                                    </div>
-                                    <div>
-                                        <Checkbox/>
-                                        <span>Exhibit A</span>
-                                    </div>
-                                    <div>
-                                        <Checkbox/>
-                                        <span>Exhibit B</span>
-                                    </div>
-                                </Paper>
-                            }
-                        />
+                        >
+                            <Paper>
+                                <div>
+                                    Volume Qualities
+                                </div>
+                                {checkHTML}
+                            </Paper>
+                        </Modal>
 
                         <Snackbar
                             open={this.state.snackbarOpen}
