@@ -51,6 +51,7 @@ export default class PointfogApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
+    confidence: boolean;
     nodeType: string;
     layers: Object;
     // p: P5Type;
@@ -114,6 +115,7 @@ export default class PointfogApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.questionId = question._id;
+                    self.confidence = question.instructions.confidence;
                     self.nodeType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
@@ -236,7 +238,9 @@ export default class PointfogApp extends Component<any, any> {
                     self.toggleAnnotation();
                     break;
                 case cKey:
-                    self.markLowConfidence();
+                    if (self.confidence) {
+                        self.markLowConfidence();
+                    }
                     break;
                 // deletion
                 case backspaceKey:
