@@ -514,6 +514,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
+            newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
             newNode.namespace = DB.breadcrumbs_name;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
