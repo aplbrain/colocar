@@ -431,6 +431,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.author = window.keycloak.profile.username;
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
+                newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
                 newNode.namespace = DB.pointfog_name;
                 newNode.type = this.nodeType || "synapse";
                 newNode.volume = this.volume._id;
