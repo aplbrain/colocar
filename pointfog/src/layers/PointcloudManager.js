@@ -140,11 +140,17 @@ export default class TraceManager {
         if (this.visible) {
             this.p.noStroke();
             for (let j = 0; j < this.nodes.length; j++) {
-                let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(this.nodes[j].z - this.im.currentZ, 2)));
+                let node = this.nodes[j];
+                let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(node.z - this.im.currentZ, 2)));
                 let color = DEFAULT_COLOR;
+                let transformedNode = this.transformCoords(node.x, node.y);
+                transformedNode.lowConfidence = node.lowConfidence;
                 this.p.fill(color.r, color.g, color.b, diminishingFactor);
-                let transformedNode = this.transformCoords(this.nodes[j].x, this.nodes[j].y);
                 this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor/255 * 20, diminishingFactor/255 * 20);
+                if (transformedNode.lowConfidence) {
+                    this.p.fill(255, 255, 255, diminishingFactor);
+                    this.p.arc(transformedNode.x, transformedNode.y, 0.9*diminishingFactor/255 * 20, 0.9*diminishingFactor/255 * 20, Math.PI/2, 3*Math.PI/2);
+                }
                 if (Math.abs(diminishingFactor) >= 179.5) {
                     this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
                     this.p.ellipse(transformedNode.x, transformedNode.y, 6, 6);
@@ -174,6 +180,7 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
+    lowConfidence: ?boolean;
     created: ?number;
 
     constructor(opts: {
@@ -181,11 +188,13 @@ class NodeMeta {
         y: number,
         z: number,
         created?: number,
+        lowConfidence?: boolean,
         id?: string
     }) {
         this.x = opts.x;
         this.y = opts.y;
         this.z = opts.z;
+        this.lowConfidence = opts.lowConfidence || false;
         this.created = opts.created || Date.now();
         this.id = opts.id || uuidv4();
     }
