@@ -14,10 +14,14 @@ import Scrollbar from "./layers/Scrollbar";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
+import Modal from "@material-ui/core/Modal";
+import Paper from "@material-ui/core/Paper";
 import Tooltip from "@material-ui/core/Tooltip";
 import Snackbar from "@material-ui/core/Snackbar";
 
+import FeedbackIcon from "@material-ui/icons/Feedback";
 import InfoIcon from "@material-ui/icons/Info";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
@@ -81,7 +85,8 @@ export default class BreadcrumbApp extends Component<any, any> {
             cursorX: 0,
             cursorY: 0,
             instructions: {},
-            saveInProgress: false
+            saveInProgress: false,
+            metadataModalOpen: false
         };
 
         // Create p5 sketch
@@ -315,6 +320,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 }
             };
         };
+
+        this.handleMetadataModalClose = this.handleMetadataModalClose.bind(this);
+        this.handleMetadataModalOpen = this.handleMetadataModalOpen.bind(this);
 
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
@@ -572,6 +580,13 @@ export default class BreadcrumbApp extends Component<any, any> {
         }
     }
 
+    handleMetadataModalClose() {
+        this.setState({ metadataModalOpen: false });
+    }
+    handleMetadataModalOpen() {
+        this.setState({ metadataModalOpen: true });
+    }
+
     handleSnackbarClose() {
         this.setState({ snackbarOpen: false });
     }
@@ -653,6 +668,16 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 <Button style={{ opacity: 0.9 }}
                                     variant="fab"
                                     mini={true}
+                                    onClick={ this.handleMetadataModalOpen }
+                                >
+                                    <FeedbackIcon />
+                                </Button>
+                            </div>
+                            <br/>
+                            <div style={{ float: "right", fontSize: "0.9em" }}>
+                                <Button style={{ opacity: 0.9 }}
+                                    variant="fab"
+                                    mini={true}
                                     onClick={ this.handleSnackbarOpen }
                                 >
                                     <InfoIcon />
@@ -660,7 +685,26 @@ export default class BreadcrumbApp extends Component<any, any> {
                             </div>
                         </div>
 
-
+                        <Modal
+                            style={{left: "25%", width: "50%", top: "25%"}}
+                            open={this.state.metadataModalOpen}
+                            onClose={this.handleMetadataModalClose}
+                            children={
+                                <Paper>
+                                    <div>
+                                        Volume Qualities
+                                    </div>
+                                    <div>
+                                        <Checkbox/>
+                                        <span>Exhibit A</span>
+                                    </div>
+                                    <div>
+                                        <Checkbox/>
+                                        <span>Exhibit B</span>
+                                    </div>
+                                </Paper>
+                            }
+                        />
 
                         <Snackbar
                             open={this.state.snackbarOpen}
