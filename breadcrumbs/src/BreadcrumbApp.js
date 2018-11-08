@@ -637,7 +637,13 @@ export default class BreadcrumbApp extends Component<any, any> {
             let quality = QUALITIES[qIndex];
             checkHTML.push(
                 <div>
-                    <Checkbox/>
+                    <Checkbox
+                        checked={this.state.qualities[quality]}
+                        onChange={(event: object, checked: boolean) => {
+                            let updatedQualities = this.state.qualities;
+                            updatedQualities[quality] = checked;
+                            this.setState({qualities: updatedQualities});
+                        }}/>
                     <span>{quality}</span>
                 </div>
             );
