@@ -54,21 +54,28 @@ const STYLES = {
     }
 };
 
-const ARTIFACTS = [
+const DEFAULT_NODE_TYPES = [
+    { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
+    { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
+]
+
+const DEFAULT_ARTIFACTS = [
     "dropped",
     "cracked",
     "folded",
-    "stained"
-];
+    "stained",
+]
 
 export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
     nodeTypes: Array<Object>;
+    artifactTags: Array<string>;
     layers: Object;
     // p: P5Type;
     renderOrder: Array<string>;
+    artifacts: Object;
 
     state: {
         ready?: boolean,
@@ -77,8 +84,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         cursorY: number,
         currentZ?: number,
         saveInProgress: boolean,
-        instructions: Object,
-        artifacts: Object
+        instructions: Object
     };
 
     graphId: string;
@@ -89,15 +95,10 @@ export default class BreadcrumbApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        let emptyArtifacts = {};
-        for (let aIndex=0; aIndex < ARTIFACTS.length; aIndex++) {
-            emptyArtifacts[ARTIFACTS[aIndex]] = new Object();
-        }
         this.state = {
             cursorX: 0,
             cursorY: 0,
             instructions: {},
-            artifacts: emptyArtifacts,
             saveInProgress: false,
             metadataModalOpen: false
         };
@@ -133,11 +134,14 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
                     let activeNodeId = question.instructions.activeNodeId;
-                    let nodeTypes = question.instructions.type || [
-                        { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
-                        { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
-                    ];
+                    let nodeTypes = question.instructions.type || DEFAULT_NODE_TYPES;
                     self.nodeTypes = nodeTypes;
+                    self.artifactTags = question.instructions.artifact || DEFAULT_ARTIFACTS;
+                    let emptyArtifacts = {};
+                    for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
+                        emptyArtifacts[self.artifactTags[aIndex]] = {};
+                    }
+                    self.artifacts = emptyArtifacts;
 
                     let volume = res.volume;
 
@@ -611,7 +615,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     render() {
         let chipHTML = [];
-        let nodeTypes = this.state.instructions.type || [];
+        let nodeTypes = this.state.instructions.type || DEFAULT_NODE_TYPES;
         let graph = this.layers? this.layers.traceManager.exportGraph(): null;
         let nodes = graph? graph.nodes().map(n => graph.node(n)): [];
         for (let nIndex = 0; nIndex < nodeTypes.length; nIndex++) {
@@ -660,14 +664,20 @@ export default class BreadcrumbApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let checkHTML = [];
-        for (let aIndex = 0; aIndex < ARTIFACTS.length; aIndex++) {
-            let artifact = ARTIFACTS[aIndex];
+        let artifactTags = this.state.instructions.artifact || DEFAULT_ARTIFACTS;
+        let emptyArtifacts = {};
+        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+            emptyArtifacts[artifactTags[aIndex]] = {};
+        }
+        let artifacts = this.artifacts || emptyArtifacts;
+        for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
+            let artifact = artifactTags[aIndex];
             checkHTML.push(
                 <div>
                     <Checkbox
-                        checked={this.state.artifacts[artifact][newZ]}
+                        checked={artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
-                            let updatedArtifacts = this.state.artifacts;
+                            let updatedArtifacts = artifacts;
                             updatedArtifacts[artifact][newZ] = checked;
                             this.setState({artifacts: updatedArtifacts});
                         }}/>
