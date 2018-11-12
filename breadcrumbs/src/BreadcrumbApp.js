@@ -54,7 +54,7 @@ const STYLES = {
     }
 };
 
-const QUALITIES = [
+const ARTIFACTS = [
     "dropped",
     "cracked",
     "folded",
@@ -78,7 +78,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         currentZ?: number,
         saveInProgress: boolean,
         instructions: Object,
-        qualities: Object
+        artifacts: Object
     };
 
     graphId: string;
@@ -89,15 +89,15 @@ export default class BreadcrumbApp extends Component<any, any> {
         super(props);
 
         this.p5ID = "p5-container";
-        let emptyQualities = {};
-        for (let qIndex=0; qIndex < QUALITIES.length; qIndex++) {
-            emptyQualities[QUALITIES[qIndex]] = new Object();
+        let emptyArtifacts = {};
+        for (let aIndex=0; aIndex < ARTIFACTS.length; aIndex++) {
+            emptyArtifacts[ARTIFACTS[aIndex]] = new Object();
         }
         this.state = {
             cursorX: 0,
             cursorY: 0,
             instructions: {},
-            qualities: emptyQualities,
+            artifacts: emptyArtifacts,
             saveInProgress: false,
             metadataModalOpen: false
         };
@@ -660,18 +660,18 @@ export default class BreadcrumbApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let checkHTML = [];
-        for (let qIndex = 0; qIndex < QUALITIES.length; qIndex++) {
-            let quality = QUALITIES[qIndex];
+        for (let aIndex = 0; aIndex < ARTIFACTS.length; aIndex++) {
+            let artifact = ARTIFACTS[aIndex];
             checkHTML.push(
                 <div>
                     <Checkbox
-                        checked={this.state.qualities[quality][newZ]}
+                        checked={this.state.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
-                            let updatedQualities = this.state.qualities;
-                            updatedQualities[quality][newZ] = checked;
-                            this.setState({qualities: updatedQualities});
+                            let updatedArtifacts = this.state.artifacts;
+                            updatedArtifacts[artifact][newZ] = checked;
+                            this.setState({artifacts: updatedArtifacts});
                         }}/>
-                    <span>{quality}</span>
+                    <span>{artifact}</span>
                 </div>
             );
         }
@@ -726,7 +726,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         >
                             <Paper>
                                 <div>
-                                    Volume Qualities: z={newZ}
+                                    Volume Artifacts: z={newZ}
                                 </div>
                                 {checkHTML}
                             </Paper>
