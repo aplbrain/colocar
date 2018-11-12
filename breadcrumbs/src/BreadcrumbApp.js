@@ -57,14 +57,14 @@ const STYLES = {
 const DEFAULT_NODE_TYPES = [
     { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
     { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
-]
+];
 
 const DEFAULT_ARTIFACTS = [
     "dropped",
     "cracked",
     "folded",
     "stained",
-]
+];
 
 export default class BreadcrumbApp extends Component<any, any> {
 
