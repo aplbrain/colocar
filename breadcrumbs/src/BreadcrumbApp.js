@@ -376,11 +376,13 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
+        this.handleMetadataModalClose();
         this.setState({currentZ: this.layers.imageManager.currentZ});
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
+        this.handleMetadataModalClose();
         this.setState({currentZ: this.layers.imageManager.currentZ});
     }
 
