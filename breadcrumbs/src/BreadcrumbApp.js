@@ -687,31 +687,33 @@ export default class BreadcrumbApp extends Component<any, any> {
                             margin: "2em"
                         }}>
                             { chipHTML }
-                            <div style={{ float: "right", fontSize: "1.2em" }}>
-                                <Chip
-                                    style={{ margin: "0.5em 0" }}
-                                    label={`x: ${xString}; y: ${yString}; z: ${zString}`}
-                                />
+                            <div style={{"position": "relative"}}>
+                                <div style={{ float: "right", fontSize: "1.2em" }}>
+                                    <Chip
+                                        style={{ margin: "0.5em 0" }}
+                                        label={`x: ${xString}; y: ${yString}; z: ${zString}`}
+                                    />
+                                </div>
                             </div>
-                            <br/>
-                            <div style={{ float: "right", fontSize: "0.9em" }}>
-                                <Button style={{ opacity: 0.9 }}
-                                    variant="fab"
-                                    mini={true}
-                                    onClick={ this.handleMetadataModalOpen }
-                                >
-                                    <FeedbackIcon />
-                                </Button>
-                            </div>
-                            <br/>
-                            <div style={{ float: "right", fontSize: "0.9em" }}>
-                                <Button style={{ opacity: 0.9 }}
-                                    variant="fab"
-                                    mini={true}
-                                    onClick={ this.handleSnackbarOpen }
-                                >
-                                    <InfoIcon />
-                                </Button>
+                            <div style={{"float": "right"}}>
+                                <div style={{ fontSize: "0.9em", marginBottom: "0.25em" }}>
+                                    <Button style={{ opacity: 0.9 }}
+                                        variant="fab"
+                                        mini={true}
+                                        onClick={ this.handleSnackbarOpen }
+                                    >
+                                        <InfoIcon />
+                                    </Button>
+                                </div>
+                                <div style={{ fontSize: "0.9em" }}>
+                                    <Button style={{ opacity: 0.9 }}
+                                        variant="fab"
+                                        mini={true}
+                                        onClick={ this.handleMetadataModalOpen }
+                                    >
+                                        <FeedbackIcon />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
 
