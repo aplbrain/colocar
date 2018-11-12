@@ -91,7 +91,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.p5ID = "p5-container";
         let emptyQualities = {};
         for (let qIndex=0; qIndex < QUALITIES.length; qIndex++) {
-            emptyQualities[QUALITIES[qIndex]] = false;
+            emptyQualities[QUALITIES[qIndex]] = new Object();
         }
         this.state = {
             cursorX: 0,
@@ -632,23 +632,6 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
         }
 
-        let checkHTML = [];
-        for (let qIndex = 0; qIndex < QUALITIES.length; qIndex++) {
-            let quality = QUALITIES[qIndex];
-            checkHTML.push(
-                <div>
-                    <Checkbox
-                        checked={this.state.qualities[quality]}
-                        onChange={(event: object, checked: boolean) => {
-                            let updatedQualities = this.state.qualities;
-                            updatedQualities[quality] = checked;
-                            this.setState({qualities: updatedQualities});
-                        }}/>
-                    <span>{quality}</span>
-                </div>
-            );
-        }
-
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
         let oldZ = this.state.currentZ;
@@ -673,6 +656,23 @@ export default class BreadcrumbApp extends Component<any, any> {
         let xString = String(newX).padStart(5, "0");
         let yString = String(newY).padStart(5, "0");
         let zString = String(newZ).padStart(5, "0");
+
+        let checkHTML = [];
+        for (let qIndex = 0; qIndex < QUALITIES.length; qIndex++) {
+            let quality = QUALITIES[qIndex];
+            checkHTML.push(
+                <div>
+                    <Checkbox
+                        checked={this.state.qualities[quality][newZ]}
+                        onChange={(event: Object, checked: boolean) => {
+                            let updatedQualities = this.state.qualities;
+                            updatedQualities[quality][newZ] = checked;
+                            this.setState({qualities: updatedQualities});
+                        }}/>
+                    <span>{quality}</span>
+                </div>
+            );
+        }
 
         return (
             <div>
@@ -722,7 +722,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         >
                             <Paper>
                                 <div>
-                                    Volume Qualities
+                                    Volume Qualities: z={newZ}
                                 </div>
                                 {checkHTML}
                             </Paper>
