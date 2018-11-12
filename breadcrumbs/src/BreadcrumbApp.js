@@ -673,7 +673,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             let artifact = artifactTags[aIndex];
             checkHTML.push(
-                <div>
+                <div key={`artifact_${artifact}`}>
                     <Checkbox
                         checked={artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
