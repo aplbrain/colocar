@@ -54,6 +54,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
+    confidence: boolean;
     nodeTypes: Array<Object>;
     layers: Object;
     // p: P5Type;
@@ -115,6 +116,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
                     let activeNodeId = question.instructions.activeNodeId;
+                    let confidence = question.instructions.confidence || false;
+                    self.confidence = confidence;
                     let nodeTypes = question.instructions.type || [
                         { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
                         { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
@@ -195,6 +198,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                 }
 
+                const cKey = 67;
                 const eKey = 69;
                 const hKey = 72;
                 const oKey = 79;
@@ -248,6 +252,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                     break;
                 case tKey:
                     self.toggleAnnotation();
+                    break;
+                case cKey:
+                    if (self.confidence) {
+                        self.markLowConfidence();
+                    }
                     break;
                 case exclamationKey:
                     self.markBookmark();
@@ -388,6 +397,10 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.borderHighlight.toggleVisibility();
     }
 
+    markLowConfidence(): void {
+        this.layers.traceManager.markLowConfidence();
+    }
+
     markBookmark(): void {
         this.layers.traceManager.markBookmark();
     }
@@ -506,6 +519,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
+            newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
             newNode.namespace = DB.breadcrumbs_name;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;

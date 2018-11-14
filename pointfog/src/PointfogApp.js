@@ -51,6 +51,7 @@ export default class PointfogApp extends Component<any, any> {
 
     p5ID: string;
     sketch: any;
+    confidence: boolean;
     nodeType: string;
     layers: Object;
     // p: P5Type;
@@ -114,6 +115,7 @@ export default class PointfogApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.questionId = question._id;
+                    self.confidence = question.instructions.confidence;
                     self.nodeType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
@@ -179,6 +181,7 @@ export default class PointfogApp extends Component<any, any> {
 
             p.keyPressed = function() {
                 const aKey = 65;
+                const cKey = 67;
                 const dKey = 68;
                 const eKey = 69;
                 const oKey = 79;
@@ -233,6 +236,11 @@ export default class PointfogApp extends Component<any, any> {
                     break;
                 case tKey:
                     self.toggleAnnotation();
+                    break;
+                case cKey:
+                    if (self.confidence) {
+                        self.markLowConfidence();
+                    }
                     break;
                 // deletion
                 case backspaceKey:
@@ -363,6 +371,10 @@ export default class PointfogApp extends Component<any, any> {
         this.layers.crosshairs.toggleVisibility();
     }
 
+    markLowConfidence(): void {
+        this.layers.pointcloudManager.markLowConfidence();
+    }
+
     deleteActiveNode(): void {
         this.layers.pointcloudManager.deleteActiveNode();
     }
@@ -423,6 +435,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.author = window.keycloak.profile.username;
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
+                newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
                 newNode.namespace = DB.pointfog_name;
                 newNode.type = this.nodeType || "synapse";
                 newNode.volume = this.volume._id;
