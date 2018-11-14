@@ -733,15 +733,17 @@ export default class BreadcrumbApp extends Component<any, any> {
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                <div style={{ fontSize: "0.9em" }}>
-                                    <Button style={{ opacity: 0.9 }}
-                                        variant="fab"
-                                        mini={true}
-                                        onClick={ this.handleMetadataModalOpen }
-                                    >
-                                        <FeedbackIcon />
-                                    </Button>
-                                </div>
+                                {this.state.instructions.artifact &&
+                                    <div style={{ fontSize: "0.9em" }}>
+                                        <Button style={{ opacity: 0.9 }}
+                                            variant="fab"
+                                            mini={true}
+                                            onClick={ this.handleMetadataModalOpen }
+                                        >
+                                            <FeedbackIcon />
+                                        </Button>
+                                    </div>
+                                }
                             </div>
                         </div>
 
