@@ -16,10 +16,11 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
-import Modal from "@material-ui/core/Modal";
-import Paper from "@material-ui/core/Paper";
-import Tooltip from "@material-ui/core/Tooltip";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import Snackbar from "@material-ui/core/Snackbar";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import InfoIcon from "@material-ui/icons/Info";
@@ -689,7 +690,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             let artifact = artifactTags[aIndex];
             checkHTML.push(
-                <div key={`artifact_${artifact}`}>
+                <DialogContent key={`artifact_${artifact}`}>
                     <Checkbox
                         checked={artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
@@ -698,7 +699,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                             this.setState({artifacts: updatedArtifacts});
                         }}/>
                     <span>{artifact}</span>
-                </div>
+                </DialogContent>
             );
         }
 
@@ -747,18 +748,15 @@ export default class BreadcrumbApp extends Component<any, any> {
                             </div>
                         </div>
 
-                        <Modal
-                            style={{left: "25%", width: "50%", top: "25%"}}
+                        <Dialog
                             open={this.state.metadataModalOpen}
                             onClose={this.handleMetadataModalClose}
                         >
-                            <Paper>
-                                <div>
-                                    Volume Artifacts: z={newZ}
-                                </div>
-                                {checkHTML}
-                            </Paper>
-                        </Modal>
+                            <DialogTitle>
+                                Volume Artifacts: z={newZ}
+                            </DialogTitle>
+                            {checkHTML}
+                        </Dialog>
 
                         <Snackbar
                             open={this.state.snackbarOpen}
