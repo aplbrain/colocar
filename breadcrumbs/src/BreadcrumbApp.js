@@ -563,12 +563,28 @@ export default class BreadcrumbApp extends Component<any, any> {
             let graph = this.graphlibToColocard(
                 this.layers.traceManager.exportGraph()
             );
-            return DB.postGraph(
+            // convert artifacts to flattened array
+            let artifactsArray = [];
+            for (let artifact in this.artifacts) {
+                for (let zIndex in this.artifacts[artifact]) {
+                    artifactsArray.push({
+                        "type": artifact,
+                        "zIndex": zIndex
+                    });
+                }
+            }
+            let graphPromise = DB.postGraph(
                 window.keycloak.profile.username,
                 this.graphId,
                 graph,
                 this.volume._id
-            ).then(status => {
+            );
+            let artifactPromise = DB.postArtifacts(
+                this.questionId,
+                artifactsArray
+            );
+            Promise.all([graphPromise, artifactPromise]).then(results => {
+                let status = results[0];
                 // TODO: Do not reload page if failed; instead,
                 // show error to user
                 if (status === "completed") {
