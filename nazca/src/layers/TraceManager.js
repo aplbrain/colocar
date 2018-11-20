@@ -38,6 +38,8 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
+    DEFAULT_COLOR: ?Object;
+    EDGE_COLOR: ?Object;
 
     drawHinting: boolean;
     visibility: boolean;
@@ -47,9 +49,13 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
+        DEFAULT_COLOR?: Object,
+        EDGE_COLOR?: Object
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
+        this.DEFAULT_COLOR = opts.DEFAULT_COLOR || DEFAULT_COLOR;
+        this.EDGE_COLOR = opts.EDGE_COLOR || EDGE_COLOR;
         this.g = new graphlib.Graph({
             directed: true
         });

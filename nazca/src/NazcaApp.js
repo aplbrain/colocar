@@ -121,7 +121,8 @@ export default class NazcaApp extends Component<any, any> {
                         throw new Error("failed to fetch question");
                     }
                     let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
+                    let colocardGraphContext = question.instructions.context.structure;
+                    let colocardGraphEdge = question.instructions.edge.structure;
                     let volume = res.volume;
 
                     self.graphId = question.instructions.graph._id;
@@ -138,7 +139,15 @@ export default class NazcaApp extends Component<any, any> {
                         batchSize
                     });
 
-                    self.layers["traceManager"] = new TraceManager({
+                    self.layers["traceManagerContext"] = new TraceManager({
+                        p,
+                        imageManager: self.layers.imageManager,
+                        startingGraph: null,
+                        DEFAULT_COLOR: { r: 200, g: 90, b: 200 },
+                        EDGE_COLOR: { r: 170, g: 60, b: 170 }
+                    });
+
+                    self.layers["traceManagerEdge"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: null
@@ -154,7 +163,8 @@ export default class NazcaApp extends Component<any, any> {
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
-                        'traceManager',
+                        'traceManagerContext',
+                        'traceManagerEdge',
                         'scrollbar'
                     ];
 
@@ -166,7 +176,8 @@ export default class NazcaApp extends Component<any, any> {
                         nodeCount: self.layers.traceManager.g.nodeCount()
                     });
 
-                    self.insertStoredGraph(graphlibGraph);
+                    self.layers.traceManagerContext.insertStoredGraph(graphlibGraphContext);
+                    self.layers.traceManagerEdge.insertStoredGraph(graphlibGraphEdge);
 
                 }).catch(err => alert(err));
 
