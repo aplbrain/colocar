@@ -131,7 +131,8 @@ export default class NazcaApp extends Component<any, any> {
                     self.volume = volume;
                     let batchSize = 10;
 
-                    let graphlibGraph = self.graphlibFromColocard(colocardGraph);
+                    let graphlibGraphContext = self.graphlibFromColocard(colocardGraphContext);
+                    let graphlibGraphEdge = self.graphlibFromColocard(colocardGraphEdge);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
