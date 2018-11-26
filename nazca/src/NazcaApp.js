@@ -91,7 +91,7 @@ export default class NazcaApp extends Component<any, any> {
         submitInProgress: boolean
     };
 
-    graphId: string;
+    edgeId: string;
     questionId: string;
     volume: Object;
 
@@ -132,7 +132,7 @@ export default class NazcaApp extends Component<any, any> {
                     let colocardGraphEdge = question.instructions.edge.structure;
                     let volume = res.volume;
 
-                    self.graphId = question.instructions.edge._id;
+                    self.edgeId = question.instructions.edge._id;
                     self.questionId = question._id;
                     self.volume = volume;
                     let batchSize = 10;
@@ -453,7 +453,7 @@ export default class NazcaApp extends Component<any, any> {
         return DB.postGraphDecision(
             decision,
             window.keycloak.profile.username,
-            this.graphId
+            this.edgeId
         ).then(status => {
             // TODO: Do not reload page if failed; instead,
             // show error to user
