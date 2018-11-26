@@ -751,7 +751,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                             onClose={this.handleMetadataModalClose}
                         >
                             <DialogTitle>
-                                Volume Artifacts: z={newZ}
+                                Slice Artifacts: z={newZ}
                             </DialogTitle>
                             {artifactChecklistHTML}
                         </Dialog>
