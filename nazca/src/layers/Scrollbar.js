@@ -43,7 +43,7 @@ export default class Scrollbar {
         return this.tmA.g.nodes().map(i => this.tmA.g.node(i)).map(i => {
             return {
                 z: i.z,
-                color: [0, 255, 100]
+                color: [255, 0, 100]
             };
         });
     }
@@ -52,7 +52,7 @@ export default class Scrollbar {
         return this.tmB.g.nodes().map(i => this.tmB.g.node(i)).map(i => {
             return {
                 z: i.z,
-                color: [255, 0, 100]
+                color: [0, 255, 100]
             };
         });
     }
