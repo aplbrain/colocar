@@ -139,11 +139,13 @@ export default class NazcaApp extends Component<any, any> {
 
                     let graphlibGraphContext = self.graphlibFromColocard(colocardGraphContext);
                     let graphlibGraphEdge = self.graphlibFromColocard(colocardGraphEdge);
+                    let startingZ = graphlibGraphEdge.node(graphlibGraphEdge.nodes()[0]).z;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         volume,
-                        batchSize
+                        batchSize,
+                        startingZ: startingZ
                     });
 
                     self.layers["traceManagerContext"] = new TraceManager({
