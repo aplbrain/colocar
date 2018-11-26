@@ -586,8 +586,6 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
             Promise.all([graphPromise, artifactPromise]).then(results => {
                 let status = results[0];
-                // TODO: Do not reload page if failed; instead,
-                // show error to user
                 if (status === "completed") {
                     return DB.updateQuestionStatus(this.questionId, status);
                 } else {
