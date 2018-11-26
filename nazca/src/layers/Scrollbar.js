@@ -1,6 +1,9 @@
 // @flow
 
 import type { P5Type } from "colocorazon/dist/types/p5";
+
+import CHash from "colocorazon/dist/colorhash";
+
 import type ImageManager from "./ImageManager";
 import type TraceManager from "./TraceManager";
 
@@ -9,8 +12,7 @@ export default class Scrollbar {
 
     p: any;
     im: ImageManager;
-    tmA: TraceManager;
-    tmB: TraceManager;
+    tm: TraceManager;
     visible: boolean;
 
     left: number;
@@ -22,13 +24,11 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        traceManagerA: TraceManager,
-        traceManagerB: TraceManager
+        traceManager: TraceManager
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.tmA = opts.traceManagerA;
-        this.tmB = opts.traceManagerB;
+        this.tm = opts.traceManager;
 
         this.left = 20;
         this.top = 30;
@@ -39,33 +39,34 @@ export default class Scrollbar {
     mouseClicked(): void {}
     mousePressed(): void {}
 
-    getEntitiesA() {
-        return this.tmA.g.nodes().map(i => this.tmA.g.node(i)).map(i => {
+    getEntities() {
+        return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
+            let c = [150, 200, 50];
+            if (i.type) {
+                let h = CHash(i.type);
+                c = [h.r, h.g, h.b];
+            }
             return {
                 z: i.z,
-                color: [255, 0, 100]
+                color: c
             };
-        });
+        }).concat((this.tm.activeNode ? [{
+            z: this.tm.activeNode.z,
+            color: [255, 255, 0, 200]
+        }]: [])));
     }
 
-    getEntitiesB() {
-        return this.tmB.g.nodes().map(i => this.tmB.g.node(i)).map(i => {
-            return {
-                z: i.z,
-                color: [0, 255, 100]
-            };
-        });
-    }
     draw(): void {
         this.p.rectMode(this.p.CORNER);
-        this.p.noFill();
-        this.p.stroke(255);
+        // Draw scrollbar:
+        this.p.fill(100);
+        this.p.stroke(100);
         this.p.strokeWeight(4);
         this.p.rect(this.left, this.top, this.width, this.height);
-        this.p.fill(200);
-        this.p.rect(this.left, this.top, this.width, this.height * (this.im.currentZ / this.im.nSlices));
-        this.getEntitiesA().forEach(e => {
-            this.p.stroke(...e.color, 50);
+
+        // Draw entities:
+        this.getEntities().forEach(e => {
+            this.p.stroke(...e.color);
             let _z = this.top + (this.height * (e.z / this.im.nSlices));
             this.p.line(
                 this.left,
@@ -74,15 +75,12 @@ export default class Scrollbar {
                 _z
             );
         });
-        this.getEntitiesB().forEach(e => {
-            this.p.stroke(...e.color, 50);
-            let _z = this.top + (this.height * (e.z / this.im.nSlices));
-            this.p.line(
-                this.left,
-                _z,
-                this.width + this.left,
-                _z
-            );
-        });
+
+        // Draw thumb:
+        this.p.stroke(200);
+        this.p.line(
+            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
+        );
     }
 }

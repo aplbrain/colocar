@@ -163,8 +163,7 @@ export default class NazcaApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManagerA: self.layers.traceManagerContext,
-                        traceManagerB: self.layers.traceManagerEdge
+                        traceManager: self.layers.traceManagerEdge
                     });
 
                     // Set the order in which to render the layers. Removing layers
