@@ -455,8 +455,6 @@ export default class NazcaApp extends Component<any, any> {
             window.keycloak.profile.username,
             this.edgeId
         ).then(status => {
-            // TODO: Do not reload page if failed; instead,
-            // show error to user
             if (status === "completed") {
                 return DB.updateQuestionStatus(this.questionId, status);
             } else {
