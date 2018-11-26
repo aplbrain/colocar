@@ -126,11 +126,6 @@ export default class PointfogApp extends Component<any, any> {
                         batchSize
                     });
 
-                    self.layers["borderHighlight"] = new BorderHighlight({
-                        p,
-                        imageManager: self.layers.imageManager
-                    });
-
                     self.layers["pointcloudManager"] = new PointcloudManager({
                         p,
                         imageManager: self.layers.imageManager
@@ -151,13 +146,10 @@ export default class PointfogApp extends Component<any, any> {
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         "imageManager",
-                        "borderHighlight",
                         "crosshairs",
                         "pointcloudManager",
                         "scrollbar"
                     ];
-
-                    self.toggleOverlay();
 
                     self.setState({
                         ready: true,
@@ -367,7 +359,6 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     toggleOverlay(): void {
-        this.layers.borderHighlight.toggleVisibility();
         this.layers.crosshairs.toggleVisibility();
     }
 
