@@ -93,7 +93,6 @@ export default class NazcaApp extends Component<any, any> {
 
     graphId: string;
     questionId: string;
-    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -133,9 +132,8 @@ export default class NazcaApp extends Component<any, any> {
                     let colocardGraphEdge = question.instructions.edge.structure;
                     let volume = res.volume;
 
-                    self.graphId = question.instructions.graph._id;
+                    self.graphId = question.instructions.edge._id;
                     self.questionId = question._id;
-                    self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
@@ -182,11 +180,11 @@ export default class NazcaApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount()
+                        nodeCount: self.layers.traceManagerEdge.g.nodeCount()
                     });
 
-                    self.layers.traceManagerContext.insertStoredGraph(graphlibGraphContext);
-                    self.layers.traceManagerEdge.insertStoredGraph(graphlibGraphEdge);
+                    self.layers.traceManagerContext.g = graphlibGraphContext;
+                    self.layers.traceManagerEdge.g = graphlibGraphEdge;
 
                 }).catch(err => alert(err));
 
@@ -310,7 +308,7 @@ export default class NazcaApp extends Component<any, any> {
     updateUIStatus(): void {
         this.setState({
             currentZ: this.layers.imageManager.currentZ,
-            nodeCount: this.layers.traceManager.g.nodes().length
+            nodeCount: this.layers.traceManagerEdge.g.nodes().length
         });
     }
 
@@ -351,7 +349,7 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     reset(): void {
-        let curZ = this.layers.traceManager.getSelectedNodeZ();
+        let curZ = this.layers.traceManagerEdge.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
@@ -360,16 +358,8 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     toggleTraceVisibility(): void {
-        this.layers.traceManager.toggleVisibility();
-    }
-
-    markBookmark(): void {
-        this.layers.traceManager.markBookmark();
-    }
-    popBookmark(): void {
-        // eslint-disable-next-line no-unused-vars
-        let {x, y, z} = this.layers.traceManager.popBookmark();
-        this.layers.imageManager.setZ(z);
+        this.layers.traceManagerContext.toggleTraceVisibility();
+        this.layers.traceManagerEdge.toggleVisibility();
     }
 
     componentDidMount() {
