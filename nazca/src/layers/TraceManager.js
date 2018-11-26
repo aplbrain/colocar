@@ -304,7 +304,7 @@ export default class TraceManager {
         for (let node of this.g.nodes().map(n => this.g.node(n))) {
             let nodePos = this.transformCoords(node.x, node.y);
 
-            let color = DEFAULT_COLOR;
+            let color = this.DEFAULT_COLOR;
             let radius = DEFAULT_RADIUS;
 
             if (node.bookmarked) {
@@ -323,7 +323,7 @@ export default class TraceManager {
                 color = DENDRITE_COLOR;
                 radius = DENDRITE_RADIUS;
             } else {
-                color = DEFAULT_COLOR;
+                color = this.DEFAULT_COLOR;
                 radius = DEFAULT_RADIUS;
             }
 
@@ -351,7 +351,7 @@ export default class TraceManager {
                 this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
             } else {
                 this.p.strokeWeight(3);
-                this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
+                this.p.stroke(this.EDGE_COLOR.r, this.EDGE_COLOR.g, this.EDGE_COLOR.b);
             }
             this.p.line(nodePosU.x, nodePosU.y, nodePosV.x, nodePosV.y);
         }

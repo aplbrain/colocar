@@ -112,7 +112,7 @@ export default class NazcaApp extends Component<any, any> {
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
-                    self.layers.traceManager.mousePressed();
+                    self.layers.traceManagerContext.mousePressed();
                     self.updateUIStatus();
                 });
 
@@ -163,7 +163,8 @@ export default class NazcaApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManager,
+                        traceManagerA: self.layers.traceManagerEdge,
+                        traceManagerB: self.layers.traceManagerContext
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -364,30 +365,6 @@ export default class NazcaApp extends Component<any, any> {
 
     componentDidMount() {
         new p5(this.sketch);
-    }
-
-    insertStoredGraph(parentGraph: Object) {
-        this.setState({
-            submitInProgress: true
-        });
-        localForage.getItem(
-            `nazcaStorage-${this.questionId}`
-        ).then(storedData => {
-            let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        }).catch(() => {
-            this.layers.traceManager.insertGraph(parentGraph);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        });
     }
 
     graphlibFromColocard(graph: Object) {
