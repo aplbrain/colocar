@@ -680,7 +680,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         let yString = String(newY).padStart(5, "0");
         let zString = String(newZ).padStart(5, "0");
 
-        let checkHTML = [];
+        let artifactChecklistHTML = [];
         let artifactTags = this.state.instructions.artifact || DEFAULT_ARTIFACTS;
         let emptyArtifacts = {};
         for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
@@ -689,7 +689,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifacts = this.artifacts || emptyArtifacts;
         for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             let artifact = artifactTags[aIndex];
-            checkHTML.push(
+            artifactChecklistHTML.push(
                 <DialogContent key={`artifact_${artifact}`}>
                     <Checkbox
                         checked={artifacts[artifact][newZ]}
@@ -755,7 +755,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                             <DialogTitle>
                                 Volume Artifacts: z={newZ}
                             </DialogTitle>
-                            {checkHTML}
+                            {artifactChecklistHTML}
                         </Dialog>
 
                         <Snackbar
