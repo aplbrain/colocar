@@ -45,6 +45,12 @@ export default class Scrollbar {
         });
     }
 
+    rescaleZ(oldZ: number): number {
+        let nSlots = this.im.nSlices-1;
+        let newZ = this.top + (this.height * (oldZ / nSlots));
+        return newZ;
+    }
+
     draw(): void {
         this.p.rectMode(this.p.CORNER);
         // Draw scrollbar:
@@ -56,7 +62,7 @@ export default class Scrollbar {
         // Draw entities:
         this.getEntities().forEach(e => {
             this.p.stroke(...e.color);
-            let _z = this.top + (this.height * (e.z / this.im.nSlices));
+            let _z = this.rescaleZ(e.z);
             this.p.line(
                 this.left,
                 _z,
@@ -68,8 +74,8 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
-            this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
+            this.left, this.rescaleZ(this.im.currentZ),
+            this.left + this.width, this.rescaleZ(this.im.currentZ)
         );
     }
 }

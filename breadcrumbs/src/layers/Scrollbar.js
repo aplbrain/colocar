@@ -1,18 +1,15 @@
 // @flow
 
-import type { P5Type } from "colocorazon/dist/types/p5";
-
-import CHash from "colocorazon/dist/colorhash";
-
+import type { P5Type } from "colocorazon/dist/types/p5Types";
 import type ImageManager from "./ImageManager";
-import type TraceManager from "./TraceManager";
+import type PointcloudManager from "./PointcloudManager";
 
 
 export default class Scrollbar {
 
     p: any;
     im: ImageManager;
-    tm: TraceManager;
+    pm: PointcloudManager;
     visible: boolean;
 
     left: number;
@@ -24,11 +21,11 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        traceManager: TraceManager
+        pointcloudManager: PointcloudManager
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.tm = opts.traceManager;
+        this.pm = opts.pointcloudManager;
 
         this.left = 20;
         this.top = 30;
@@ -40,20 +37,18 @@ export default class Scrollbar {
     mousePressed(): void {}
 
     getEntities() {
-        return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
-            let c = [150, 200, 50];
-            if (i.type) {
-                let h = CHash(i.type);
-                c = [h.r, h.g, h.b];
-            }
+        return this.pm.nodes.map(i => {
             return {
                 z: i.z,
-                color: c
+                color: [0, 150, 200, 40]
             };
-        }).concat((this.tm.activeNode ? [{
-            z: this.tm.activeNode.z,
-            color: [255, 255, 0, 200]
-        }]: [])));
+        });
+    }
+
+    rescaleZ(oldZ: number): number {
+        let nSlots = this.im.nSlices-1;
+        let newZ = this.top + (this.height * (oldZ / nSlots));
+        return newZ;
     }
 
     draw(): void {
@@ -67,7 +62,7 @@ export default class Scrollbar {
         // Draw entities:
         this.getEntities().forEach(e => {
             this.p.stroke(...e.color);
-            let _z = this.top + (this.height * (e.z / this.im.nSlices));
+            let _z = this.rescaleZ(e.z);
             this.p.line(
                 this.left,
                 _z,
@@ -79,8 +74,8 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
-            this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
+            this.left, this.rescaleZ(this.im.currentZ),
+            this.left + this.width, this.rescaleZ(this.im.currentZ)
         );
     }
 }
