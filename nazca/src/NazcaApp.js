@@ -206,6 +206,7 @@ export default class NazcaApp extends Component<any, any> {
                 const sKey = 83;
                 const tKey = 84;
                 const wKey = 87;
+                const yKey = 66;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -216,6 +217,7 @@ export default class NazcaApp extends Component<any, any> {
                 switch (p.keyCode) {
                 // decision logic
                 case bKey:
+                case yKey:
                     self.submitGraphDecision("yes");
                     break;
                 case nKey:
