@@ -50,6 +50,14 @@ const STYLES = {
     qid: {
         userSelect: "text"
     },
+    graphLegendContext: {
+        backgroundColor: "rgb(200, 90, 200)",
+        color: "white"
+    },
+    graphLegendEdge: {
+        backgroundColor: "rgb(90, 200, 90)",
+        color: "white"
+    },
     yes: {
         position: "fixed",
         right: "2em",
@@ -551,6 +559,20 @@ export default class NazcaApp extends Component<any, any> {
                                             {this.questionId || ""}
                                         </code>
                                     </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendContext"]}>
+                                        Context
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendEdge"]}>
+                                        Edge
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
