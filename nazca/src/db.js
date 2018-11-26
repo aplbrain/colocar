@@ -89,7 +89,7 @@ class Colocard implements Database {
                 .then((resList: Array<Response>) => {
                     let jsonList = resList.map(res => res.json());
                     return Promise.all(jsonList);
-            });
+                });
             let fullQuestionPromise = graphPromises.then((graphList: any) => {
                 question.instructions.context = graphList[0];
                 question.instructions.edge = graphList[1];
