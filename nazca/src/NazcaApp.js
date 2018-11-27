@@ -50,12 +50,12 @@ const STYLES = {
     qid: {
         userSelect: "text"
     },
-    graphLegendContext: {
-        backgroundColor: "rgb(200, 90, 200)",
+    graphLegendCandidate: {
+        backgroundColor: "rgb(90, 200, 90)",
         color: "white"
     },
-    graphLegendEdge: {
-        backgroundColor: "rgb(90, 200, 90)",
+    graphLegendContext: {
+        backgroundColor: "rgb(200, 90, 200)",
         color: "white"
     },
     yes: {
@@ -91,7 +91,7 @@ export default class NazcaApp extends Component<any, any> {
         submitInProgress: boolean
     };
 
-    edgeId: string;
+    candidateId: string;
     questionId: string;
     volume: Object;
 
@@ -128,24 +128,30 @@ export default class NazcaApp extends Component<any, any> {
                         throw new Error("failed to fetch question");
                     }
                     let question = res.question;
+                    let colocardGraphCandidate = question.instructions.candidate.structure;
                     let colocardGraphContext = question.instructions.context.structure;
-                    let colocardGraphEdge = question.instructions.edge.structure;
                     let volume = res.volume;
 
-                    self.edgeId = question.instructions.edge._id;
+                    self.candidateId = question.instructions.candidate._id;
                     self.questionId = question._id;
                     self.volume = volume;
                     let batchSize = 10;
 
+                    let graphlibGraphCandidate = self.graphlibFromColocard(colocardGraphCandidate);
                     let graphlibGraphContext = self.graphlibFromColocard(colocardGraphContext);
-                    let graphlibGraphEdge = self.graphlibFromColocard(colocardGraphEdge);
-                    let startingZ = graphlibGraphEdge.node(graphlibGraphEdge.nodes()[0]).z;
+                    let startingZ = graphlibGraphCandidate.node(graphlibGraphCandidate.nodes()[0]).z;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         volume,
                         batchSize,
                         startingZ: startingZ
+                    });
+
+                    self.layers["traceManagerCandidate"] = new TraceManager({
+                        p,
+                        imageManager: self.layers.imageManager,
+                        startingGraph: null
                     });
 
                     self.layers["traceManagerContext"] = new TraceManager({
@@ -156,16 +162,10 @@ export default class NazcaApp extends Component<any, any> {
                         EDGE_COLOR: { r: 170, g: 60, b: 170 }
                     });
 
-                    self.layers["traceManagerEdge"] = new TraceManager({
-                        p,
-                        imageManager: self.layers.imageManager,
-                        startingGraph: null
-                    });
-
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManagerEdge
+                        traceManager: self.layers.traceManagerCandidate
                     });
 
                     // Set the order in which to render the layers. Removing layers
@@ -173,7 +173,7 @@ export default class NazcaApp extends Component<any, any> {
                     self.renderOrder = [
                         'imageManager',
                         'traceManagerContext',
-                        'traceManagerEdge',
+                        'traceManagerCandidate',
                         'scrollbar'
                     ];
 
@@ -182,11 +182,11 @@ export default class NazcaApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManagerEdge.g.nodeCount()
+                        nodeCount: self.layers.traceManagerCandidate.g.nodeCount()
                     });
 
+                    self.layers.traceManagerCandidate.g = graphlibGraphCandidate;
                     self.layers.traceManagerContext.g = graphlibGraphContext;
-                    self.layers.traceManagerEdge.g = graphlibGraphEdge;
 
                 }).catch(err => alert(err));
 
@@ -312,7 +312,7 @@ export default class NazcaApp extends Component<any, any> {
     updateUIStatus(): void {
         this.setState({
             currentZ: this.layers.imageManager.currentZ,
-            nodeCount: this.layers.traceManagerEdge.g.nodes().length
+            nodeCount: this.layers.traceManagerCandidate.g.nodes().length
         });
     }
 
@@ -353,7 +353,7 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     reset(): void {
-        let curZ = this.layers.traceManagerEdge.getSelectedNodeZ();
+        let curZ = this.layers.traceManagerCandidate.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
@@ -362,8 +362,8 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     toggleTraceVisibility(): void {
+        this.layers.traceManagerCandidate.toggleVisibility();
         this.layers.traceManagerContext.toggleTraceVisibility();
-        this.layers.traceManagerEdge.toggleVisibility();
     }
 
     componentDidMount() {
@@ -453,7 +453,7 @@ export default class NazcaApp extends Component<any, any> {
         return DB.postGraphDecision(
             decision,
             window.keycloak.profile.username,
-            this.edgeId
+            this.candidateId
         ).then(status => {
             if (status === "completed") {
                 return DB.updateQuestionStatus(this.questionId, status);
@@ -531,15 +531,15 @@ export default class NazcaApp extends Component<any, any> {
                             </tr>
                             <tr>
                                 <td colSpan={2}>
-                                    <div style={STYLES["graphLegendContext"]}>
-                                        Context
+                                    <div style={STYLES["graphLegendCandidate"]}>
+                                        Candidate
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td colSpan={2}>
-                                    <div style={STYLES["graphLegendEdge"]}>
-                                        Edge
+                                    <div style={STYLES["graphLegendContext"]}>
+                                        Context
                                     </div>
                                 </td>
                             </tr>
