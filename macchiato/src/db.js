@@ -89,7 +89,7 @@ class Colocard {
     }
 
     _setOpenStatus(question: Question) {
-        let statusPromise = new Promise((resolve) => resolve(null));
+        let statusPromise = Promise.resolve();
         if (question.status !== "open") {
             statusPromise = fetch(`${this.url}/questions/${question._id}/status`, {
                 headers: this.headers,
