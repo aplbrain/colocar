@@ -626,7 +626,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 style={{ margin: "0.5em 0" }}
                                 label={"confidence"}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: CHash("confidence", 'hex') }}>{ "c".toUpperCase() }</Avatar>
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "c".toUpperCase() }</Avatar>
                                 }
                             />
                         </Tooltip>
