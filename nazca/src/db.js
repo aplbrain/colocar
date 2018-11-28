@@ -76,23 +76,23 @@ class Colocard implements Database {
             volume.collection = splitUri[nUri-3];
             volume.experiment = splitUri[nUri-2];
             volume.channel = splitUri[nUri-1];
+            let candidateId = question.instructions.candidate;
+            let candidatePromise = fetch(`${this.url}/graphs/${candidateId}`, {
+                headers: this.headers
+            });
             let contextId = question.instructions.context;
             let contextPromise = fetch(`${this.url}/graphs/${contextId}`, {
                 headers: this.headers
             });
-            let edgeId = question.instructions.edge;
-            let edgePromise = fetch(`${this.url}/graphs/${edgeId}`, {
-                headers: this.headers
-            });
             let graphPromises = Promise
-                .all([contextPromise, edgePromise])
+                .all([candidatePromise, contextPromise])
                 .then((resList: Array<Response>) => {
                     let jsonList = resList.map(res => res.json());
                     return Promise.all(jsonList);
                 });
             let fullQuestionPromise = graphPromises.then((graphList: any) => {
-                question.instructions.context = graphList[0];
-                question.instructions.edge = graphList[1];
+                question.instructions.candidate = graphList[0];
+                question.instructions.context = graphList[1];
                 let statusPromise = this._setOpenStatus(question);
                 return statusPromise.then(() => {
                     return {question, volume};
