@@ -24,6 +24,14 @@ let p5: P5Type = window.p5;
 
 let DB = new Colocard();
 
+const CANDIDATE_LEGEND_COLOR = "rgb(90, 200, 90)";
+const CANDIDATE_NODE_COLOR = {"r": 90, "g": 200, "b": 90};
+const CANDIDATE_EDGE_COLOR = {"r": 60, "g": 170, "b": 60};
+
+const CONTEXT_LEGEND_COLOR = "rgb(200, 90, 200)";
+const CONTEXT_NODE_COLOR = {"r": 200, "g": 90, "b": 200};
+const CONTEXT_EDGE_COLOR = {"r": 170, "g": 60, "b": 170};
+
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
@@ -51,11 +59,11 @@ const STYLES = {
         userSelect: "text"
     },
     graphLegendCandidate: {
-        backgroundColor: "rgb(90, 200, 90)",
+        backgroundColor: CANDIDATE_LEGEND_COLOR,
         color: "white"
     },
     graphLegendContext: {
-        backgroundColor: "rgb(200, 90, 200)",
+        backgroundColor: CONTEXT_LEGEND_COLOR,
         color: "white"
     },
     yes: {
@@ -151,15 +159,17 @@ export default class NazcaApp extends Component<any, any> {
                     self.layers["traceManagerCandidate"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: null
+                        startingGraph: null,
+                        DEFAULT_COLOR: CANDIDATE_NODE_COLOR,
+                        EDGE_COLOR: CANDIDATE_EDGE_COLOR
                     });
 
                     self.layers["traceManagerContext"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: null,
-                        DEFAULT_COLOR: { r: 200, g: 90, b: 200 },
-                        EDGE_COLOR: { r: 170, g: 60, b: 170 }
+                        DEFAULT_COLOR: CONTEXT_NODE_COLOR,
+                        EDGE_COLOR: CONTEXT_EDGE_COLOR
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
