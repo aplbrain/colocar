@@ -160,16 +160,16 @@ export default class NazcaApp extends Component<any, any> {
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: null,
-                        DEFAULT_COLOR: CANDIDATE_NODE_COLOR,
-                        EDGE_COLOR: CANDIDATE_EDGE_COLOR
+                        nodeColor: CANDIDATE_NODE_COLOR,
+                        edgeColor: CANDIDATE_EDGE_COLOR
                     });
 
                     self.layers["traceManagerContext"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
                         startingGraph: null,
-                        DEFAULT_COLOR: CONTEXT_NODE_COLOR,
-                        EDGE_COLOR: CONTEXT_EDGE_COLOR
+                        nodeColor: CONTEXT_NODE_COLOR,
+                        edgeColor: CONTEXT_EDGE_COLOR
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
