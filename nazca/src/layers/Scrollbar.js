@@ -40,19 +40,21 @@ export default class Scrollbar {
     mousePressed(): void {}
 
     getEntities() {
+        let defaultColor = [150, 200, 50];
+        let activeColor = [255, 255, 0, 200];
         return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
-            let c = [150, 200, 50];
+            let color = defaultColor;
             if (i.type) {
                 let h = CHash(i.type);
-                c = [h.r, h.g, h.b];
+                color = [h.r, h.g, h.b];
             }
             return {
                 z: i.z,
-                color: c
+                color: color
             };
         }).concat((this.tm.activeNode ? [{
             z: this.tm.activeNode.z,
-            color: [255, 255, 0, 200]
+            color: activeColor
         }]: [])));
     }
 
