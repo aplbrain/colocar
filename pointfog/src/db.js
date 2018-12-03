@@ -76,21 +76,26 @@ class Colocard implements Database {
             volume.collection = splitUri[nUri-3];
             volume.experiment = splitUri[nUri-2];
             volume.channel = splitUri[nUri-1];
-            this._setOpenStatus(question);
-            return {
-                question,
-                volume
-            };
+            return this._setOpenStatus(question).then(() => {
+                return {
+                    question,
+                    volume
+                };
+            });
         });
         return questionPromise;
     }
 
     _setOpenStatus(question: Question) {
-        return fetch(`${this.url}/questions/${question._id}/status`, {
-            headers: this.headers,
-            method: "PATCH",
-            body: JSON.stringify({"status": "open"})
-        });
+        let statusPromise = Promise.resolve();
+        if (question.status !== "open") {
+            statusPromise = fetch(`${this.url}/questions/${question._id}/status`, {
+                headers: this.headers,
+                method: "PATCH",
+                body: JSON.stringify({"status": "open"})
+            });
+        }
+        return statusPromise;
     }
 
     _onException(reason: Error) {

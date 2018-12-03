@@ -93,8 +93,7 @@ class Colocard implements Database {
             let fullQuestionPromise = graphPromises.then((graphList: any) => {
                 question.instructions.candidate = graphList[0];
                 question.instructions.context = graphList[1];
-                let statusPromise = this._setOpenStatus(question);
-                return statusPromise.then(() => {
+                return this._setOpenStatus(question).then(() => {
                     return {question, volume};
                 });
             });
@@ -104,11 +103,15 @@ class Colocard implements Database {
     }
 
     _setOpenStatus(question: Question) {
-        return fetch(`${this.url}/questions/${question._id}/status`, {
-            headers: this.headers,
-            method: "PATCH",
-            body: JSON.stringify({"status": "open"})
-        });
+        let statusPromise = Promise.resolve();
+        if (question.status !== "open") {
+            statusPromise = fetch(`${this.url}/questions/${question._id}/status`, {
+                headers: this.headers,
+                method: "PATCH",
+                body: JSON.stringify({"status": "open"})
+            });
+        }
+        return statusPromise;
     }
 
     _onException(reason: Error) {
