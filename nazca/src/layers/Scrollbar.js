@@ -40,8 +40,8 @@ export default class Scrollbar {
     mousePressed(): void {}
 
     getEntities() {
-        let defaultColor = [150, 200, 50];
-        let activeColor = [255, 255, 0, 200];
+        let defaultColor = [150, 200, 50]; // light yellow-green
+        let activeColor = [255, 255, 0, 200]; // yellow
         return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
             let color = defaultColor;
             if (i.type) {
