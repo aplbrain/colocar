@@ -471,7 +471,8 @@ export default class PointfogApp extends Component<any, any> {
         let nodeType = this.state.instructions.type;
         let nodeKey = nodeType[0]? nodeType[0].toUpperCase(): "";
         let nodeCount = this.layers? this.layers.pointcloudManager.getNodes().length: 0;
-        let chipHTML = (
+        let chipHTML = [];
+        chipHTML.push(
             <div>
                 <div style={{ float: "right" }}>
                     <Tooltip title={prompt}>
@@ -486,6 +487,24 @@ export default class PointfogApp extends Component<any, any> {
                 </div>
             </div>
         );
+
+        if (this.confidence) {
+            chipHTML.push(
+                <div>
+                    <div style={{ float: "right" }}>
+                        <Tooltip title={"Mark nodes as being low-confidence."}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={"confidence"}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        }
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;

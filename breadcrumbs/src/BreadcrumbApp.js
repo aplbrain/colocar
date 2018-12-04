@@ -617,6 +617,23 @@ export default class BreadcrumbApp extends Component<any, any> {
                 </div>
             );
         }
+        if (this.confidence) {
+            chipHTML.push(
+                <div>
+                    <div style={{ float: "right" }}>
+                        <Tooltip title={"Mark nodes as being low-confidence."}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={"confidence"}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        }
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
