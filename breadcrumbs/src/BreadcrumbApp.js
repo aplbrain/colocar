@@ -619,14 +619,14 @@ export default class BreadcrumbApp extends Component<any, any> {
         }
         if (this.confidence) {
             chipHTML.push(
-                <div key={"c"}>
+                <div>
                     <div style={{ float: "right" }}>
                         <Tooltip title={"Mark nodes as being low-confidence."}>
                             <Chip
                                 style={{ margin: "0.5em 0" }}
                                 label={"confidence"}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: "white" }}>{ "c".toUpperCase() }</Avatar>
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
                                 }
                             />
                         </Tooltip>
