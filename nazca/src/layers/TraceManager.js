@@ -14,8 +14,8 @@ const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
 const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // bright green
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
-const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
-const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
+const DEFAULT_NODE_COLOR = { r: 90, g: 200, b: 90 }; // dark green
+const DEFAULT_EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
 
 // Radius of an axon marker
 const AXON_RADIUS = 25;
@@ -38,6 +38,8 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
+    nodeColor: ?Object;
+    edgeColor: ?Object;
 
     drawHinting: boolean;
     visibility: boolean;
@@ -47,9 +49,13 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
+        nodeColor?: Object,
+        edgeColor?: Object
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
+        this.nodeColor = opts.nodeColor || DEFAULT_NODE_COLOR;
+        this.edgeColor = opts.edgeColor || DEFAULT_EDGE_COLOR;
         this.g = new graphlib.Graph({
             directed: true
         });
@@ -298,7 +304,7 @@ export default class TraceManager {
         for (let node of this.g.nodes().map(n => this.g.node(n))) {
             let nodePos = this.transformCoords(node.x, node.y);
 
-            let color = DEFAULT_COLOR;
+            let color = this.nodeColor;
             let radius = DEFAULT_RADIUS;
 
             if (node.bookmarked) {
@@ -317,7 +323,7 @@ export default class TraceManager {
                 color = DENDRITE_COLOR;
                 radius = DENDRITE_RADIUS;
             } else {
-                color = DEFAULT_COLOR;
+                color = this.nodeColor;
                 radius = DEFAULT_RADIUS;
             }
 
@@ -345,7 +351,7 @@ export default class TraceManager {
                 this.p.stroke(`rgba(0, 0, 0, ${diminishingFactor * .5})`);
             } else {
                 this.p.strokeWeight(3);
-                this.p.stroke(EDGE_COLOR.r, EDGE_COLOR.g, EDGE_COLOR.b);
+                this.p.stroke(this.edgeColor.r, this.edgeColor.g, this.edgeColor.b);
             }
             this.p.line(nodePosU.x, nodePosU.y, nodePosV.x, nodePosV.y);
         }

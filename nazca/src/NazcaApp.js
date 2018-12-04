@@ -24,6 +24,14 @@ let p5: P5Type = window.p5;
 
 let DB = new Colocard();
 
+const CANDIDATE_LEGEND_COLOR = "rgb(90, 200, 90)";
+const CANDIDATE_NODE_COLOR = {"r": 90, "g": 200, "b": 90};
+const CANDIDATE_EDGE_COLOR = {"r": 60, "g": 170, "b": 60};
+
+const CONTEXT_LEGEND_COLOR = "rgb(200, 90, 200)";
+const CONTEXT_NODE_COLOR = {"r": 200, "g": 90, "b": 200};
+const CONTEXT_EDGE_COLOR = {"r": 170, "g": 60, "b": 170};
+
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
@@ -49,6 +57,14 @@ const STYLES = {
     },
     qid: {
         userSelect: "text"
+    },
+    graphLegendCandidate: {
+        backgroundColor: CANDIDATE_LEGEND_COLOR,
+        color: "white"
+    },
+    graphLegendContext: {
+        backgroundColor: CONTEXT_LEGEND_COLOR,
+        color: "white"
     },
     yes: {
         position: "fixed",
@@ -83,9 +99,8 @@ export default class NazcaApp extends Component<any, any> {
         submitInProgress: boolean
     };
 
-    graphId: string;
+    candidateId: string;
     questionId: string;
-    questionType: string;
     volume: Object;
 
     constructor(props: Object) {
@@ -105,7 +120,7 @@ export default class NazcaApp extends Component<any, any> {
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
                 canvas.mousePressed(function() {
-                    self.layers.traceManager.mousePressed();
+                    self.layers.traceManagerContext.mousePressed();
                     self.updateUIStatus();
                 });
 
@@ -121,40 +136,54 @@ export default class NazcaApp extends Component<any, any> {
                         throw new Error("failed to fetch question");
                     }
                     let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
+                    let colocardGraphCandidate = question.instructions.candidate.structure;
+                    let colocardGraphContext = question.instructions.context.structure;
                     let volume = res.volume;
 
-                    self.graphId = question.instructions.graph._id;
+                    self.candidateId = question.instructions.candidate._id;
                     self.questionId = question._id;
-                    self.questionType = question.instructions.type;
                     self.volume = volume;
                     let batchSize = 10;
 
-                    let graphlibGraph = self.graphlibFromColocard(colocardGraph);
+                    let graphlibGraphCandidate = self.graphlibFromColocard(colocardGraphCandidate);
+                    let graphlibGraphContext = self.graphlibFromColocard(colocardGraphContext);
+                    let startingZ = graphlibGraphCandidate.node(graphlibGraphCandidate.nodes()[0]).z;
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
                         volume,
-                        batchSize
+                        batchSize,
+                        startingZ: startingZ
                     });
 
-                    self.layers["traceManager"] = new TraceManager({
+                    self.layers["traceManagerCandidate"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: null
+                        startingGraph: null,
+                        nodeColor: CANDIDATE_NODE_COLOR,
+                        edgeColor: CANDIDATE_EDGE_COLOR
+                    });
+
+                    self.layers["traceManagerContext"] = new TraceManager({
+                        p,
+                        imageManager: self.layers.imageManager,
+                        startingGraph: null,
+                        nodeColor: CONTEXT_NODE_COLOR,
+                        edgeColor: CONTEXT_EDGE_COLOR
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManager,
+                        traceManager: self.layers.traceManagerCandidate
                     });
 
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         'imageManager',
-                        'traceManager',
+                        'traceManagerContext',
+                        'traceManagerCandidate',
                         'scrollbar'
                     ];
 
@@ -163,10 +192,11 @@ export default class NazcaApp extends Component<any, any> {
                         scale: self.layers.imageManager.scale,
                         questionId: self.questionId,
                         currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount()
+                        nodeCount: self.layers.traceManagerCandidate.g.nodeCount()
                     });
 
-                    self.insertStoredGraph(graphlibGraph);
+                    self.layers.traceManagerCandidate.g = graphlibGraphCandidate;
+                    self.layers.traceManagerContext.g = graphlibGraphContext;
 
                 }).catch(err => alert(err));
 
@@ -187,6 +217,7 @@ export default class NazcaApp extends Component<any, any> {
                 const sKey = 83;
                 const tKey = 84;
                 const wKey = 87;
+                const yKey = 66;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -197,6 +228,7 @@ export default class NazcaApp extends Component<any, any> {
                 switch (p.keyCode) {
                 // decision logic
                 case bKey:
+                case yKey:
                     self.submitGraphDecision("yes");
                     break;
                 case nKey:
@@ -290,7 +322,7 @@ export default class NazcaApp extends Component<any, any> {
     updateUIStatus(): void {
         this.setState({
             currentZ: this.layers.imageManager.currentZ,
-            nodeCount: this.layers.traceManager.g.nodes().length
+            nodeCount: this.layers.traceManagerCandidate.g.nodes().length
         });
     }
 
@@ -331,7 +363,7 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     reset(): void {
-        let curZ = this.layers.traceManager.getSelectedNodeZ();
+        let curZ = this.layers.traceManagerCandidate.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
@@ -340,44 +372,12 @@ export default class NazcaApp extends Component<any, any> {
     }
 
     toggleTraceVisibility(): void {
-        this.layers.traceManager.toggleVisibility();
-    }
-
-    markBookmark(): void {
-        this.layers.traceManager.markBookmark();
-    }
-    popBookmark(): void {
-        // eslint-disable-next-line no-unused-vars
-        let {x, y, z} = this.layers.traceManager.popBookmark();
-        this.layers.imageManager.setZ(z);
+        this.layers.traceManagerCandidate.toggleVisibility();
+        this.layers.traceManagerContext.toggleTraceVisibility();
     }
 
     componentDidMount() {
         new p5(this.sketch);
-    }
-
-    insertStoredGraph(parentGraph: Object) {
-        this.setState({
-            submitInProgress: true
-        });
-        localForage.getItem(
-            `nazcaStorage-${this.questionId}`
-        ).then(storedData => {
-            let storedGraph = graphlib.json.read(storedData.graphStr);
-            this.layers.traceManager.insertGraph(storedGraph, storedData.activeNodeId);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        }).catch(() => {
-            this.layers.traceManager.insertGraph(parentGraph);
-            this.setState({
-                submitInProgress: false
-            });
-            this.reset();
-            this.updateUIStatus();
-        });
     }
 
     graphlibFromColocard(graph: Object) {
@@ -463,10 +463,8 @@ export default class NazcaApp extends Component<any, any> {
         return DB.postGraphDecision(
             decision,
             window.keycloak.profile.username,
-            this.graphId
+            this.candidateId
         ).then(status => {
-            // TODO: Do not reload page if failed; instead,
-            // show error to user
             if (status === "completed") {
                 return DB.updateQuestionStatus(this.questionId, status);
             } else {
@@ -539,6 +537,20 @@ export default class NazcaApp extends Component<any, any> {
                                             {this.questionId || ""}
                                         </code>
                                     </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendCandidate"]}>
+                                        Candidate
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <div style={STYLES["graphLegendContext"]}>
+                                        Context
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
