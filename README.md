@@ -10,6 +10,20 @@ Welcome to **colocar**! This repository houses a number of React.js- and p5.js-b
 
 These are primarily used through deployment to Amazon Web Services (AWS), but they can also be run locally with ease. In either case, they require access to a spatial database that houses the data to be annotated and a document-oriented database to receive the annotations. In particular, the current production workflow pulls imagery from [the Boss](https://github.com/jhuapl-boss/boss) and pushes annotations to [colocard](https://github.com/aplbrain/colocard).
 
+## Setup
+### Preamble: colocorazon
+First, one must build the shared libraries, found in colocorazon. This can be done by cd-ing into colocorazon and running `yarn && yarn build`. This will transpile the shared libraries into browser-friendly, old-timey JavaScript.
+
+### Amble: installing dependencies
+Next, the apps require pulling modules into their node_modules. At present, this can be done by cd-ing into the app directory and running `yarn`.
+
+### Postamble: with your powers combined!
+Finally, with all dependencies built and installed, we are ready to run and deploy our apps.
+
+## Running Locally
+
+## Deploying to AWS
+
 ## Directories
 
 
