@@ -6,7 +6,7 @@
 </p>
 
 ## Introduction
-Welcome to *colocar*! This repository houses a number of React.js- and p5.js-based tools for sparse annotations of three-dimensional (primarily spatial) datasets and complementary tools for validation of those sparse annotations.
+Welcome to **colocar**! This repository houses a number of React.js- and p5.js-based tools for sparse annotations of three-dimensional (primarily spatial) datasets and complementary tools for validation of those sparse annotations.
 
 These are primarily used through deployment to Amazon Web Services (AWS), but they can also be run locally with ease. In either case, they require access to a spatial database that houses the data to be annotated and a document-oriented database to receive the annotations. In particular, the current production workflow pulls imagery from [the Boss](https://github.com/jhuapl-boss/boss) and pushes annotations to [colocard](https://github.com/aplbrain/colocard).
 
