@@ -21,8 +21,21 @@ Next, the apps require pulling modules into their node_modules. At present, this
 Finally, with all dependencies built and installed, we are ready to run and deploy our apps.
 
 ## Running Locally
+Each of the apps has a configuration file in the src directory called _config.json. Point this configuration file at the colocard host URL before launching.
+
+At this stage, the apps can be run locally by cd-ing into their directories and running `yarn start`. When the browser launches a window, it will prompt you to enter credentials to the Boss. After successful entry, you will have access to the image data and the web app.
 
 ## Deploying to AWS
+Each of the colocar apps can be easily built and deployed to AWS using the handy script,  **colocart**. This tool requires a python3 installation with the libraries boto3, click, and colored.
+
+Be sure that the apps have already been set up on AWS via the [quickstart-website](https://console.aws.amazon.com/quickstart-website/home) portal (deprecated). This connects a CloudFront service to a particular S3 bucket. The name of that S3 bucket must be entered into the build.cfg file such that the contents are as follows.
+
+```
+[UPLOAD]
+BucketName = <S3-BUCKET-NAME-OF-APP>
+```
+
+Once the apps have had their dependencies installed, the python3 environment is ready, and the configuration file is updated, one can use `./colocart build <APP-NAME> && ./colocart deploy <APP-NAME>` to deploy a fresh version of the current working directory to AWS.
 
 ## Directories
 
