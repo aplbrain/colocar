@@ -564,16 +564,6 @@ export default class BreadcrumbApp extends Component<any, any> {
             let graph = this.graphlibToColocard(
                 this.layers.traceManager.exportGraph()
             );
-            // convert artifacts to flattened array
-            let artifactsArray = [];
-            for (let artifact in this.artifacts) {
-                for (let zIndex in this.artifacts[artifact]) {
-                    artifactsArray.push({
-                        "type": artifact,
-                        "zslice": zIndex
-                    });
-                }
-            }
             let graphPromise = DB.postGraph(
                 window.keycloak.profile.username,
                 this.graphId,
@@ -582,7 +572,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             );
             let artifactPromise = DB.postArtifacts(
                 this.questionId,
-                artifactsArray
+                this.artifacts
             );
             Promise.all([graphPromise, artifactPromise]).then(results => {
                 let status = results[0];
