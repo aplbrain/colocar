@@ -570,7 +570,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 for (let zIndex in this.artifacts[artifact]) {
                     artifactsArray.push({
                         "type": artifact,
-                        "zIndex": zIndex
+                        "zslice": zIndex
                     });
                 }
             }
