@@ -139,10 +139,10 @@ class Colocard implements Database {
     }
 
     postArtifacts(questionId: string, artifacts: Array<Object>): Promise<Response> {
-        return fetch(`${this.url}/questions/${questionId}/metadata/artifacts`, {
+        return fetch(`${this.url}/questions/${questionId}/artifacts`, {
             headers: this.headers,
             method: "PATCH",
-            body: JSON.stringify({artifacts})
+            body: JSON.stringify(artifacts)
         });
     }
 
