@@ -477,7 +477,13 @@ export default class PointfogApp extends Component<any, any> {
 
                 return newNode;
             });
-            return DB.postNodes(transformedNodes).then(status => {
+            let nodePromise = DB.postNodes(transformedNodes);
+            let artifactPromise = DB.postArtifacts(
+                this.questionId,
+                this.artifacts
+            );
+            Promise.all([nodePromise, artifactPromise]).then(results => {
+                let status = results[0];
                 if (status === "completed") {
                     return DB.updateQuestionStatus(this.questionId, status);
                 } else {
@@ -485,9 +491,11 @@ export default class PointfogApp extends Component<any, any> {
                 }
             }).then(() => {
                 this.setState({
-                    saveInProgress: false
+                    saveInProgress: true
                 });
-                return localForage.removeItem(`pointfogStorage-${this.questionId}`);
+                return localForage.removeItem(
+                    `pointfogStorage-${this.questionId}`
+                );
             }).then(() => {
                 // eslint-disable-next-line no-restricted-globals
                 location.reload(true);
