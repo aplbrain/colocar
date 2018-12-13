@@ -136,10 +136,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.questionId = question._id;
                     self.nodeType = question.instructions.type || DEFAULT_NODE_TYPE;
                     self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
-                    let emptyArtifacts = {};
-                    for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
-                        emptyArtifacts[self.artifactTags[aIndex]] = {};
-                    }
+                    let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
 
                     self.volume = volume;
@@ -369,13 +366,27 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     insertStoredNodes() {
-        localForage.getItem(`pointfogStorage-${this.questionId}`).then(nodes => {
-            nodes = nodes || [];
-            nodes.forEach(node => {
+        this.setState({
+            saveInProgress: true
+        });
+        localForage.getItem(
+            `pointfogStorage-${this.questionId}`
+        ).then(storedData => {
+            let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
+            this.artifacts = storedData.artifacts || emptyArtifacts;
+            let storedNodes = storedData.nodes || [];
+            storedNodes.forEach(node => {
                 this.layers.pointcloudManager.addNode(node.id, node);
             });
-            this.layers.pointcloudManager.selectedNode = nodes.slice(-1)[0];
+            this.layers.pointcloudManager.selectedNode = storedNodes.slice(-1)[0];
+            this.setState({
+                saveInProgress: false
+            });
             this.updateUIStatus();
+        }).catch(() => {
+            this.setState({
+                saveInProgress: false
+            });
         });
     }
 
@@ -417,10 +428,14 @@ export default class PointfogApp extends Component<any, any> {
         this.setState({
             saveInProgress: true
         });
+        let artifacts = this.artifacts;
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
             `pointfogStorage-${this.questionId}`,
-            nodes,
+            {
+                artifacts,
+                nodes
+            }
         ).then(() => {
             this.setState({
                 saveInProgress: false
@@ -503,6 +518,14 @@ export default class PointfogApp extends Component<any, any> {
         this.setState({ snackbarOpen: true });
     }
 
+    getEmptyArtifacts(artifactTags: Array<string>): Object {
+        let emptyArtifacts = {};
+        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+            emptyArtifacts[artifactTags[aIndex]] = {};
+        }
+        return emptyArtifacts;
+    }
+
     render() {
         let prompt = this.state.instructions.prompt;
         let nodeType = this.state.instructions.type;
@@ -550,11 +573,8 @@ export default class PointfogApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let artifactChecklistHTML = [];
-        let artifactTags = this.state.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
-        let emptyArtifacts = {};
-        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
-            emptyArtifacts[artifactTags[aIndex]] = {};
-        }
+        let artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+        let emptyArtifacts = this.getEmptyArtifacts(artifactTags);
         let artifacts = this.artifacts || emptyArtifacts;
         for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             let artifact = artifactTags[aIndex];
