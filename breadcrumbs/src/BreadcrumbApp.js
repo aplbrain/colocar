@@ -440,9 +440,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         localForage.getItem(
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
+            this.artifacts = storedData.artifacts;
             let storedGraph = graphlib.json.read(storedData.graphStr);
             this.layers.traceManager.insertCachedGraph(storedGraph, storedData.activeNodeId);
-            this.artifacts = JSON.parse(storedData.artifacts);
             this.setState({
                 saveInProgress: false
             });
@@ -462,15 +462,15 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({
             saveInProgress: true
         });
+        let artifacts = this.artifacts;
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
         let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
-        let artifacts = JSON.stringify(this.artifacts);
         localForage.setItem(
             `breadcrumbsStorage-${this.questionId}`,
             {
+                artifacts,
                 graphStr,
-                activeNodeId,
-                artifacts
+                activeNodeId
             }
         ).then(() => {
             this.setState({
