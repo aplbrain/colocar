@@ -10,6 +10,7 @@ import CHash from "colocorazon/dist/colorhash";
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
+import BorderHighlight from "./layers/BorderHighlight";
 import Scrollbar from "./layers/Scrollbar";
 
 import Avatar from "@material-ui/core/Avatar";
@@ -29,7 +30,6 @@ import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./BreadcrumbApp.css";
-import BorderHighlight from "./layers/BorderHighlight";
 
 let p5: P5Type = window.p5;
 
@@ -60,7 +60,7 @@ const DEFAULT_NODE_TYPES = [
     { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
 ];
 
-const DEFAULT_ARTIFACTS = [
+const DEFAULT_ARTIFACT_TAGS = [
     "dropped",
     "cracked",
     "folded",
@@ -84,8 +84,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         cursorX: number,
         cursorY: number,
         currentZ?: number,
-        saveInProgress: boolean,
-        instructions: Object
+        instructions: Object,
+        metadataModalOpen: boolean,
+        saveInProgress: boolean
     };
 
     graphId: string;
@@ -100,8 +101,8 @@ export default class BreadcrumbApp extends Component<any, any> {
             cursorX: 0,
             cursorY: 0,
             instructions: {},
-            saveInProgress: false,
-            metadataModalOpen: false
+            metadataModalOpen: false,
+            saveInProgress: false
         };
 
         // Create p5 sketch
@@ -135,9 +136,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let question = res.question;
                     let colocardGraph = question.instructions.graph.structure;
                     let activeNodeId = question.instructions.activeNodeId;
-                    let nodeTypes = question.instructions.type || DEFAULT_NODE_TYPES;
-                    self.nodeTypes = nodeTypes;
-                    self.artifactTags = question.instructions.artifact || DEFAULT_ARTIFACTS;
+                    self.nodeTypes = question.instructions.type || DEFAULT_NODE_TYPES;
+                    self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
                     let emptyArtifacts = {};
                     for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
                         emptyArtifacts[self.artifactTags[aIndex]] = {};
@@ -672,7 +672,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let artifactChecklistHTML = [];
-        let artifactTags = this.state.instructions.artifact || DEFAULT_ARTIFACTS;
+        let artifactTags = this.state.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
         let emptyArtifacts = {};
         for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
             emptyArtifacts[artifactTags[aIndex]] = {};
