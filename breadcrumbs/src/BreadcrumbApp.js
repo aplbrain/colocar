@@ -63,8 +63,8 @@ const DEFAULT_NODE_TYPES = [
 ];
 
 const DEFAULT_ARTIFACT_TAGS = [
-    "dropped",
     "cracked",
+    "dropped",
     "folded",
     "stained",
 ];
@@ -85,7 +85,7 @@ export default class BreadcrumbApp extends Component<any, any> {
     volume: Object;
 
     state: {
-        metadataModalOpen: boolean,
+        artifactModalOpen: boolean,
         cursorZ?: number,
         cursorX: number,
         cursorY: number,
@@ -101,7 +101,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.state = {
             cursorX: 0,
             cursorY: 0,
-            metadataModalOpen: false,
+            artifactModalOpen: false,
             saveInProgress: false
         };
 
@@ -608,10 +608,10 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
 
     handleMetadataModalClose() {
-        this.setState({ metadataModalOpen: false });
+        this.setState({ artifactModalOpen: false });
     }
     handleMetadataModalOpen() {
-        this.setState({ metadataModalOpen: true });
+        this.setState({ artifactModalOpen: true });
     }
 
     handleSnackbarClose() {
@@ -740,7 +740,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         </div>
 
                         <Dialog
-                            open={this.state.metadataModalOpen}
+                            open={this.state.artifactModalOpen}
                             onClose={this.handleMetadataModalClose}
                         >
                             <DialogTitle>
