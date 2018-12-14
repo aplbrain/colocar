@@ -202,7 +202,7 @@ export default class TraceManager {
                 color = DENDRITE_COLOR;
                 radius = DENDRITE_RADIUS;
             } else {
-                color = DEFAULT_COLOR;
+                color = this.DEFAULT_COLOR;
                 radius = DEFAULT_RADIUS;
             }
 

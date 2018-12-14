@@ -28,7 +28,6 @@ import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./PointfogApp.css";
-import BorderHighlight from './layers/BorderHighlight';
 
 let p5: P5Type = window.p5;
 
@@ -71,6 +70,7 @@ export default class PointfogApp extends Component<any, any> {
     artifacts: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
+    confidence: boolean;
     layers: Object;
     nodeType: string;
     p5ID: string;
@@ -138,6 +138,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.artifactFlag = instructions.artifact;
                     self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    self.confidence = instructions.confidence || false;
                     self.nodeType = instructions.type || DEFAULT_NODE_TYPE;
                     self.prompt = instructions.prompt;
 
@@ -148,11 +149,6 @@ export default class PointfogApp extends Component<any, any> {
                         p,
                         batchSize: BATCH_SIZE,
                         volume: self.volume
-                    });
-
-                    self.layers["borderHighlight"] = new BorderHighlight({
-                        p,
-                        imageManager: self.layers.imageManager
                     });
 
                     self.layers["pointcloudManager"] = new PointcloudManager({
@@ -175,13 +171,10 @@ export default class PointfogApp extends Component<any, any> {
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
                         "imageManager",
-                        "borderHighlight",
                         "crosshairs",
                         "pointcloudManager",
                         "scrollbar"
                     ];
-
-                    self.toggleOverlay();
 
                     self.setState({
                         cursorZ: self.layers.imageManager.currentZ,
@@ -204,6 +197,7 @@ export default class PointfogApp extends Component<any, any> {
 
             p.keyPressed = function() {
                 const aKey = 65;
+                const cKey = 67;
                 const dKey = 68;
                 const eKey = 69;
                 const oKey = 79;
@@ -258,6 +252,11 @@ export default class PointfogApp extends Component<any, any> {
                     break;
                 case tKey:
                     self.toggleAnnotation();
+                    break;
+                case cKey:
+                    if (self.confidence) {
+                        self.markLowConfidence();
+                    }
                     break;
                 // deletion
                 case backspaceKey:
@@ -403,8 +402,11 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     toggleOverlay(): void {
-        this.layers.borderHighlight.toggleVisibility();
         this.layers.crosshairs.toggleVisibility();
+    }
+
+    markLowConfidence(): void {
+        this.layers.pointcloudManager.markLowConfidence();
     }
 
     deleteActiveNode(): void {
@@ -471,6 +473,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.author = window.keycloak.profile.username;
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
+                newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
                 newNode.namespace = DB.pointfog_name;
                 newNode.type = this.nodeType;
                 newNode.volume = this.volume._id;
@@ -539,7 +542,8 @@ export default class PointfogApp extends Component<any, any> {
         let prompt = this.prompt;
         let nodeKey = this.nodeType[0]? this.nodeType[0].toUpperCase(): "";
         let nodeCount = this.layers? this.layers.pointcloudManager.getNodes().length: 0;
-        let chipHTML = (
+        let chipHTML = [];
+        chipHTML.push(
             <div>
                 <div style={{ float: "right" }}>
                     <Tooltip title={prompt}>
@@ -554,6 +558,24 @@ export default class PointfogApp extends Component<any, any> {
                 </div>
             </div>
         );
+
+        if (this.confidence) {
+            chipHTML.push(
+                <div>
+                    <div style={{ float: "right" }}>
+                        <Tooltip title={"Mark nodes as being low-confidence."}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={"confidence"}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        }
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;

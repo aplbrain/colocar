@@ -186,6 +186,14 @@ export default class TraceManager {
         this.drawHinting = false;
     }
 
+    markLowConfidence(): void {
+        let node = this.g.node(this.activeNode.id);
+        if (!node.protected) {
+            node.lowConfidence = !node.lowConfidence;
+            this.g.setNode(this.activeNode.id, node);
+        }
+    }
+
     markNodeType(nodeType: string): void {
         let node = this.g.node(this.activeNode.id);
         if (!node.protected) {
@@ -303,6 +311,10 @@ export default class TraceManager {
             let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
             this.p.fill(color.r, color.g, color.b, nodeDiminish);
             this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
+            if (node.lowConfidence) {
+                this.p.fill(255, 255, 255, nodeDiminish);
+                this.p.arc(nodePos.x, nodePos.y, 0.9*radius, 0.9*radius, Math.PI/2, 3*Math.PI/2);
+            }
         }
 
         // Draw edges
@@ -360,6 +372,7 @@ class NodeMeta {
     x: number;
     y: number;
     z: number;
+    lowConfidence: ?boolean;
     type: ?string;
     author: ?string;
     bookmarked: ?boolean;
@@ -371,6 +384,7 @@ class NodeMeta {
         z: number,
         author?: string,
         created?: Date,
+        lowConfidence?: boolean,
         type?: string,
         id?: string
     }) {
@@ -378,6 +392,7 @@ class NodeMeta {
         this.y = opts.y;
         this.z = opts.z;
         this.author = opts.author || undefined;
+        this.lowConfidence = opts.lowConfidence || false;
         this.type = opts.type || undefined;
         this.created = opts.created || new Date();
         this.id = opts.id || uuidv4();

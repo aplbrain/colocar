@@ -75,7 +75,11 @@ export default class BreadcrumbApp extends Component<any, any> {
     artifacts: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
+    confidence: boolean;
     graphId: string;
+    p5ID: string;
+    sketch: any;
+    nodeTypes: Array<Object>;
     layers: Object;
     nodeTypes: Array<Object>;
     p5ID: string;
@@ -141,6 +145,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.artifactFlag = instructions.artifact;
                     self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    self.confidence = instructions.confidence || false;  
                     self.graphId = instructions.graph._id;
                     self.nodeTypes = instructions.type || DEFAULT_NODE_TYPES;
                     self.prompt = instructions.prompt;
@@ -216,6 +221,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     }
                 }
 
+                const cKey = 67;
                 const eKey = 69;
                 const hKey = 72;
                 const oKey = 79;
@@ -269,6 +275,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                     break;
                 case tKey:
                     self.toggleAnnotation();
+                    break;
+                case cKey:
+                    if (self.confidence) {
+                        self.markLowConfidence();
+                    }
                     break;
                 case exclamationKey:
                     self.markBookmark();
@@ -414,6 +425,10 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.borderHighlight.toggleVisibility();
     }
 
+    markLowConfidence(): void {
+        this.layers.traceManager.markLowConfidence();
+    }
+
     markBookmark(): void {
         this.layers.traceManager.markBookmark();
     }
@@ -535,6 +550,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
+            newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
             newNode.namespace = DB.breadcrumbs_name;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
@@ -644,6 +660,23 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 label={`${n.name}: ${count}`}
                                 avatar={
                                     <Avatar style={{ backgroundColor: CHash(n.name, 'hex') }}>{ n.key.toUpperCase() }</Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        }
+        if (this.confidence) {
+            chipHTML.push(
+                <div>
+                    <div style={{ float: "right" }}>
+                        <Tooltip title={"Mark nodes as being low-confidence."}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={"confidence"}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
                                 }
                             />
                         </Tooltip>

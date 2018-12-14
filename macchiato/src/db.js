@@ -79,8 +79,7 @@ class Colocard {
             }).then((res: Response) => res.json());
             let fullQuestionPromise = nodePromise.then((node: any) => {
                 question.instructions.node = node;
-                let statusPromise = this._setOpenStatus(question);
-                return statusPromise.then(() => {
+                return this._setOpenStatus(question).then(() => {
                     return {question, volume};
                 });
             });
@@ -90,11 +89,15 @@ class Colocard {
     }
 
     _setOpenStatus(question: Question) {
-        return fetch(`${this.url}/questions/${question._id}/status`, {
-            headers: this.headers,
-            method: "PATCH",
-            body: JSON.stringify({"status": "open"})
-        });
+        let statusPromise = Promise.resolve();
+        if (question.status !== "open") {
+            statusPromise = fetch(`${this.url}/questions/${question._id}/status`, {
+                headers: this.headers,
+                method: "PATCH",
+                body: JSON.stringify({"status": "open"})
+            });
+        }
+        return statusPromise;
     }
 
     _onException(reason: Error) {
