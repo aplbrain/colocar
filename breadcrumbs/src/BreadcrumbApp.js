@@ -72,6 +72,7 @@ export default class BreadcrumbApp extends Component<any, any> {
     p5ID: string;
     sketch: any;
     nodeTypes: Array<Object>;
+    artifactFlag: boolean;
     artifactTags: Array<string>;
     layers: Object;
     // p: P5Type;
@@ -137,6 +138,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let colocardGraph = question.instructions.graph.structure;
                     let activeNodeId = question.instructions.activeNodeId;
                     self.nodeTypes = question.instructions.type || DEFAULT_NODE_TYPES;
+                    self.artifactFlag = question.instructions.artifact;
                     self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
                     let emptyArtifacts = {};
                     for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
@@ -725,7 +727,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                {this.state.instructions.artifact &&
+                                {this.artifactFlag &&
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
                                             variant="fab"

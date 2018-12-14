@@ -68,6 +68,7 @@ export default class PointfogApp extends Component<any, any> {
     p5ID: string;
     sketch: any;
     nodeType: string;
+    artifactFlag: boolean;
     artifactTags: Array<string>;
     layers: Object;
     // p: P5Type;
@@ -135,6 +136,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     self.questionId = question._id;
                     self.nodeType = question.instructions.type || DEFAULT_NODE_TYPE;
+                    self.artifactFlag = question.instructions.artifact;
                     self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
                     let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
@@ -630,7 +632,7 @@ export default class PointfogApp extends Component<any, any> {
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                {this.state.instructions.artifact &&
+                                {this.artifactFlag &&
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
                                             variant="fab"
