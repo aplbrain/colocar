@@ -590,9 +590,7 @@ export default class PointfogApp extends Component<any, any> {
                     <Checkbox
                         checked={this.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
-                            let updatedArtifacts = this.artifacts;
-                            updatedArtifacts[artifact][newZ] = checked;
-                            this.setState({artifacts: updatedArtifacts});
+                            this.artifacts[artifact][newZ] = checked;
                         }}/>
                     <span>{artifact}</span>
                 </DialogContent>

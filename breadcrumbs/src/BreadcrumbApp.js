@@ -392,8 +392,8 @@ export default class BreadcrumbApp extends Component<any, any> {
         let curZ = this.layers.traceManager.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
-            scale: this.layers.imageManager.scale,
-            cursorZ: curZ
+            cursorZ: curZ,
+            scale: this.layers.imageManager.scale
         });
     }
 
@@ -679,17 +679,15 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifactChecklistHTML = [];
         this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
         let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
-        let artifacts = this.artifacts || emptyArtifacts;
+        this.artifacts = this.artifacts || emptyArtifacts;
         for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
             let artifact = this.artifactTags[aIndex];
             artifactChecklistHTML.push(
                 <DialogContent key={`artifact_${artifact}`}>
                     <Checkbox
-                        checked={artifacts[artifact][newZ]}
+                        checked={this.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
-                            let updatedArtifacts = artifacts;
-                            updatedArtifacts[artifact][newZ] = checked;
-                            this.setState({artifacts: updatedArtifacts});
+                            this.artifacts[artifact][newZ] = checked;
                         }}/>
                     <span>{artifact}</span>
                 </DialogContent>
