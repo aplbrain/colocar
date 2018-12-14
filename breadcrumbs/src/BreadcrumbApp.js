@@ -55,6 +55,8 @@ const STYLES = {
     }
 };
 
+const BATCH_SIZE = 10;
+
 const DEFAULT_NODE_TYPES = [
     { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
     { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
@@ -69,30 +71,28 @@ const DEFAULT_ARTIFACT_TAGS = [
 
 export default class BreadcrumbApp extends Component<any, any> {
 
-    p5ID: string;
-    sketch: any;
-    nodeTypes: Array<Object>;
+    artifacts: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
+    graphId: string;
     layers: Object;
-    // p: P5Type;
+    nodeTypes: Array<Object>;
+    p5ID: string;
+    prompt: string;
+    questionId: string;
     renderOrder: Array<string>;
-    artifacts: Object;
+    sketch: any;
+    volume: Object;
 
     state: {
-        ready?: boolean,
-        scale?: number,
+        metadataModalOpen: boolean,
+        cursorZ?: number,
         cursorX: number,
         cursorY: number,
-        currentZ?: number,
-        instructions: Object,
-        metadataModalOpen: boolean,
-        saveInProgress: boolean
+        ready?: boolean,
+        saveInProgress: boolean,
+        scale?: number
     };
-
-    graphId: string;
-    questionId: string;
-    volume: Object;
 
     constructor(props: Object) {
         super(props);
@@ -101,7 +101,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.state = {
             cursorX: 0,
             cursorY: 0,
-            instructions: {},
             metadataModalOpen: false,
             saveInProgress: false
         };
@@ -134,31 +133,31 @@ export default class BreadcrumbApp extends Component<any, any> {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
                     }
-                    let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
-                    let activeNodeId = question.instructions.activeNodeId;
-                    self.nodeTypes = question.instructions.type || DEFAULT_NODE_TYPES;
-                    self.artifactFlag = question.instructions.artifact;
-                    self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+
+                    let instructions = res.question.instructions;
+                    self.questionId = res.question._id;
+                    self.volume = res.volume;
+
+                    self.artifactFlag = instructions.artifact;
+                    self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    self.graphId = instructions.graph._id;
+                    self.nodeTypes = instructions.type || DEFAULT_NODE_TYPES;
+                    self.prompt = instructions.prompt;
+
+                    let activeNodeId = instructions.activeNodeId;
+                    let colocardGraph = instructions.graph.structure;
                     let emptyArtifacts = {};
                     for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
                         emptyArtifacts[self.artifactTags[aIndex]] = {};
                     }
                     self.artifacts = emptyArtifacts;
 
-                    let volume = res.volume;
-
-                    self.graphId = question.instructions.graph._id;
-                    self.questionId = question._id;
-                    self.volume = volume;
-                    let batchSize = 10;
-
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        volume,
-                        batchSize
+                        batchSize: BATCH_SIZE,
+                        volume: self.volume
                     });
 
                     self.layers["borderHighlight"] = new BorderHighlight({
@@ -190,12 +189,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.toggleOverlay();
 
                     self.setState({
+                        cursorZ: self.layers.imageManager.currentZ,
+                        nodeCount: self.layers.traceManager.g.nodeCount(),
+                        questionId: self.questionId,
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: self.questionId,
-                        currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount(),
-                        instructions: question.instructions,
                         snackbarOpen: true,
                     });
 
@@ -350,7 +348,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     updateUIStatus(): void {
         this.setState({
-            currentZ: this.layers.imageManager.currentZ,
+            cursorZ: this.layers.imageManager.currentZ,
             nodeCount: this.layers.traceManager.g.nodes().length
         });
     }
@@ -384,13 +382,13 @@ export default class BreadcrumbApp extends Component<any, any> {
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
         this.handleMetadataModalClose();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
         this.handleMetadataModalClose();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     reset(): void {
@@ -398,7 +396,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.layers.imageManager.reset(curZ);
         this.setState({
             scale: this.layers.imageManager.scale,
-            currentZ: curZ
+            cursorZ: curZ
         });
     }
 
@@ -625,11 +623,11 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     render() {
         let chipHTML = [];
-        let nodeTypes = this.state.instructions.type || DEFAULT_NODE_TYPES;
+        this.nodeTypes = this.nodeTypes || DEFAULT_NODE_TYPES;
         let graph = this.layers? this.layers.traceManager.exportGraph(): null;
         let nodes = graph? graph.nodes().map(n => graph.node(n)): [];
-        for (let nIndex = 0; nIndex < nodeTypes.length; nIndex++) {
-            let n = nodeTypes[nIndex];
+        for (let nIndex = 0; nIndex < this.nodeTypes.length; nIndex++) {
+            let n = this.nodeTypes[nIndex];
             let count = nodes.filter(node => node.type === n.name).length;
             chipHTML.push(
                 <div key={n.key}>
@@ -650,7 +648,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
-        let oldZ = this.state.currentZ;
+        let oldZ = this.state.cursorZ;
         let newX = 0;
         let newY = 0;
         let newZ = 0;
@@ -674,7 +672,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let artifactChecklistHTML = [];
-        let artifactTags = this.state.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+        let artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
         let emptyArtifacts = {};
         for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
             emptyArtifacts[artifactTags[aIndex]] = {};
@@ -763,7 +761,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 </Button>
                             ]}
                             message={<div id="message-id">
-                                <div>{ this.state.instructions.prompt }</div>
+                                <div>{ this.prompt }</div>
                                 <div>Task ID: {this.questionId}</div>
                             </div>}
                         />
