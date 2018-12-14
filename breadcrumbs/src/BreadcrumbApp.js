@@ -10,21 +10,26 @@ import CHash from "colocorazon/dist/colorhash";
 import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
+import BorderHighlight from "./layers/BorderHighlight";
 import Scrollbar from "./layers/Scrollbar";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
-import Tooltip from "@material-ui/core/Tooltip";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import Snackbar from "@material-ui/core/Snackbar";
+import Tooltip from "@material-ui/core/Tooltip";
 
+import FeedbackIcon from "@material-ui/icons/Feedback";
 import InfoIcon from "@material-ui/icons/Info";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
 
 import "./BreadcrumbApp.css";
-import BorderHighlight from "./layers/BorderHighlight";
 
 let p5: P5Type = window.p5;
 
@@ -50,38 +55,58 @@ const STYLES = {
     }
 };
 
+const BATCH_SIZE = 10;
+
+const DEFAULT_NODE_TYPES = [
+    { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
+    { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
+];
+
+const DEFAULT_ARTIFACT_TAGS = [
+    "cracked",
+    "dropped",
+    "folded",
+    "imaging",
+    "stained"
+];
+
 export default class BreadcrumbApp extends Component<any, any> {
 
+    artifacts: Object;
+    artifactFlag: boolean;
+    artifactTags: Array<string>;
+    confidence: boolean;
+    graphId: string;
     p5ID: string;
     sketch: any;
-    confidence: boolean;
     nodeTypes: Array<Object>;
     layers: Object;
-    // p: P5Type;
+    nodeTypes: Array<Object>;
+    p5ID: string;
+    prompt: string;
+    questionId: string;
     renderOrder: Array<string>;
+    sketch: any;
+    volume: Object;
 
     state: {
-        ready?: boolean,
-        scale?: number,
+        artifactModalOpen: boolean,
         cursorX: number,
         cursorY: number,
-        currentZ?: number,
+        cursorZ?: number,
+        ready?: boolean,
         saveInProgress: boolean,
-        instructions: Object
+        scale?: number
     };
-
-    graphId: string;
-    questionId: string;
-    volume: Object;
 
     constructor(props: Object) {
         super(props);
 
         this.p5ID = "p5-container";
         this.state = {
+            artifactModalOpen: false,
             cursorX: 0,
             cursorY: 0,
-            instructions: {},
             saveInProgress: false
         };
 
@@ -113,30 +138,29 @@ export default class BreadcrumbApp extends Component<any, any> {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
                     }
-                    let question = res.question;
-                    let colocardGraph = question.instructions.graph.structure;
-                    let activeNodeId = question.instructions.activeNodeId;
-                    let confidence = question.instructions.confidence || false;
-                    self.confidence = confidence;
-                    let nodeTypes = question.instructions.type || [
-                        { name: "presynaptic", key: "a", description: "Trace the presynaptic (axon) side of the marked synapse." },
-                        { name: "postsynaptic", key: "d", description: "Trace the postsynaptic (dendrite) side of the marked synapse." },
-                    ];
-                    self.nodeTypes = nodeTypes;
 
-                    let volume = res.volume;
+                    let instructions = res.question.instructions;
+                    self.questionId = res.question._id;
+                    self.volume = res.volume;
 
-                    self.graphId = question.instructions.graph._id;
-                    self.questionId = question._id;
-                    self.volume = volume;
-                    let batchSize = 10;
+                    self.artifactFlag = instructions.artifact;
+                    self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    self.confidence = instructions.confidence || false;  
+                    self.graphId = instructions.graph._id;
+                    self.nodeTypes = instructions.type || DEFAULT_NODE_TYPES;
+                    self.prompt = instructions.prompt;
+
+                    let activeNodeId = instructions.activeNodeId;
+                    let colocardGraph = instructions.graph.structure;
+                    let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
+                    self.artifacts = emptyArtifacts;
 
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        volume,
-                        batchSize
+                        batchSize: BATCH_SIZE,
+                        volume: self.volume
                     });
 
                     self.layers["borderHighlight"] = new BorderHighlight({
@@ -168,12 +192,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.toggleOverlay();
 
                     self.setState({
+                        cursorZ: self.layers.imageManager.currentZ,
+                        nodeCount: self.layers.traceManager.g.nodeCount(),
+                        questionId: self.questionId,
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: self.questionId,
-                        currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManager.g.nodeCount(),
-                        instructions: question.instructions,
                         snackbarOpen: true,
                     });
 
@@ -325,13 +348,16 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
         };
 
+        this.handleMetadataModalClose = this.handleMetadataModalClose.bind(this);
+        this.handleMetadataModalOpen = this.handleMetadataModalOpen.bind(this);
+
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
 
     updateUIStatus(): void {
         this.setState({
-            currentZ: this.layers.imageManager.currentZ,
+            cursorZ: this.layers.imageManager.currentZ,
             nodeCount: this.layers.traceManager.g.nodes().length
         });
     }
@@ -364,20 +390,22 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.handleMetadataModalClose();
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.handleMetadataModalClose();
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     reset(): void {
         let curZ = this.layers.traceManager.getSelectedNodeZ();
         this.layers.imageManager.reset(curZ);
         this.setState({
-            scale: this.layers.imageManager.scale,
-            currentZ: curZ
+            cursorZ: curZ,
+            scale: this.layers.imageManager.scale
         });
     }
 
@@ -425,6 +453,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         localForage.getItem(
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
+            this.artifacts = storedData.artifacts;
             let storedGraph = graphlib.json.read(storedData.graphStr);
             this.layers.traceManager.insertCachedGraph(storedGraph, storedData.activeNodeId);
             this.setState({
@@ -446,11 +475,13 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({
             saveInProgress: true
         });
+        let artifacts = this.artifacts;
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
         let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
         localForage.setItem(
             `breadcrumbsStorage-${this.questionId}`,
             {
+                artifacts,
                 graphStr,
                 activeNodeId
             }
@@ -550,14 +581,18 @@ export default class BreadcrumbApp extends Component<any, any> {
             let graph = this.graphlibToColocard(
                 this.layers.traceManager.exportGraph()
             );
-            return DB.postGraph(
+            let graphPromise = DB.postGraph(
                 window.keycloak.profile.username,
                 this.graphId,
                 graph,
                 this.volume._id
-            ).then(status => {
-                // TODO: Do not reload page if failed; instead,
-                // show error to user
+            );
+            let artifactPromise = DB.postArtifacts(
+                this.questionId,
+                this.artifacts
+            );
+            Promise.all([graphPromise, artifactPromise]).then(results => {
+                let status = results[0];
                 if (status === "completed") {
                     return DB.updateQuestionStatus(this.questionId, status);
                 } else {
@@ -586,6 +621,13 @@ export default class BreadcrumbApp extends Component<any, any> {
         }
     }
 
+    handleMetadataModalClose() {
+        this.setState({ artifactModalOpen: false });
+    }
+    handleMetadataModalOpen() {
+        this.setState({ artifactModalOpen: true });
+    }
+
     handleSnackbarClose() {
         this.setState({ snackbarOpen: false });
     }
@@ -593,13 +635,21 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({ snackbarOpen: true });
     }
 
+    getEmptyArtifacts(artifactTags: Array<string>): Object {
+        let emptyArtifacts = {};
+        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+            emptyArtifacts[artifactTags[aIndex]] = {};
+        }
+        return emptyArtifacts;
+    }
+
     render() {
         let chipHTML = [];
-        let nodeTypes = this.state.instructions.type || [];
+        this.nodeTypes = this.nodeTypes || DEFAULT_NODE_TYPES;
         let graph = this.layers? this.layers.traceManager.exportGraph(): null;
         let nodes = graph? graph.nodes().map(n => graph.node(n)): [];
-        for (let nIndex = 0; nIndex < nodeTypes.length; nIndex++) {
-            let n = nodeTypes[nIndex];
+        for (let nIndex = 0; nIndex < this.nodeTypes.length; nIndex++) {
+            let n = this.nodeTypes[nIndex];
             let count = nodes.filter(node => node.type === n.name).length;
             chipHTML.push(
                 <div key={n.key}>
@@ -637,7 +687,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
-        let oldZ = this.state.currentZ;
+        let oldZ = this.state.cursorZ;
         let newX = 0;
         let newY = 0;
         let newZ = 0;
@@ -660,6 +710,24 @@ export default class BreadcrumbApp extends Component<any, any> {
         let yString = String(newY).padStart(5, "0");
         let zString = String(newZ).padStart(5, "0");
 
+        let artifactChecklistHTML = [];
+        this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+        let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
+        this.artifacts = this.artifacts || emptyArtifacts;
+        for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
+            let artifact = this.artifactTags[aIndex];
+            artifactChecklistHTML.push(
+                <DialogContent key={`artifact_${artifact}`}>
+                    <Checkbox
+                        checked={this.artifacts[artifact][newZ]}
+                        onChange={(event: Object, checked: boolean) => {
+                            this.artifacts[artifact][newZ] = checked;
+                        }}/>
+                    <span>{artifact}</span>
+                </DialogContent>
+            );
+        }
+
         return (
             <div>
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
@@ -673,25 +741,47 @@ export default class BreadcrumbApp extends Component<any, any> {
                             margin: "2em"
                         }}>
                             { chipHTML }
-                            <div style={{ float: "right", fontSize: "1.2em" }}>
-                                <Chip
-                                    style={{ margin: "0.5em 0" }}
-                                    label={`x: ${xString}; y: ${yString}; z: ${zString}`}
-                                />
+                            <div style={{"position": "relative"}}>
+                                <div style={{ float: "right", fontSize: "1.2em" }}>
+                                    <Chip
+                                        style={{ margin: "0.5em 0" }}
+                                        label={`x: ${xString}; y: ${yString}; z: ${zString}`}
+                                    />
+                                </div>
                             </div>
-                            <br/>
-                            <div style={{ float: "right", fontSize: "0.9em" }}>
-                                <Button style={{ opacity: 0.9 }}
-                                    variant="fab"
-                                    mini={true}
-                                    onClick={ this.handleSnackbarOpen }
-                                >
-                                    <InfoIcon />
-                                </Button>
+                            <div style={{"float": "right"}}>
+                                <div style={{ fontSize: "0.9em", marginBottom: "0.25em" }}>
+                                    <Button style={{ opacity: 0.9 }}
+                                        variant="fab"
+                                        mini={true}
+                                        onClick={ this.handleSnackbarOpen }
+                                    >
+                                        <InfoIcon />
+                                    </Button>
+                                </div>
+                                {this.artifactFlag? (
+                                    <div style={{ fontSize: "0.9em" }}>
+                                        <Button style={{ opacity: 0.9 }}
+                                            variant="fab"
+                                            mini={true}
+                                            onClick={ this.handleMetadataModalOpen }
+                                        >
+                                            <FeedbackIcon />
+                                        </Button>
+                                    </div>
+                                ): ""}
                             </div>
                         </div>
 
-
+                        <Dialog
+                            open={this.state.artifactModalOpen}
+                            onClose={this.handleMetadataModalClose}
+                        >
+                            <DialogTitle>
+                                Slice Artifacts: z={newZ}
+                            </DialogTitle>
+                            {artifactChecklistHTML}
+                        </Dialog>
 
                         <Snackbar
                             open={this.state.snackbarOpen}
@@ -705,7 +795,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 </Button>
                             ]}
                             message={<div id="message-id">
-                                <div>{ this.state.instructions.prompt }</div>
+                                <div>{ this.prompt }</div>
                                 <div>Task ID: {this.questionId}</div>
                             </div>}
                         />

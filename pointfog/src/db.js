@@ -129,6 +129,24 @@ class Colocard implements Database {
         });
     }
 
+    postArtifacts(questionId: string, artifacts: Object): Promise<Response> {
+        // convert artifacts to flattened array
+        let artifactsArray = [];
+        for (let artifact in artifacts) {
+            for (let zIndex in artifacts[artifact]) {
+                artifactsArray.push({
+                    "type": artifact,
+                    "zslice": zIndex
+                });
+            }
+        }
+        return fetch(`${this.url}/questions/${questionId}/artifacts`, {
+            headers: this.headers,
+            method: "PATCH",
+            body: JSON.stringify(artifactsArray)
+        });
+    }
+
     updateQuestionStatus(questionId: string, status: string): Promise<Response> {
         return fetch(`${this.url}/questions/${questionId}/status`, {
             headers: this.headers,
