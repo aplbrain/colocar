@@ -54,52 +54,51 @@ const STYLES = {
     },
 };
 
+const BATCH_SIZE = 10;
+
 const DEFAULT_NODE_TYPE = "synapse";
 
 const DEFAULT_ARTIFACT_TAGS = [
-    "dropped",
     "cracked",
+    "dropped",
     "folded",
     "stained",
 ];
 
 export default class PointfogApp extends Component<any, any> {
 
-    p5ID: string;
-    sketch: any;
-    nodeType: string;
+    artifacts: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
     layers: Object;
-    // p: P5Type;
+    nodeType: string;
+    p5ID: string;
+    prompt: string;
+    questionId: string;
+    sketch: any;
     renderOrder: Array<string>;
-    artifacts: Object;
+    volume: Object;
 
     state: {
-        ready?: boolean,
-        scale?: number,
+        artifactModalOpen: false,
         cursorX: number,
         cursorY: number,
-        currentZ?: number,
+        cursorZ?: number,
         nodeCount: number,
-        instructions: Object,
-        metadataModalOpen: false,
-        saveInProgress: boolean
+        ready?: boolean,
+        saveInProgress: boolean,
+        scale?: number,
     };
-
-    questionId: string;
-    volume: Object;
 
     constructor(props: Object) {
         super(props);
 
         this.p5ID = "p5-container";
         this.state = {
+            artifactModalOpen: false,
             cursorX: 0,
             cursorY: 0,
             nodeCount: 0,
-            instructions: {prompt: "", type: ""},
-            metadataModalOpen: false,
             saveInProgress: false
         };
 
@@ -131,24 +130,23 @@ export default class PointfogApp extends Component<any, any> {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
                     }
-                    let question = res.question;
-                    let volume = res.volume;
 
-                    self.questionId = question._id;
-                    self.nodeType = question.instructions.type || DEFAULT_NODE_TYPE;
-                    self.artifactFlag = question.instructions.artifact;
-                    self.artifactTags = question.instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    let instructions = res.question.instructions;
+                    self.questionId = res.question._id;
+                    self.volume = res.volume;
+
+                    self.artifactFlag = instructions.artifact;
+                    self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
+                    self.nodeType = instructions.type || DEFAULT_NODE_TYPE;
+                    self.prompt = instructions.prompt;
+
                     let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
 
-                    self.volume = volume;
-
-                    let batchSize = 10;
-
                     self.layers["imageManager"] = new ImageManager({
                         p,
-                        volume,
-                        batchSize
+                        batchSize: BATCH_SIZE,
+                        volume: self.volume
                     });
 
                     self.layers["borderHighlight"] = new BorderHighlight({
@@ -185,11 +183,10 @@ export default class PointfogApp extends Component<any, any> {
                     self.toggleOverlay();
 
                     self.setState({
+                        cursorZ: self.layers.imageManager.currentZ,
+                        questionId: self.questionId,
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: self.questionId,
-                        currentZ: self.layers.imageManager.currentZ,
-                        instructions: question.instructions,
                         snackbarOpen: true
                     });
                     self.updateUIStatus();
@@ -358,13 +355,13 @@ export default class PointfogApp extends Component<any, any> {
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
         this.handleMetadataModalClose();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
         this.handleMetadataModalClose();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({cursorZ: this.layers.imageManager.currentZ});
     }
 
     insertStoredNodes() {
@@ -396,7 +393,7 @@ export default class PointfogApp extends Component<any, any> {
         this.layers.imageManager.reset();
         this.setState({
             scale: this.layers.imageManager.scale,
-            currentZ: this.layers.imageManager.currentZ,
+            cursorZ: this.layers.imageManager.currentZ,
         });
     }
 
@@ -515,10 +512,10 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     handleMetadataModalClose() {
-        this.setState({ metadataModalOpen: false });
+        this.setState({ artifactModalOpen: false });
     }
     handleMetadataModalOpen() {
-        this.setState({ metadataModalOpen: true });
+        this.setState({ artifactModalOpen: true });
     }
 
     handleSnackbarClose() {
@@ -537,9 +534,9 @@ export default class PointfogApp extends Component<any, any> {
     }
 
     render() {
-        let prompt = this.state.instructions.prompt;
-        let nodeType = this.state.instructions.type;
-        let nodeKey = nodeType[0]? nodeType[0].toUpperCase(): "";
+        this.nodeType = this.nodeType || DEFAULT_NODE_TYPE;
+        let prompt = this.prompt;
+        let nodeKey = this.nodeType[0]? this.nodeType[0].toUpperCase(): "";
         let nodeCount = this.layers? this.layers.pointcloudManager.getNodes().length: 0;
         let chipHTML = (
             <div>
@@ -547,9 +544,9 @@ export default class PointfogApp extends Component<any, any> {
                     <Tooltip title={prompt}>
                         <Chip
                             style={{ margin: "0.5em 0" }}
-                            label={`${nodeType}: ${nodeCount}`}
+                            label={`${this.nodeType}: ${nodeCount}`}
                             avatar={
-                                <Avatar style={{ backgroundColor: CHash(nodeType, 'hex') }}>{ nodeKey }</Avatar>
+                                <Avatar style={{ backgroundColor: CHash(this.nodeType, 'hex') }}>{ nodeKey }</Avatar>
                             }
                         />
                     </Tooltip>
@@ -559,7 +556,7 @@ export default class PointfogApp extends Component<any, any> {
 
         let oldX = this.state.cursorX;
         let oldY = this.state.cursorY;
-        let oldZ = this.state.currentZ;
+        let oldZ = this.state.cursorZ;
         let newX = oldX;
         let newY = oldY;
         let newZ = oldZ;
@@ -583,17 +580,17 @@ export default class PointfogApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let artifactChecklistHTML = [];
-        let artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
-        let emptyArtifacts = this.getEmptyArtifacts(artifactTags);
-        let artifacts = this.artifacts || emptyArtifacts;
-        for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
-            let artifact = artifactTags[aIndex];
+        this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+        let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
+        this.artifacts = this.artifacts || emptyArtifacts;
+        for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
+            let artifact = this.artifactTags[aIndex];
             artifactChecklistHTML.push(
                 <DialogContent key={`artifact_${artifact}`}>
                     <Checkbox
-                        checked={artifacts[artifact][newZ]}
+                        checked={this.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
-                            let updatedArtifacts = artifacts;
+                            let updatedArtifacts = this.artifacts;
                             updatedArtifacts[artifact][newZ] = checked;
                             this.setState({artifacts: updatedArtifacts});
                         }}/>
@@ -647,7 +644,7 @@ export default class PointfogApp extends Component<any, any> {
                         </div>
 
                         <Dialog
-                            open={this.state.metadataModalOpen}
+                            open={this.state.artifactModalOpen}
                             onClose={this.handleMetadataModalClose}
                         >
                             <DialogTitle>
@@ -668,7 +665,7 @@ export default class PointfogApp extends Component<any, any> {
                                 </Button>
                             ]}
                             message={<div id="message-id">
-                                <div>{this.state.instructions.prompt}</div>
+                                <div>{this.prompt}</div>
                                 <div>Task ID: {this.questionId}</div>
                             </div>}
                         />
