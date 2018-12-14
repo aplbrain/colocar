@@ -62,7 +62,8 @@ const DEFAULT_ARTIFACT_TAGS = [
     "cracked",
     "dropped",
     "folded",
-    "stained",
+    "imaging",
+    "stained"
 ];
 
 export default class PointfogApp extends Component<any, any> {
