@@ -726,7 +726,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                {this.artifactFlag &&
+                                {this.artifactFlag? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
                                             variant="fab"
@@ -736,7 +736,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                             <FeedbackIcon />
                                         </Button>
                                     </div>
-                                }
+                                ): ""}
                             </div>
                         </div>
 
