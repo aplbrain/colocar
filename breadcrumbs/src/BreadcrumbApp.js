@@ -86,9 +86,9 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     state: {
         artifactModalOpen: boolean,
-        cursorZ?: number,
         cursorX: number,
         cursorY: number,
+        cursorZ?: number,
         ready?: boolean,
         saveInProgress: boolean,
         scale?: number
@@ -99,9 +99,9 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.p5ID = "p5-container";
         this.state = {
+            artifactModalOpen: false,
             cursorX: 0,
             cursorY: 0,
-            artifactModalOpen: false,
             saveInProgress: false
         };
 
@@ -146,10 +146,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     let activeNodeId = instructions.activeNodeId;
                     let colocardGraph = instructions.graph.structure;
-                    let emptyArtifacts = {};
-                    for (let aIndex=0; aIndex < self.artifactTags.length; aIndex++) {
-                        emptyArtifacts[self.artifactTags[aIndex]] = {};
-                    }
+                    let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
 
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
@@ -621,6 +618,14 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({ snackbarOpen: true });
     }
 
+    getEmptyArtifacts(artifactTags: Array<string>): Object {
+        let emptyArtifacts = {};
+        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+            emptyArtifacts[artifactTags[aIndex]] = {};
+        }
+        return emptyArtifacts;
+    }
+
     render() {
         let chipHTML = [];
         this.nodeTypes = this.nodeTypes || DEFAULT_NODE_TYPES;
@@ -672,14 +677,11 @@ export default class BreadcrumbApp extends Component<any, any> {
         let zString = String(newZ).padStart(5, "0");
 
         let artifactChecklistHTML = [];
-        let artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
-        let emptyArtifacts = {};
-        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
-            emptyArtifacts[artifactTags[aIndex]] = {};
-        }
+        this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+        let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
         let artifacts = this.artifacts || emptyArtifacts;
-        for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
-            let artifact = artifactTags[aIndex];
+        for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
+            let artifact = this.artifactTags[aIndex];
             artifactChecklistHTML.push(
                 <DialogContent key={`artifact_${artifact}`}>
                     <Checkbox
