@@ -36,7 +36,22 @@ export default class Scrollbar {
         this.width = 20;
     }
 
-    mouseClicked(): void {}
+    mouseClicked(): void {
+        // If in bounds:
+        if (
+            (this.p.mouseX > this.left) &&
+            (this.p.mouseX < this.left + this.width) &&
+            (this.p.mouseY > this.top) &&
+            (this.p.mouseY < this.height + this.top)
+        ) {
+            this.im.currentZ = Math.round(
+                this.im.nSlices * ((this.p.mouseY - this.top) / this.height)
+            );
+            return false;
+        }
+        return true;
+    }
+
     mousePressed(): void {}
 
     getEntities() {

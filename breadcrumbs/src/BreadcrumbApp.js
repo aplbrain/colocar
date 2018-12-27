@@ -123,7 +123,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 });
 
                 canvas.mouseClicked(function() {
-                    self.layers.traceManager.mouseClicked();
+                    if (self.layers.scrollbar.mouseClicked()) {
+                        self.layers.traceManager.mouseClicked();
+                    }
                     self.updateUIStatus();
                 });
 
@@ -145,7 +147,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.artifactFlag = instructions.artifact;
                     self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
-                    self.confidence = instructions.confidence || false;  
+                    self.confidence = instructions.confidence || false;
                     self.graphId = instructions.graph._id;
                     self.nodeTypes = instructions.type || DEFAULT_NODE_TYPES;
                     self.prompt = instructions.prompt;
@@ -340,7 +342,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
 
             p.draw = function() {
-                p.clear();
+                // p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
                     self.layers[layer].draw();

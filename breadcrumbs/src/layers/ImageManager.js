@@ -30,6 +30,8 @@ export default class ImageManager {
         this.loadAllImages(opts.volume, opts.batchSize);
         this.readiness = new Array(this.nSlices);
         this.currentZ = opts.startingZ || Math.floor((this.nSlices) / 2); // Starts in the middle
+        this.lastDrawnZ = undefined;
+        this.lastDrawnScale = undefined;
     }
 
     // Loads in all the images.
@@ -255,6 +257,20 @@ export default class ImageManager {
     }
 
     draw(): void {
+        if (
+            (this.lastDrawnZ == this.currentZ) &&
+            (this.p.frameCount % 4) &&
+            (this.lastDrawnScale == this.lastDrawnScale)
+        ) {
+            let bounding = this.getBoundingRect();
+            this.p.fill(128);
+            this.p.noStroke();
+            let margin = 1000;
+            this.p.rect(bounding.left - 1000, bounding.top - margin, 2000, margin);
+            this.p.rect(bounding.left - 1000, bounding.bottom, 2000, margin);
+            this.p.rect(bounding.left - margin, bounding.top, margin, margin);
+            this.p.rect(bounding.right, bounding.top, margin, margin);
+        }
         if (this.readiness[this.currentZ]) {
             this.p.imageMode(this.p.CENTER);
             let imageIx = Math.floor(this.currentZ / this.batchSize);
@@ -270,6 +286,8 @@ export default class ImageManager {
                 this.imageWidth,
                 this.imageHeight,
             );
+            this.lastDrawnZ = this.currentZ;
+            this.lastDrawnScale = this.scale;
         } else {
             // Image not loaded yet. Filler image.
             this.p.stroke(255, 0, 0);
