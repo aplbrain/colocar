@@ -606,6 +606,7 @@ export default class PointfogApp extends Component<any, any> {
         this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
         let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
         this.artifacts = this.artifacts || emptyArtifacts;
+        let artifactHighlight = false;
         for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
             let artifact = this.artifactTags[aIndex];
             artifactChecklistHTML.push(
@@ -618,7 +619,11 @@ export default class PointfogApp extends Component<any, any> {
                     <span>{artifact}</span>
                 </DialogContent>
             );
+            if (this.artifacts[artifact][newZ] === true) {
+                artifactHighlight = true;
+            }
         }
+        let artifactButtonColor = artifactHighlight? "secondary": "default";
 
         return (
             <div>
@@ -653,6 +658,7 @@ export default class PointfogApp extends Component<any, any> {
                                 {this.artifactFlag? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
+                                            color={ artifactButtonColor }
                                             variant="fab"
                                             mini={true}
                                             onClick={ this.handleMetadataModalOpen }
