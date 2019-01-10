@@ -23,6 +23,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import InfoIcon from "@material-ui/icons/Info";
+import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
@@ -68,8 +69,10 @@ const DEFAULT_ARTIFACT_TAGS = [
 export default class PointfogApp extends Component<any, any> {
 
     artifacts: Object;
+    artifactImageUrls: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
+    canvas: Object;
     confidence: boolean;
     layers: Object;
     nodeType: string;
@@ -82,6 +85,7 @@ export default class PointfogApp extends Component<any, any> {
 
     state: {
         artifactModalOpen: false,
+        artifactReportOpen: false,
         cursorX: number,
         cursorY: number,
         cursorZ?: number,
@@ -97,6 +101,7 @@ export default class PointfogApp extends Component<any, any> {
         this.p5ID = "p5-container";
         this.state = {
             artifactModalOpen: false,
+            artifactReportOpen: false,
             cursorX: 0,
             cursorY: 0,
             nodeCount: 0,
@@ -119,6 +124,8 @@ export default class PointfogApp extends Component<any, any> {
                     self.layers.pointcloudManager.mouseClicked();
                     self.updateUIStatus();
                 });
+
+                self.canvas = canvas;
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
@@ -144,6 +151,7 @@ export default class PointfogApp extends Component<any, any> {
 
                     let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
+                    self.artifactImageUrls = {};
 
                     self.layers["imageManager"] = new ImageManager({
                         p,
@@ -322,6 +330,9 @@ export default class PointfogApp extends Component<any, any> {
         this.handleMetadataModalClose = this.handleMetadataModalClose.bind(this);
         this.handleMetadataModalOpen = this.handleMetadataModalOpen.bind(this);
 
+        this.handleArtifactReportClose = this.handleArtifactReportClose.bind(this);
+        this.handleArtifactReportOpen = this.handleArtifactReportOpen.bind(this);
+
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
@@ -373,6 +384,7 @@ export default class PointfogApp extends Component<any, any> {
         ).then(storedData => {
             let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
             this.artifacts = storedData.artifacts || emptyArtifacts;
+            this.artifactImageUrls = storedData.artifacts || {};
             let storedNodes = storedData.nodes || [];
             storedNodes.forEach(node => {
                 this.layers.pointcloudManager.addNode(node.id, node);
@@ -431,11 +443,13 @@ export default class PointfogApp extends Component<any, any> {
             saveInProgress: true
         });
         let artifacts = this.artifacts;
+        let artifactImageUrls = this.artifactImageUrls;
         let nodes = this.layers.pointcloudManager.getNodes();
         localForage.setItem(
             `pointfogStorage-${this.questionId}`,
             {
                 artifacts,
+                artifactImageUrls,
                 nodes
             }
         ).then(() => {
@@ -522,6 +536,13 @@ export default class PointfogApp extends Component<any, any> {
         this.setState({ artifactModalOpen: true });
     }
 
+    handleArtifactReportClose() {
+        this.setState({ artifactReportOpen: false });
+    }
+    handleArtifactReportOpen() {
+        this.setState({ artifactReportOpen: true });
+    }
+
     handleSnackbarClose() {
         this.setState({ snackbarOpen: false });
     }
@@ -606,6 +627,7 @@ export default class PointfogApp extends Component<any, any> {
         this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
         let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
         this.artifacts = this.artifacts || emptyArtifacts;
+        this.artifactImageUrls = this.artifactImageUrls || {};
         let artifactHighlight = false;
         for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
             let artifact = this.artifactTags[aIndex];
@@ -615,6 +637,9 @@ export default class PointfogApp extends Component<any, any> {
                         checked={this.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
                             this.artifacts[artifact][newZ] = checked;
+                            if (!(newZ in this.artifactImageUrls)) {
+                                this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                            }
                         }}/>
                     <span>{artifact}</span>
                 </DialogContent>
@@ -624,6 +649,7 @@ export default class PointfogApp extends Component<any, any> {
             }
         }
         let artifactButtonColor = artifactHighlight? "secondary": "default";
+        let emImage = this.artifactImageUrls[newZ];
 
         return (
             <div>
@@ -667,10 +693,22 @@ export default class PointfogApp extends Component<any, any> {
                                         </Button>
                                     </div>
                                 ): ""}
+                                {this.artifactFlag? (
+                                    <div style={{ fontSize: "0.9em" }}>
+                                        <Button style={{ opacity: 0.9 }}
+                                            variant="fab"
+                                            mini={true}
+                                            onClick={ this.handleArtifactReportOpen }
+                                        >
+                                            <LibraryBooksIcon />
+                                        </Button>
+                                    </div>
+                                ): ""}
                             </div>
                         </div>
 
                         <Dialog
+                            id="artifact-annotation"
                             open={this.state.artifactModalOpen}
                             onClose={this.handleMetadataModalClose}
                         >
@@ -678,6 +716,24 @@ export default class PointfogApp extends Component<any, any> {
                                 Slice Artifacts: z={newZ}
                             </DialogTitle>
                             {artifactChecklistHTML}
+                        </Dialog>
+
+                        <Dialog
+                            id="artifact-report"
+                            open={this.state.artifactReportOpen}
+                            onClose={this.handleArtifactReportClose}
+                        >
+                            <DialogTitle>
+                                Slice Artifacts: z={newZ}
+                            </DialogTitle>
+                            <img
+                                display="block"
+                                margin-left="auto"
+                                margin-right="auto"
+                                width="100%"
+                                alt="em-snapshot"
+                                src={emImage}
+                            />
                         </Dialog>
 
                         <Snackbar
