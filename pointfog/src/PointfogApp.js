@@ -649,7 +649,29 @@ export default class PointfogApp extends Component<any, any> {
             }
         }
         let artifactButtonColor = artifactHighlight? "secondary": "default";
-        let emImage = this.artifactImageUrls[newZ];
+        let artifactSnapshots = [];
+        for (let zIndex in this.artifactImageUrls) {
+            artifactSnapshots.push(
+                <div
+                key={`artifact_snapshot_${zIndex}`}
+                >
+                    <img
+                    display="inline-block"
+                    float="left"
+                    width="40%"
+                    alt="em-snapshot"
+                    src={this.artifactImageUrls[zIndex]}
+                    />
+                    <div
+                    display="inline-block"
+                    float="right"
+                    width="40%"
+                    >
+                        z-index: {zIndex}
+                    </div>
+                </div>
+            );
+        }
 
         return (
             <div>
@@ -723,17 +745,7 @@ export default class PointfogApp extends Component<any, any> {
                             open={this.state.artifactReportOpen}
                             onClose={this.handleArtifactReportClose}
                         >
-                            <DialogTitle>
-                                Slice Artifacts: z={newZ}
-                            </DialogTitle>
-                            <img
-                                display="block"
-                                margin-left="auto"
-                                margin-right="auto"
-                                width="100%"
-                                alt="em-snapshot"
-                                src={emImage}
-                            />
+                            {artifactSnapshots}
                         </Dialog>
 
                         <Snackbar
