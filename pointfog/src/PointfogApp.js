@@ -637,8 +637,18 @@ export default class PointfogApp extends Component<any, any> {
                         checked={this.artifacts[artifact][newZ]}
                         onChange={(event: Object, checked: boolean) => {
                             this.artifacts[artifact][newZ] = checked;
-                            if (!(newZ in this.artifactImageUrls)) {
-                                this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                            if (checked === true) {
+                                if (!(newZ in this.artifactImageUrls)) {
+                                    this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                                }
+                            } else {
+                                let noneFlag = true;
+                                for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
+                                    noneFlag &= !this.artifacts[aIndex][newZ];
+                                }
+                                if (noneFlag) {
+                                    delete this.artifactImageUrls[newZ];
+                                }
                             }
                         }}/>
                     <span>{artifact}</span>
