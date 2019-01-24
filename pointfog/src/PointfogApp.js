@@ -667,14 +667,18 @@ export default class PointfogApp extends Component<any, any> {
                 <tr
                     key={`artifact_snapshot_${zIndex}`}
                 >
-                    <td>
+                    <td
+                        style={{"padding": "2%"}}
+                    >
                         <img
                             alt="em-snapshot"
                             src={this.artifactImageUrls[zIndex]}
                             width="100%"
                         />
                     </td>
-                    <td>
+                    <td
+                        style={{"padding": "2%"}}
+                    >
                         z-index: {zIndex}
                         <br/>
                         {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
@@ -756,7 +760,9 @@ export default class PointfogApp extends Component<any, any> {
                             onClose={this.handleArtifactReportClose}
                         >
                             <table>
-                                {artifactSnapshots}
+                                <tbody>
+                                    {artifactSnapshots}
+                                </tbody>
                             </table>
                         </Dialog>
 
