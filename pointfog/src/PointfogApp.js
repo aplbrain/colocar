@@ -664,26 +664,22 @@ export default class PointfogApp extends Component<any, any> {
         let artifactSnapshots = [];
         for (let zIndex in this.artifactImageUrls) {
             artifactSnapshots.push(
-                <div
+                <tr
                     key={`artifact_snapshot_${zIndex}`}
                 >
-                    <img
-                        display="inline-block"
-                        float="left"
-                        width="40%"
-                        alt="em-snapshot"
-                        src={this.artifactImageUrls[zIndex]}
-                    />
-                    <div
-                        display="inline-block"
-                        float="right"
-                        width="40%"
-                    >
+                    <td>
+                        <img
+                            alt="em-snapshot"
+                            src={this.artifactImageUrls[zIndex]}
+                            width="100%"
+                        />
+                    </td>
+                    <td>
                         z-index: {zIndex}
                         <br/>
                         {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
-                    </div>
-                </div>
+                    </td>
+                </tr>
             );
         }
 
@@ -759,7 +755,9 @@ export default class PointfogApp extends Component<any, any> {
                             open={this.state.artifactReportOpen}
                             onClose={this.handleArtifactReportClose}
                         >
-                            {artifactSnapshots}
+                            <table>
+                                {artifactSnapshots}
+                            </table>
                         </Dialog>
 
                         <Snackbar
