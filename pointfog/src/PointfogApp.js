@@ -386,7 +386,7 @@ export default class PointfogApp extends Component<any, any> {
         ).then(storedData => {
             let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
             this.artifacts = storedData.artifacts || emptyArtifacts;
-            this.artifactImageUrls = storedData.artifacts || {};
+            this.artifactImageUrls = storedData.artifactImageUrls || {};
             let storedNodes = storedData.nodes || [];
             storedNodes.forEach(node => {
                 this.layers.pointcloudManager.addNode(node.id, node);
