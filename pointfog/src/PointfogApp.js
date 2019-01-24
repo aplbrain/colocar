@@ -302,20 +302,22 @@ export default class PointfogApp extends Component<any, any> {
 
             p.mouseWheel = function (e) {
                 // Handle pinch-to-zoom functionality
-                if (e.ctrlKey || e.shiftKey) {
-                    if (e.wheelDelta < 0) {
-                        self.scaleDown();
+                if (!self.state.artifactReportOpen) {
+                    if (e.ctrlKey || e.shiftKey) {
+                        if (e.wheelDelta < 0) {
+                            self.scaleDown();
+                        } else {
+                            self.scaleUp();
+                        }
                     } else {
-                        self.scaleUp();
+                        if (e.wheelDelta < 0) {
+                            self.incrementZ();
+                        } else {
+                            self.decrementZ();
+                        }
                     }
-                } else {
-                    if (e.wheelDelta < 0) {
-                        self.incrementZ();
-                    } else {
-                        self.decrementZ();
-                    }
+                    self.updateUIStatus();
                 }
-                self.updateUIStatus();
             };
 
             p.draw = function() {
