@@ -663,21 +663,23 @@ export default class PointfogApp extends Component<any, any> {
         for (let zIndex in this.artifactImageUrls) {
             artifactSnapshots.push(
                 <div
-                key={`artifact_snapshot_${zIndex}`}
+                    key={`artifact_snapshot_${zIndex}`}
                 >
                     <img
-                    display="inline-block"
-                    float="left"
-                    width="40%"
-                    alt="em-snapshot"
-                    src={this.artifactImageUrls[zIndex]}
+                        display="inline-block"
+                        float="left"
+                        width="40%"
+                        alt="em-snapshot"
+                        src={this.artifactImageUrls[zIndex]}
                     />
                     <div
-                    display="inline-block"
-                    float="right"
-                    width="40%"
+                        display="inline-block"
+                        float="right"
+                        width="40%"
                     >
                         z-index: {zIndex}
+                        <br/>
+                        {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
                     </div>
                 </div>
             );
