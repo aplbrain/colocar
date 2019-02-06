@@ -625,66 +625,68 @@ export default class PointfogApp extends Component<any, any> {
         let yString = String(newY).padStart(5, "0");
         let zString = String(newZ).padStart(5, "0");
 
+        let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
-        this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
-        let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
-        this.artifacts = this.artifacts || emptyArtifacts;
-        this.artifactImageUrls = this.artifactImageUrls || {};
-        let artifactHighlight = false;
-        for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
-            let artifact = this.artifactTags[aIndex];
-            artifactChecklistHTML.push(
-                <DialogContent key={`artifact_${artifact}`}>
-                    <Checkbox
-                        checked={this.artifacts[artifact][newZ]}
-                        onChange={(event: Object, checked: boolean) => {
-                            this.artifacts[artifact][newZ] = checked;
-                            if (checked === true) {
-                                if (!(newZ in this.artifactImageUrls)) {
-                                    this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
-                                }
-                            } else {
-                                let noneFlag = true;
-                                for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
-                                    noneFlag &= !this.artifacts[aIndex][newZ];
-                                }
-                                if (noneFlag) {
-                                    delete this.artifactImageUrls[newZ];
-                                }
-                            }
-                        }}/>
-                    <span>{artifact}</span>
-                </DialogContent>
-            );
-            if (this.artifacts[artifact][newZ] === true) {
-                artifactHighlight = true;
-            }
-        }
-        let artifactButtonColor = artifactHighlight? "secondary": "default";
         let artifactSnapshots = [];
-        for (let zIndex in this.artifactImageUrls) {
-            artifactSnapshots.push(
-                <tr
-                    key={`artifact_snapshot_${zIndex}`}
-                >
-                    <td
-                        style={{"padding": "2%"}}
+
+        if (this.artifactFlag) {
+            this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+            let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
+            this.artifacts = this.artifacts || emptyArtifacts;
+            this.artifactImageUrls = this.artifactImageUrls || {};
+            for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
+                let artifact = this.artifactTags[aIndex];
+                artifactChecklistHTML.push(
+                    <DialogContent key={`artifact_${artifact}`}>
+                        <Checkbox
+                            checked={this.artifacts[artifact][newZ]}
+                            onChange={(event: Object, checked: boolean) => {
+                                this.artifacts[artifact][newZ] = checked;
+                                if (checked === true) {
+                                    if (!(newZ in this.artifactImageUrls)) {
+                                        this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                                    }
+                                } else {
+                                    let noneFlag = true;
+                                    for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
+                                        noneFlag &= !this.artifacts[aIndex][newZ];
+                                    }
+                                    if (noneFlag) {
+                                        delete this.artifactImageUrls[newZ];
+                                    }
+                                }
+                            }}/>
+                        <span>{artifact}</span>
+                    </DialogContent>
+                );
+                if (this.artifacts[artifact][newZ] === true) {
+                    artifactButtonColor =  "secondary";
+                }
+            }
+            for (let zIndex in this.artifactImageUrls) {
+                artifactSnapshots.push(
+                    <tr
+                        key={`artifact_snapshot_${zIndex}`}
                     >
-                        <img
-                            alt="em-snapshot"
-                            src={this.artifactImageUrls[zIndex]}
-                            width="100%"
-                        />
-                    </td>
-                    <td
-                        style={{"padding": "2%"}}
-                    >
-                        z-index: {zIndex}
-                        <br/>
-                        {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
-                    </td>
-                </tr>
-            );
+                        <td
+                            style={{"padding": "2%"}}
+                        >
+                            <img
+                                alt="em-snapshot"
+                                src={this.artifactImageUrls[zIndex]}
+                                width="100%"
+                            />
+                        </td>
+                        <td
+                            style={{"padding": "2%"}}
+                        >
+                            z-index: {zIndex}
+                            <br/>
+                            {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
+                        </td>
+                    </tr>
+                );
+            }
         }
 
         return (
