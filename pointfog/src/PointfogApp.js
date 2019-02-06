@@ -84,8 +84,8 @@ export default class PointfogApp extends Component<any, any> {
     volume: Object;
 
     state: {
-        artifactModalOpen: false,
-        artifactReportOpen: false,
+        artifactModalOpen: boolean,
+        artifactReportOpen: boolean,
         cursorX: number,
         cursorY: number,
         cursorZ?: number,
