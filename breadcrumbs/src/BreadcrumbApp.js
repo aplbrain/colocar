@@ -330,23 +330,29 @@ export default class BreadcrumbApp extends Component<any, any> {
             };
 
             p.mouseWheel = function(e) {
+                let delta = 0;
+                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    delta = e.deltaX;
+                } else {
+                    delta = e.deltaY;
+                }
                 // Handle pinch-to-zoom functionality
                 if (!self.state.artifactReportOpen) {
                     if (e.ctrlKey || e.shiftKey) {
-                        if (e.wheelDelta < 0) {
+                        if (delta > 0) {
                             self.scaleDown();
                         } else {
                             self.scaleUp();
                         }
                     } else {
-                        if (e.wheelDelta < 0) {
+                        if (delta > 0) {
                             self.incrementZ();
                         } else {
                             self.decrementZ();
                         }
                     }
+                    self.updateUIStatus();
                 }
-                self.updateUIStatus();
             };
 
             p.draw = function() {
@@ -737,7 +743,6 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
         let artifactSnapshots = [];
-        this.artifactFlag = true;
 
         if (this.artifactFlag) {
             this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
