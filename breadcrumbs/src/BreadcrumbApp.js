@@ -745,6 +745,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifactSnapshots = [];
 
         if (this.artifactFlag) {
+            // this initialization currently must happen in both
+            // the constructor and render method - switching to
+            // state-based variables may help
             this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
             let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
             this.artifacts = this.artifacts || emptyArtifacts;
