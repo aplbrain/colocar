@@ -44,6 +44,17 @@ Once the apps have had their dependencies installed, the python3 environment is 
 <table>
 <tr>
     <td>
+        <img align=center src="pointfog/logo.png" width=100>
+    </td>
+    <td>
+        <h3 align=center><a href="pointfog/">pointfog</a></h3>
+    </td>
+    <td>
+        <p>Pointcloud generation from images</p>
+    </td>
+</tr>
+<tr>
+    <td>
         <img align=center src="breadcrumbs/logo.png" width=100>
     </td>
     <td>
@@ -66,24 +77,24 @@ Once the apps have had their dependencies installed, the python3 environment is 
 </tr>
 <tr>
     <td>
-        <img align=center src="pointfog/logo.png" width=100>
-    </td>
-    <td>
-        <h3 align=center><a href="pointfog/">pointfog</a></h3>
-    </td>
-    <td>
-        <p>Pointcloud generation from data</p>
-    </td>
-</tr>
-<tr>
-    <td>
         <img align=center src="macchiato/logo.png" width=100>
     </td>
     <td>
         <h3 align=center><a href="macchiato/">macchiato</a></h3>
     </td>
     <td>
-        <p>forced choice synapse proofreading</p>
+        <p>forced choice point proofreading</p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <img align=center src="nazca/logo.png" width=100>
+    </td>
+    <td>
+        <h3 align=center><a href="nazca/">nazca</a></h3>
+    </td>
+    <td>
+        <p>forced choice graph proofreading</p>
     </td>
 </tr>
 </table>
