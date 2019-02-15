@@ -62,7 +62,7 @@ p5.prototype.loadImage = function (path: string, successCallback: Function, fail
     return pImg;
 };
 
-function tryFetchUntilSuccess(path, headers, img) {
+function tryFetchUntilSuccessful(path, headers, img) {
     let URL = window.URL || window.webkitURL;
     fetch(path, {
         headers,
