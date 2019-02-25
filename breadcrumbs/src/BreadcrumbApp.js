@@ -742,6 +742,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
+        let artifactDefaultMessage = "No artifacts tagged yet. To tag an artifact, click on the comment button.";
         let artifactSnapshots = [];
 
         if (this.artifactFlag) {
@@ -882,7 +883,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                         >
                             <table>
                                 <tbody>
-                                    {artifactSnapshots}
+                                    {(artifactSnapshots.length === 0)?
+                                    artifactDefaultMessage:
+                                    artifactSnapshots}
                                 </tbody>
                             </table>
                         </Dialog>
