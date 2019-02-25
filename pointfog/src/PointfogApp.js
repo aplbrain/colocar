@@ -774,8 +774,9 @@ export default class PointfogApp extends Component<any, any> {
                             <table>
                                 <tbody>
                                     {(artifactSnapshots.length===0)?
-                                    artifactDefaultMessage:
-                                    artifactSnapshots}
+                                        artifactDefaultMessage:
+                                        artifactSnapshots
+                                    }
                                 </tbody>
                             </table>
                         </Dialog>
