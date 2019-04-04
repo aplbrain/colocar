@@ -293,21 +293,15 @@ export default class NazcaApp extends Component<any, any> {
             };
 
             p.mouseWheel = function(e) {
-                let delta = 0;
-                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-                    delta = e.deltaX;
-                } else {
-                    delta = e.deltaY;
-                }
                 // Handle pinch-to-zoom functionality
                 if (e.ctrlKey || e.shiftKey) {
-                    if (delta > 0) {
+                    if (e.deltaY > 0) {
                         self.scaleDown();
                     } else {
                         self.scaleUp();
                     }
                 } else {
-                    if (delta > 0) {
+                    if (e.deltaY > 0) {
                         self.incrementZ();
                     } else {
                         self.decrementZ();
