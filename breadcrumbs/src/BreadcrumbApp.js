@@ -25,6 +25,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import InfoIcon from "@material-ui/icons/Info";
+import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import SaveIcon from "@material-ui/icons/Save";
 import SendIcon from "@material-ui/icons/Send";
 import localForage from "localforage";
@@ -73,8 +74,10 @@ const DEFAULT_ARTIFACT_TAGS = [
 export default class BreadcrumbApp extends Component<any, any> {
 
     artifacts: Object;
+    artifactImageUrls: Object;
     artifactFlag: boolean;
     artifactTags: Array<string>;
+    canvas: Object;
     confidence: boolean;
     graphId: string;
     p5ID: string;
@@ -91,6 +94,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     state: {
         artifactModalOpen: boolean,
+        artifactReportOpen: boolean,
         cursorX: number,
         cursorY: number,
         cursorZ?: number,
@@ -105,6 +109,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.p5ID = "p5-container";
         this.state = {
             artifactModalOpen: false,
+            artifactReportOpen: false,
             cursorX: 0,
             cursorY: 0,
             saveInProgress: false
@@ -126,6 +131,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers.traceManager.mouseClicked();
                     self.updateUIStatus();
                 });
+
+                self.canvas = canvas;
 
                 // The layers that will be rendered in the p5 scene.
                 self.layers = {};
@@ -154,6 +161,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     let colocardGraph = instructions.graph.structure;
                     let emptyArtifacts = self.getEmptyArtifacts(self.artifactTags);
                     self.artifacts = emptyArtifacts;
+                    self.artifactImageUrls = {};
 
                     let graphlibGraph = self.graphlibFromColocard(colocardGraph);
 
@@ -329,20 +337,22 @@ export default class BreadcrumbApp extends Component<any, any> {
                     delta = e.deltaY;
                 }
                 // Handle pinch-to-zoom functionality
-                if (e.ctrlKey || e.shiftKey) {
-                    if (delta > 0) {
-                        self.scaleDown();
+                if (!self.state.artifactReportOpen) {
+                    if (e.ctrlKey || e.shiftKey) {
+                        if (delta > 0) {
+                            self.scaleDown();
+                        } else {
+                            self.scaleUp();
+                        }
                     } else {
-                        self.scaleUp();
+                        if (delta > 0) {
+                            self.incrementZ();
+                        } else {
+                            self.decrementZ();
+                        }
                     }
-                } else {
-                    if (delta > 0) {
-                        self.incrementZ();
-                    } else {
-                        self.decrementZ();
-                    }
+                    self.updateUIStatus();
                 }
-                self.updateUIStatus();
             };
 
             p.draw = function() {
@@ -357,6 +367,9 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.handleMetadataModalClose = this.handleMetadataModalClose.bind(this);
         this.handleMetadataModalOpen = this.handleMetadataModalOpen.bind(this);
 
+        this.handleArtifactReportClose = this.handleArtifactReportClose.bind(this);
+        this.handleArtifactReportOpen = this.handleArtifactReportOpen.bind(this);
+        
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
@@ -460,6 +473,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             `breadcrumbsStorage-${this.questionId}`
         ).then(storedData => {
             this.artifacts = storedData.artifacts;
+            this.artifactImageUrls = storedData.artifactImageUrls || {};
             let storedGraph = graphlib.json.read(storedData.graphStr);
             this.layers.traceManager.insertCachedGraph(storedGraph, storedData.activeNodeId);
             this.setState({
@@ -482,12 +496,14 @@ export default class BreadcrumbApp extends Component<any, any> {
             saveInProgress: true
         });
         let artifacts = this.artifacts;
+        let artifactImageUrls = this.artifactImageUrls;
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
         let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
         localForage.setItem(
             `breadcrumbsStorage-${this.questionId}`,
             {
                 artifacts,
+                artifactImageUrls,
                 graphStr,
                 activeNodeId
             }
@@ -634,6 +650,14 @@ export default class BreadcrumbApp extends Component<any, any> {
         this.setState({ artifactModalOpen: true });
     }
 
+    handleArtifactReportClose() {
+        this.setState({ artifactReportOpen: false });
+    }
+
+    handleArtifactReportOpen() {
+        this.setState({ artifactReportOpen: true });
+    }
+
     handleSnackbarClose() {
         this.setState({ snackbarOpen: false });
     }
@@ -716,28 +740,72 @@ export default class BreadcrumbApp extends Component<any, any> {
         let yString = String(newY).padStart(5, "0");
         let zString = String(newZ).padStart(5, "0");
 
+        let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
-        this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
-        let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
-        this.artifacts = this.artifacts || emptyArtifacts;
-        let artifactHighlight = false;
-        for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
-            let artifact = this.artifactTags[aIndex];
-            artifactChecklistHTML.push(
-                <DialogContent key={`artifact_${artifact}`}>
-                    <Checkbox
-                        checked={this.artifacts[artifact][newZ]}
-                        onChange={(event: Object, checked: boolean) => {
-                            this.artifacts[artifact][newZ] = checked;
-                        }}/>
-                    <span>{artifact}</span>
-                </DialogContent>
-            );
-            if (this.artifacts[artifact][newZ] === true) {
-                artifactHighlight = true;
+        let artifactSnapshots = [];
+
+        if (this.artifactFlag) {
+            // this initialization currently must happen in both
+            // the constructor and render method - switching to
+            // state-based variables may help
+            this.artifactTags = this.artifactTags || DEFAULT_ARTIFACT_TAGS;
+            let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
+            this.artifacts = this.artifacts || emptyArtifacts;
+            this.artifactImageUrls = this.artifactImageUrls || {};
+            for (let aIndex = 0; aIndex < this.artifactTags.length; aIndex++) {
+                let artifact = this.artifactTags[aIndex];
+                artifactChecklistHTML.push(
+                    <DialogContent key={`artifact_${artifact}`}>
+                        <Checkbox
+                            checked={this.artifacts[artifact][newZ]}
+                            onChange={(event: Object, checked: boolean) => {
+                                this.artifacts[artifact][newZ] = checked;
+                                if (checked === true) {
+                                    if (!(newZ in this.artifactImageUrls)) {
+                                        this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                                    }
+                                } else {
+                                    let noneFlag = true;
+                                    for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
+                                        noneFlag &= !this.artifacts[aIndex][newZ];
+                                    }
+                                    if (noneFlag) {
+                                        delete this.artifactImageUrls[newZ];
+                                    }
+                                }
+                            }}/>
+                        <span>{artifact}</span>
+                    </DialogContent>
+                );
+                if (this.artifacts[artifact][newZ] === true) {
+                    artifactButtonColor =  "secondary";
+                }
+            }
+            for (let zIndex in this.artifactImageUrls) {
+                artifactSnapshots.push(
+                    <tr
+                        key={`artifact_snapshot_${zIndex}`}
+                    >
+                        <td
+                            style={{"padding": "2%"}}
+                        >
+                            <img
+                                alt="em-snapshot"
+                                src={this.artifactImageUrls[zIndex]}
+                                width="100%"
+                            />
+                        </td>
+                        <td
+                            style={{"padding": "2%"}}
+                        >
+                            z-index: {zIndex}
+                            <br/>
+                            {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
+                        </td>
+                    </tr>
+                );
             }
         }
-        let artifactButtonColor = artifactHighlight? "secondary": "default";
 
         return (
             <div>
@@ -782,10 +850,22 @@ export default class BreadcrumbApp extends Component<any, any> {
                                         </Button>
                                     </div>
                                 ): ""}
+                                {this.artifactFlag? (
+                                    <div style={{ fontSize: "0.9em" }}>
+                                        <Button style={{ opacity: 0.9 }}
+                                            variant="fab"
+                                            mini={true}
+                                            onClick={ this.handleArtifactReportOpen }
+                                        >
+                                            <LibraryBooksIcon />
+                                        </Button>
+                                    </div>
+                                ): ""}
                             </div>
                         </div>
 
                         <Dialog
+                            id="artifact-annotation"
                             open={this.state.artifactModalOpen}
                             onClose={this.handleMetadataModalClose}
                         >
@@ -793,6 +873,18 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 Slice Artifacts: z={newZ}
                             </DialogTitle>
                             {artifactChecklistHTML}
+                        </Dialog>
+
+                        <Dialog
+                            id="artifact-report"
+                            open={this.state.artifactReportOpen}
+                            onClose={this.handleArtifactReportClose}
+                        >
+                            <table>
+                                <tbody>
+                                    {artifactSnapshots}
+                                </tbody>
+                            </table>
                         </Dialog>
 
                         <Snackbar
