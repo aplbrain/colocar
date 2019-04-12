@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 
 
 import type { P5Type } from "colocorazon/dist/types/p5";
+import Log from "colocorazon/dist/log";
 
 import BreadcrumbApp from "./BreadcrumbApp";
 
@@ -25,9 +26,21 @@ p5.prototype.loadImage = function (path: string, successCallback: Function, fail
 
     let self = this;
 
+    let URL = window.URL || window.webkitURL;
     headers = headers || {};
 
-    tryFetchUntilSuccessful(path, headers, img);
+    fetch(path, {
+        headers,
+    }).then(res => {
+        if (res.ok) {
+            res.blob().then(b => {
+                // Start loading the image:
+                img.src = URL.createObjectURL(b);
+            });
+        } else {
+            Log.error(res);
+        }
+    });
 
     img.onload = function () {
         pImg.width = pImg.canvas.width = img.width;
@@ -62,18 +75,6 @@ p5.prototype.loadImage = function (path: string, successCallback: Function, fail
 
     return pImg;
 };
-
-function tryFetchUntilSuccessful(path, headers, img) {
-    let URL = window.URL || window.webkitURL;
-    fetch(path, {
-        headers,
-    }).then(res => {
-        res.blob().then(b => {
-            // Start loading the image:
-            img.src = URL.createObjectURL(b);
-        });
-    }).catch(() => tryFetchUntilSuccessful(path, headers, img));
-}
 
 p5.prototype.gradientLine = function(x1: number, y1: number, x2: number, y2: number, a: string, b: string, stroke: number) {
     let dx = x2 - x1;
