@@ -743,6 +743,7 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
         let artifactSnapshots = [];
+        let jpegQuality = 0.5;
 
         if (this.artifactFlag) {
             // this initialization currently must happen in both
@@ -762,7 +763,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 this.artifacts[artifact][newZ] = checked;
                                 if (checked === true) {
                                     if (!(newZ in this.artifactImageUrls)) {
-                                        this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL();
+                                        this.artifactImageUrls[newZ] = this.layers.imageManager.p.canvas.toDataURL("image/jpeg", jpegQuality);
                                     }
                                 } else {
                                     let noneFlag = true;
