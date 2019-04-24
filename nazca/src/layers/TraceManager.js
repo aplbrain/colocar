@@ -16,6 +16,7 @@ const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // bright green
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
 const DEFAULT_NODE_COLOR = { r: 90, g: 200, b: 90 }; // dark green
 const DEFAULT_EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
+const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 
 // Radius of an axon marker
 const AXON_RADIUS = 25;
@@ -25,6 +26,8 @@ const BOOKMARK_RADIUS = 25;
 const DENDRITE_RADIUS = 25;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
+// Radius of centroid marker
+const CENTROID_RADIUS = 12;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
@@ -368,6 +371,17 @@ export default class TraceManager {
             let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
         }
+
+        // Draw centroids
+        for (let node of this.g.nodes().map(n => this.g.node(n))) {
+            let nodePos = this.transformCoords(node.x, node.y);
+            let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
+            if (nodeDiminish >= 254.5) {
+                this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+                this.p.ellipse(nodePos.x, nodePos.y, CENTROID_RADIUS, CENTROID_RADIUS);
+            }
+        }
+
     }
 
 }
