@@ -317,10 +317,10 @@ export default class TraceManager {
                 color = BOUNDARY_COLOR;
                 radius = BOOKMARK_RADIUS;
             } else if (node.type === "presynaptic") {
-                color = AXON_COLOR;
+                color = this.nodeColor;
                 radius = AXON_RADIUS;
             } else if (node.type === "postsynaptic") {
-                color = DENDRITE_COLOR;
+                color = this.nodeColor;
                 radius = DENDRITE_RADIUS;
             } else {
                 color = this.nodeColor;
