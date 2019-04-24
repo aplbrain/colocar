@@ -127,9 +127,6 @@ export default class MacchiatoApp extends Component<any, any> {
                     // Tighten the crop around the node:
                     let node = self.node;
 
-                    console.log(self.volume.bounds);
-                    console.log(coordinateFrameBounds);
-
                     // Use JSON to deep copy
                     let lowerLimits = JSON.parse(
                         JSON.stringify([
