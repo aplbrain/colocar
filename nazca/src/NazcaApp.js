@@ -24,9 +24,9 @@ let p5: P5Type = window.p5;
 
 let DB = new Colocard();
 
-const CANDIDATE_LEGEND_COLOR = "rgb(90, 200, 90)";
-const CANDIDATE_NODE_COLOR = {"r": 90, "g": 200, "b": 90};
-const CANDIDATE_EDGE_COLOR = {"r": 60, "g": 170, "b": 60};
+const CANDIDATE_LEGEND_COLOR = "rgb(255, 192, 0)";
+const CANDIDATE_NODE_COLOR = {"r": 255, "g": 192, "b": 0};
+const CANDIDATE_EDGE_COLOR = {"r": 255, "g": 128, "b": 0};
 
 const CONTEXT_LEGEND_COLOR = "rgb(200, 90, 200)";
 const CONTEXT_NODE_COLOR = {"r": 200, "g": 90, "b": 200};
