@@ -634,6 +634,7 @@ export default class PointfogApp extends Component<any, any> {
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
         let artifactDefaultMessage = "No artifacts tagged yet. To tag an artifact, click on the comment button.";
+        let artifactSnapshotTitle = [];
         let artifactSnapshots = [];
 
         if (this.artifactFlag) {
@@ -697,6 +698,13 @@ export default class PointfogApp extends Component<any, any> {
                     </tr>
                 );
             }
+            artifactSnapshotTitle.push(
+                <tr
+                    key={`artifact_snapshot_title`}
+                >
+                    {`Artifacts in Volume: ${artifactSnapshots.length}`}
+                </tr>
+            );
         }
 
         return (
@@ -773,10 +781,8 @@ export default class PointfogApp extends Component<any, any> {
                         >
                             <table>
                                 <tbody>
-                                    {(artifactSnapshots.length===0)?
-                                        artifactDefaultMessage:
-                                        artifactSnapshots
-                                    }
+                                    {artifactSnapshotTitle}
+                                    {artifactSnapshots}
                                 </tbody>
                             </table>
                         </Dialog>
