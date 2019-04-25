@@ -633,6 +633,7 @@ export default class PointfogApp extends Component<any, any> {
 
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
+        let artifactSnapshotTitle = [];
         let artifactSnapshots = [];
 
         if (this.artifactFlag) {
@@ -696,6 +697,13 @@ export default class PointfogApp extends Component<any, any> {
                     </tr>
                 );
             }
+            artifactSnapshotTitle.push(
+                <tr
+                    key={`artifact_snapshot_title`}
+                >
+                    {`Images with Tagged Artifacts: ${artifactSnapshots.length}`}
+                </tr>
+            );
         }
 
         return (
@@ -772,6 +780,7 @@ export default class PointfogApp extends Component<any, any> {
                         >
                             <table>
                                 <tbody>
+                                    {artifactSnapshotTitle}
                                     {artifactSnapshots}
                                 </tbody>
                             </table>
