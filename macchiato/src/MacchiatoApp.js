@@ -83,6 +83,7 @@ export default class MacchiatoApp extends Component<any, any> {
     };
 
     nodeId: string;
+    node: Object;
     questionId: string;
     questionType: string;
     volume: Object;
@@ -117,17 +118,29 @@ export default class MacchiatoApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.nodeId = question.instructions.node._id;
+                    self.node = question.instructions.node;
                     self.questionId = question._id;
                     self.questionType = question.instructions.type;
                     self.volume = volume;
+                    return self.getCoordinateFrameBounds(volume);
+                }).then(coordinateFrameBounds => {
                     // Tighten the crop around the node:
-                    let node = question.instructions.node;
+                    let node = self.node;
+
                     // Use JSON to deep copy
                     let lowerLimits = JSON.parse(
-                        JSON.stringify(self.volume.bounds[0])
+                        JSON.stringify([
+                            coordinateFrameBounds.x_start,
+                            coordinateFrameBounds.y_start,
+                            coordinateFrameBounds.z_start
+                        ])
                     );
                     let upperLimits = JSON.parse(
-                        JSON.stringify(self.volume.bounds[1])
+                        JSON.stringify([
+                            coordinateFrameBounds.x_stop,
+                            coordinateFrameBounds.y_stop,
+                            coordinateFrameBounds.z_stop
+                        ])
                     );
                     self.volume.bounds[0] = [
                         Math.round(node.coordinate[0] - XY_RADIUS),
@@ -317,6 +330,21 @@ export default class MacchiatoApp extends Component<any, any> {
                 }
             };
         };
+    }
+
+    async getCoordinateFrameBounds(volume:Object): Object {
+        let experimentEndpoint = `https://api.theboss.io/v1/collection/${volume.collection}/experiment/${volume.experiment}`;
+        let experimentData = await fetch(experimentEndpoint, {
+            headers: DB.headers,
+            method: "GET"
+        }).then(response => response.json());
+        let coordinateFrameName = experimentData["coord_frame"];
+        let coordinateFrameEndpoint = `https://api.theboss.io/v1/coord/${coordinateFrameName}`;
+        let coordinateFrameData = await fetch(coordinateFrameEndpoint, {
+            headers: DB.headers,
+            method: "GET"
+        }).then(response => response.json());
+        return coordinateFrameData;
     }
 
     updateUIStatus(): void {
