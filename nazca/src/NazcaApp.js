@@ -379,7 +379,7 @@ export default class NazcaApp extends Component<any, any> {
 
     toggleTraceVisibility(): void {
         this.layers.traceManagerCandidate.toggleVisibility();
-        this.layers.traceManagerContext.toggleTraceVisibility();
+        this.layers.traceManagerContext.toggleVisibility();
     }
 
     componentDidMount() {
