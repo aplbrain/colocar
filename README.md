@@ -28,7 +28,7 @@ At this stage, the apps can be run locally by cd-ing into their directories and 
 ## Deploying to AWS
 Each of the colocar apps can be easily built and deployed to AWS using the handy script,  **colocart**. This tool requires a python3 installation with the libraries boto3, click, and colored.
 
-Be sure that the apps have already been set up on AWS via the [quickstart-website](https://console.aws.amazon.com/quickstart-website/home) portal (deprecated). This connects a CloudFront service to a particular S3 bucket. The name of that S3 bucket must be entered into the build.cfg file such that the contents are as follows.
+Be sure that the apps have already been set up on AWS via the [quickstart-website](https://console.aws.amazon.com/quickstart-website/home) portal (TODO: this tool was deprecated and is unavailable). This connects a CloudFront service to a particular S3 bucket. The name of that S3 bucket must be entered into the build.cfg file such that the contents are as follows.
 
 ```
 [UPLOAD]
