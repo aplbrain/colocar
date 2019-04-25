@@ -7,20 +7,15 @@ import type { P5Type } from "colocorazon/dist/types/p5";
 import Log from "colocorazon/dist/log";
 import type ImageManager from "./ImageManager";
 
-// Color of node marked as axon
-const AXON_COLOR = { r: 255, g: 0, b: 0 };
-// Color of node marked as dendrite
-const DENDRITE_COLOR = { r: 0, g: 255, b: 255 };
-// Color of the currently selected node "highlight" area
-const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
-// Color of the starting synapse
-const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 };
-// Color of a node that has been marked as a bookmark
-const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 };
-// Default node color
-const DEFAULT_COLOR = { r: 90, g: 200, b: 90 };
-// Default edge color
-const EDGE_COLOR = { r: 60, g: 170, b: 60 };
+const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red
+const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
+const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
+const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // green
+const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
+const DEFAULT_COLOR = { r: 90, g: 200, b: 90 }; // dark green
+const EDGE_COLOR = { r: 60, g: 170, b: 60 }; // dark green
+const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
+
 const EDGE_WIDTH = 6;
 
 // Radius of an axon marker
@@ -31,6 +26,8 @@ const BOOKMARK_RADIUS = 15;
 const DENDRITE_RADIUS = 15;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
+// Radius of centroid marker
+const CENTROID_RADIUS = 10;
 
 // Distance in pixels outside of which a node is not selectable
 const SELECTION_THRESHOLD = 15;
@@ -206,10 +203,8 @@ export default class TraceManager {
                 radius = DEFAULT_RADIUS;
             }
 
-            this.p.fill(
-                color.r, color.g, color.b,
-                (255 - (Math.pow(node.z - this.im.currentZ, 2)))
-            );
+            let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
+            this.p.fill(color.r, color.g, color.b, nodeDiminish);
             this.p.ellipse(nodePos.x, nodePos.y, radius, radius);
         }
 
@@ -247,6 +242,21 @@ export default class TraceManager {
             let transformedNode = this.transformCoords(this.activeNode.x, this.activeNode.y);
             this.p.ellipse(transformedNode.x, transformedNode.y, 20, 20);
         }
+
+        // Draw centroids
+        for (let node of this.g.nodes().map(n => this.g.node(n))) {
+            let nodePos = this.transformCoords(node.x, node.y);
+            let nodeDiminish = 255 - (Math.pow(node.z - this.im.currentZ, 2));
+            if (nodeDiminish >= 254.5) {
+                this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
+                this.p.ellipse(nodePos.x, nodePos.y, CENTROID_RADIUS, CENTROID_RADIUS);
+            }
+            if (node.lowConfidence) {
+                this.p.fill(255, 255, 255, nodeDiminish);
+                this.p.arc(nodePos.x, nodePos.y, 0.9*CENTROID_RADIUS, 0.9*CENTROID_RADIUS, Math.PI/2, 3*Math.PI/2);
+            }
+        }
+
     }
 
 }
