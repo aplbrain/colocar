@@ -633,7 +633,6 @@ export default class PointfogApp extends Component<any, any> {
 
         let artifactButtonColor = "default";
         let artifactChecklistHTML = [];
-        let artifactDefaultMessage = "No artifacts tagged yet. To tag an artifact, click on the comment button.";
         let artifactSnapshotTitle = [];
         let artifactSnapshots = [];
 
