@@ -810,7 +810,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 <tr
                     key={`artifact_snapshot_title`}
                 >
-                    {`Artifacts in Volume: ${artifactSnapshots.length}`}
+                    {`Images with Tagged Artifacts: ${artifactSnapshots.length}`}
                 </tr>
             );
         }
