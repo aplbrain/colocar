@@ -371,6 +371,7 @@ export default class MatchmakerApp extends Component<any, any> {
             newNode.created = oldNode.created;
             newNode.namespace = DB.matchmaker_name;
             newNode.type = oldNode.type;
+            newNode.lowConfidence = oldNode.metadata? oldNode.metadata.lowConfidence: false;
             newNode.id = oldNode.id || uuidv4();
             newNode.volume = this.volume._id;
             output.setNode(newNode.id, newNode);
