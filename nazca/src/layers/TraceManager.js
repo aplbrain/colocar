@@ -8,9 +8,7 @@ import Log from "colocorazon/dist/log";
 
 import type ImageManager from "./ImageManager";
 
-const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red
 const BOUNDARY_COLOR = { r: 255, g: 165, b: 0 }; // orange
-const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
 const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // bright green
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
