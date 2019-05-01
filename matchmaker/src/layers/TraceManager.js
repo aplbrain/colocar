@@ -19,11 +19,11 @@ const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 const EDGE_WIDTH = 6;
 
 // Radius of an axon marker
-const AXON_RADIUS = 15;
+const AXON_RADIUS = 20;
 // Radius of a marker for a node that is marked as a bookmark
-const BOOKMARK_RADIUS = 15;
+const BOOKMARK_RADIUS = 20;
 // Radius of a dendrite marker
-const DENDRITE_RADIUS = 15;
+const DENDRITE_RADIUS = 20;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
 // Radius of centroid marker
