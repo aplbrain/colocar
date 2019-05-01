@@ -54,19 +54,19 @@ const STYLES = {
     yes: {
         position: "fixed",
         right: "2em",
-        bottom: "6em",
+        bottom: "10em",
         backgroundColor: "green"
     },
     no: {
         position: "fixed",
         right: "6em",
-        bottom: "2em",
+        bottom: "6em",
         backgroundColor: "red"
     },
     maybe: {
         position: "fixed",
         right: "2em",
-        bottom: "2em",
+        bottom: "6em",
         backgroundColor: "orange"
     }
 };
@@ -201,10 +201,11 @@ export default class MacchiatoApp extends Component<any, any> {
                     ];
 
                     self.setState({
+                        currentZ: self.layers.imageManager.currentZ,
+                        questionId: self.questionId,
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: self.questionId,
-                        currentZ: self.layers.imageManager.currentZ,
+                        snackbarOpen: true
                     });
 
                 }).catch(err => alert(err));
@@ -443,6 +444,13 @@ export default class MacchiatoApp extends Component<any, any> {
         });
     }
 
+    handleSnackbarClose() {
+        this.setState({ snackbarOpen: false });
+    }
+    handleSnackbarOpen() {
+        this.setState({ snackbarOpen: true });
+    }
+
     render() {
         return (
             <div>
@@ -492,6 +500,23 @@ export default class MacchiatoApp extends Component<any, any> {
                             </tr>
                         </tbody>
                     </table>
+
+                    <Snackbar
+                        open={this.state.snackbarOpen}
+                        onClose={()=>this.handleSnackbarClose()}
+                        ContentProps={{
+                            'aria-describedby': 'message-id'
+                        }}
+                        action={[
+                            <Button key="undo" color="secondary" size="small" onClick={()=>this.handleSnackbarClose()}>
+                            GOT IT
+                            </Button>
+                        ]}
+                        message={<div id="message-id">
+                            <div>{this.prompt}</div>
+                            <div>Task ID: {this.questionId}</div>
+                        </div>}
+                    />
 
                     <Fab
                         style={STYLES["yes"]}
