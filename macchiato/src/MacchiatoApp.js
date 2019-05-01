@@ -20,7 +20,7 @@ let p5: P5Type = window.p5;
 
 let DB = new Colocard();
 
-const XY_RADIUS = 100;
+const XY_RADIUS = 200;
 const Z_RADIUS = 10;
 const BATCH_SIZE = 1;
 
