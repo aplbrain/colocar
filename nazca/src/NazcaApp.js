@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
@@ -11,11 +11,12 @@ import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FloatingActionButton from "material-ui/FloatingActionButton";
-import ActionThumbsUpDown from 'material-ui/svg-icons/action/thumbs-up-down';
-import ActionThumbDown from 'material-ui/svg-icons/action/thumb-down';
-import ActionThumbUp from 'material-ui/svg-icons/action/thumb-up';
+import Button from "@material-ui/core/Button";
+import Fab from "@material-ui/core/Fab";
+import Snackbar from "@material-ui/core/Snackbar";
+import ActionThumbsUpDown from "@material-ui/icons/ThumbsUpDown";
+import ActionThumbDown from "@material-ui/icons/ThumbDown";
+import ActionThumbUp from "@material-ui/icons/ThumbUp";
 import localForage from "localforage";
 
 import "./NazcaApp.css";
@@ -46,7 +47,7 @@ const STYLES = {
         backgroundColor: "#FFF",
     },
     controlRow: {
-        marginBottom: '15px',
+        marginBottom: "15px",
     },
     controlLabel: {
         float: "left",
@@ -69,17 +70,20 @@ const STYLES = {
     yes: {
         position: "fixed",
         right: "2em",
-        bottom: "6em"
+        bottom: "10em",
+        backgroundColor: "green"
     },
     no: {
         position: "fixed",
         right: "6em",
-        bottom: "2em"
+        bottom: "6em",
+        backgroundColor: "red"
     },
     maybe: {
         position: "fixed",
         right: "2em",
-        bottom: "2em"
+        bottom: "6em",
+        backgroundColor: "orange"
     }
 };
 
@@ -141,6 +145,7 @@ export default class NazcaApp extends Component<any, any> {
                     let volume = res.volume;
 
                     self.candidateId = question.instructions.candidate._id;
+                    self.prompt = question.instructions.prompt;
                     self.questionId = question._id;
                     self.volume = volume;
                     let batchSize = 10;
@@ -181,18 +186,19 @@ export default class NazcaApp extends Component<any, any> {
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
-                        'imageManager',
-                        'traceManagerContext',
-                        'traceManagerCandidate',
-                        'scrollbar'
+                        "imageManager",
+                        "traceManagerContext",
+                        "traceManagerCandidate",
+                        "scrollbar"
                     ];
 
                     self.setState({
+                        currentZ: self.layers.imageManager.currentZ,
+                        nodeCount: self.layers.traceManagerCandidate.g.nodeCount(),
+                        questionId: self.questionId,
                         ready: true,
                         scale: self.layers.imageManager.scale,
-                        questionId: self.questionId,
-                        currentZ: self.layers.imageManager.currentZ,
-                        nodeCount: self.layers.traceManagerCandidate.g.nodeCount()
+                        snackbarOpen: true
                     });
 
                     self.layers.traceManagerCandidate.g = graphlibGraphCandidate;
@@ -494,6 +500,13 @@ export default class NazcaApp extends Component<any, any> {
         });
     }
 
+    handleSnackbarClose() {
+        this.setState({ snackbarOpen: false });
+    }
+    handleSnackbarOpen() {
+        this.setState({ snackbarOpen: true });
+    }
+
     render() {
         return (
             <div>
@@ -567,39 +580,44 @@ export default class NazcaApp extends Component<any, any> {
                         </tbody>
                     </table>
 
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["yes"]}
-                                onClick={() => this.submitGraphDecision("yes")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"green"} >
-                                <ActionThumbUp />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["no"]}
-                                onClick={() => this.submitGraphDecision("no")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"red"} >
-                                <ActionThumbDown />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["maybe"]}
-                                onClick={() => this.submitGraphDecision("maybe")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"orange"} >
-                                <ActionThumbsUpDown />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
+                    <Snackbar
+                        open={this.state.snackbarOpen}
+                        onClose={()=>this.handleSnackbarClose()}
+                        ContentProps={{
+                            "aria-describedby": "message-id"
+                        }}
+                        action={[
+                            <Button key="undo" color="secondary" size="small" onClick={()=>this.handleSnackbarClose()}>
+                            GOT IT
+                            </Button>
+                        ]}
+                        message={<div id="message-id">
+                            <div>{this.prompt}</div>
+                            <div>Task ID: {this.questionId}</div>
+                        </div>}
+                    />
+
+                    <Fab
+                        style={STYLES["yes"]}
+                        onClick={() => this.submitGraphDecision("yes")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbUp />
+                    </Fab>
+                    <Fab
+                        style={STYLES["no"]}
+                        onClick={() => this.submitGraphDecision("no")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbDown />
+                    </Fab>
+                    <Fab
+                        style={STYLES["maybe"]}
+                        onClick={() => this.submitGraphDecision("maybe")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbsUpDown />
+                    </Fab>
 
                 </div> : null}
             </div>
