@@ -8,11 +8,12 @@ import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import SynapseManager from "./layers/SynapseManager";
 import Scrollbar from "./layers/Scrollbar";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FloatingActionButton from "material-ui/FloatingActionButton";
-import ActionThumbsUpDown from 'material-ui/svg-icons/action/thumbs-up-down';
-import ActionThumbDown from 'material-ui/svg-icons/action/thumb-down';
-import ActionThumbUp from 'material-ui/svg-icons/action/thumb-up';
+import Button from "@material-ui/core/Button";
+import Fab from "@material-ui/core/Fab";
+import Snackbar from "@material-ui/core/Snackbar";
+import ActionThumbsUpDown from '@material-ui/icons/ThumbsUpDown';
+import ActionThumbDown from '@material-ui/icons/ThumbDown';
+import ActionThumbUp from '@material-ui/icons/ThumbUp';
 
 import "./MacchiatoApp.css";
 
@@ -53,17 +54,20 @@ const STYLES = {
     yes: {
         position: "fixed",
         right: "2em",
-        bottom: "6em"
+        bottom: "6em",
+        backgroundColor: "green"
     },
     no: {
         position: "fixed",
         right: "6em",
-        bottom: "2em"
+        bottom: "2em",
+        backgroundColor: "red"
     },
     maybe: {
         position: "fixed",
         right: "2em",
-        bottom: "2em"
+        bottom: "2em",
+        backgroundColor: "orange"
     }
 };
 
@@ -119,6 +123,7 @@ export default class MacchiatoApp extends Component<any, any> {
 
                     self.nodeId = question.instructions.node._id;
                     self.node = question.instructions.node;
+                    self.prompt = question.instructions.prompt;
                     self.questionId = question._id;
                     self.questionType = question.instructions.type;
                     self.volume = volume;
@@ -444,6 +449,7 @@ export default class MacchiatoApp extends Component<any, any> {
                 <div id={this.p5ID} style={STYLES["p5Container"]}/>
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
+
                     <table>
                         <tbody>
                             <tr>
@@ -487,39 +493,27 @@ export default class MacchiatoApp extends Component<any, any> {
                         </tbody>
                     </table>
 
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["yes"]}
-                                onClick={() => this.submitNodeDecision("yes")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"green"} >
-                                <ActionThumbUp />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["no"]}
-                                onClick={() => this.submitNodeDecision("no")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"red"} >
-                                <ActionThumbDown />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
-                    <MuiThemeProvider>
-                        <div>
-                            <FloatingActionButton
-                                style={STYLES["maybe"]}
-                                onClick={() => this.submitNodeDecision("maybe")}
-                                disabled={this.state.submitInProgress}
-                                backgroundColor={"orange"} >
-                                <ActionThumbsUpDown />
-                            </FloatingActionButton>
-                        </div>
-                    </MuiThemeProvider>
+                    <Fab
+                        style={STYLES["yes"]}
+                        onClick={() => this.submitNodeDecision("yes")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbUp />
+                    </Fab>
+                    <Fab
+                        style={STYLES["no"]}
+                        onClick={() => this.submitNodeDecision("no")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbDown />
+                    </Fab>
+                    <Fab
+                        style={STYLES["maybe"]}
+                        onClick={() => this.submitNodeDecision("maybe")}
+                        disabled={this.state.submitInProgress}
+                        color="primary" >
+                        <ActionThumbsUpDown />
+                    </Fab>
 
                 </div> : null}
             </div>
