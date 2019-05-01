@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
@@ -14,9 +14,9 @@ import Scrollbar from "./layers/Scrollbar";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 import Snackbar from "@material-ui/core/Snackbar";
-import ActionThumbsUpDown from '@material-ui/icons/ThumbsUpDown';
-import ActionThumbDown from '@material-ui/icons/ThumbDown';
-import ActionThumbUp from '@material-ui/icons/ThumbUp';
+import ActionThumbsUpDown from "@material-ui/icons/ThumbsUpDown";
+import ActionThumbDown from "@material-ui/icons/ThumbDown";
+import ActionThumbUp from "@material-ui/icons/ThumbUp";
 import localForage from "localforage";
 
 import "./NazcaApp.css";
@@ -47,7 +47,7 @@ const STYLES = {
         backgroundColor: "#FFF",
     },
     controlRow: {
-        marginBottom: '15px',
+        marginBottom: "15px",
     },
     controlLabel: {
         float: "left",
@@ -186,10 +186,10 @@ export default class NazcaApp extends Component<any, any> {
                     // Set the order in which to render the layers. Removing layers
                     // from this array will cause them to not be rendered!
                     self.renderOrder = [
-                        'imageManager',
-                        'traceManagerContext',
-                        'traceManagerCandidate',
-                        'scrollbar'
+                        "imageManager",
+                        "traceManagerContext",
+                        "traceManagerCandidate",
+                        "scrollbar"
                     ];
 
                     self.setState({
@@ -584,7 +584,7 @@ export default class NazcaApp extends Component<any, any> {
                         open={this.state.snackbarOpen}
                         onClose={()=>this.handleSnackbarClose()}
                         ContentProps={{
-                            'aria-describedby': 'message-id'
+                            "aria-describedby": "message-id"
                         }}
                         action={[
                             <Button key="undo" color="secondary" size="small" onClick={()=>this.handleSnackbarClose()}>
