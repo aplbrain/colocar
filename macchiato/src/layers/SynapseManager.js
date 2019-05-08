@@ -16,17 +16,20 @@ export default class SynapseManager {
     g: any;
     im: ImageManager;
     node: Object;
+    zRadius: Number;
 
     visibility: boolean;
 
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        node: Object
+        node: Object,
+        zRadius: Number
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
         this.node = opts.node;
+        this.zRadius = opts.zRadius;
         this.visibility = true;
     }
 
@@ -61,14 +64,14 @@ export default class SynapseManager {
         let color = DEFAULT_COLOR;
         this.p.fill(
             color.r, color.g, color.b,
-            200 - 20 * (Math.abs(this.node.coordinate[2] - (this.im.currentZ - 10)))
+            200 - 20 * (Math.abs(this.node.coordinate[2] - (this.im.currentZ - this.zRadius)))
         );
         let {x, y} = this.transformCoords(
             this.node.coordinate[0],
             this.node.coordinate[1]
         );
         this.p.ellipse(x, y, MARKER_RADIUS);
-        if (Math.abs(this.node.coordinate[2] - (this.im.currentZ - 10)) < 1) {
+        if (Math.abs(this.node.coordinate[2] - (this.im.currentZ - this.zRadius)) < 1) {
             this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);
             this.p.ellipse(x, y, CENTROID_RADIUS, CENTROID_RADIUS);
         }

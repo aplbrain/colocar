@@ -183,7 +183,8 @@ export default class MacchiatoApp extends Component<any, any> {
                     self.layers["synapse"] = new SynapseManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        node: node
+                        node: node,
+                        zRadius: Z_RADIUS
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
