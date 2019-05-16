@@ -124,6 +124,8 @@ export default class TraceManager {
                 let n = closeNodes[0];
                 this.activeNode = n;
             }
+        } else {
+            this.drawHinting = true;
         }
     }
 

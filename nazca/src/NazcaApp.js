@@ -123,8 +123,13 @@ export default class NazcaApp extends Component<any, any> {
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
+                canvas.mouseClicked(function() {
+                    self.layers.traceManagerCandidate.mouseClicked();
+                    self.updateUIStatus();
+                });
+                
                 canvas.mousePressed(function() {
-                    self.layers.traceManagerContext.mousePressed();
+                    self.layers.traceManagerCandidate.mousePressed();
                     self.updateUIStatus();
                 });
 
@@ -217,6 +222,7 @@ export default class NazcaApp extends Component<any, any> {
                 const bKey = 66;
                 const dKey = 68;
                 const eKey = 69;
+                const hKey = 72;
                 const mKey = 77;
                 const nKey = 78;
                 const qKey = 81;
@@ -275,6 +281,9 @@ export default class NazcaApp extends Component<any, any> {
                     break;
                 case escapeKey:
                     self.reset();
+                    break;
+                case hKey:
+                    self.stopHinting();
                     break;
                 case tKey:
                     self.toggleTraceVisibility();
@@ -381,6 +390,10 @@ export default class NazcaApp extends Component<any, any> {
             scale: this.layers.imageManager.scale,
             currentZ: curZ
         });
+    }
+
+    stopHinting(): void {
+        this.layers.traceManagerCandidate.stopHinting();
     }
 
     toggleTraceVisibility(): void {
