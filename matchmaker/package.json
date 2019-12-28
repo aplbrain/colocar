@@ -8,7 +8,7 @@
     "graphlib": "^2.1.5",
     "localforage": "^1.7.2",
     "material-ui": "^0.20.1",
-    "npm": "^6.0.0",
+    "npm": "^6.13.4",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0",
