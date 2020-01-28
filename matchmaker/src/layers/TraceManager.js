@@ -5,10 +5,11 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
 import Log from "colocorazon/dist/log";
+
+import CHash from "colocorazon/dist/colorhash";
+
 import type ImageManager from "./ImageManager";
 
-const AXON_COLOR = { r: 255, g: 0, b: 0 }; // red
-const DENDRITE_COLOR = { r: 0, g: 255, b: 255 }; // cyan
 const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 }; // yellow
 const STARTING_SYNAPSE_COLOR = { r: 0, g: 255, b: 0 }; // green
 const BOOKMARK_COLOR = { r: 255, g: 0, b: 255 }; // purple
@@ -18,12 +19,10 @@ const CENTROID_COLOR = { r: 0, g: 0, b: 0 }; // dark black
 
 const EDGE_WIDTH = 6;
 
-// Radius of an axon marker
-const AXON_RADIUS = 20;
+// Radius of a marker when it has a node.type
+const SPECIAL_RADIUS = 25;
 // Radius of a marker for a node that is marked as a bookmark
 const BOOKMARK_RADIUS = 20;
-// Radius of a dendrite marker
-const DENDRITE_RADIUS = 20;
 // Radius of the default marker for a neuron
 const DEFAULT_RADIUS = 7;
 // Radius of centroid marker
@@ -44,6 +43,8 @@ export default class TraceManager {
     DEFAULT_COLOR: ?Object;
     EDGE_COLOR: ?Object;
 
+    nodeTypes: Array<string>;
+
     visibility: boolean;
 
     constructor(opts: {
@@ -60,6 +61,10 @@ export default class TraceManager {
         this.g = new graphlib.Graph({
             directed: true
         });
+
+        // Inferred when a graph is loaded. Used to report to app
+        // which colors should be listed.
+        this.nodeTypes = [];
 
         window.tm = this;
         this.visibility = true;
@@ -116,6 +121,7 @@ export default class TraceManager {
 
     insertGraph(graph: Object, activeNodeId: string) {
         this.g = graph;
+        this.nodeTypes = new Set(this.g.nodes().map(n => this.g.node(n)).filter(i => i.type).map(i => i.type));
         if (activeNodeId) {
             this.activeNode = this.g.node(activeNodeId);
         }
@@ -189,17 +195,11 @@ export default class TraceManager {
             if (node.bookmarked) {
                 color = BOOKMARK_COLOR;
                 radius = BOOKMARK_RADIUS;
-            } else if (node.type === "initial") {
-                color = STARTING_SYNAPSE_COLOR;
-                radius = BOOKMARK_RADIUS;
-            } else if (node.type === "presynaptic") {
-                color = AXON_COLOR;
-                radius = AXON_RADIUS;
-            } else if (node.type === "postsynaptic") {
-                color = DENDRITE_COLOR;
-                radius = DENDRITE_RADIUS;
+            } else if (node.type) {
+                color = CHash(node.type);
+                radius = SPECIAL_RADIUS;
             } else {
-                color = this.DEFAULT_COLOR;
+                color = DEFAULT_COLOR;
                 radius = DEFAULT_RADIUS;
             }
 
@@ -209,8 +209,8 @@ export default class TraceManager {
         }
 
         // Draw edges
-        for (let {v,w} of this.g.edges().map(({v, w}) => {
-            return {v: this.g.node(v), w: this.g.node(w)};
+        for (let { v, w } of this.g.edges().map(({ v, w }) => {
+            return { v: this.g.node(v), w: this.g.node(w) };
         })) {
             let nodePosU = this.transformCoords(v.x, v.y);
             let nodePosV = this.transformCoords(w.x, w.y);
@@ -253,7 +253,7 @@ export default class TraceManager {
             }
             if (node.lowConfidence) {
                 this.p.fill(255, 255, 255, nodeDiminish);
-                this.p.arc(nodePos.x, nodePos.y, 0.9*CENTROID_RADIUS, 0.9*CENTROID_RADIUS, Math.PI/2, 3*Math.PI/2);
+                this.p.arc(nodePos.x, nodePos.y, 0.9 * CENTROID_RADIUS, 0.9 * CENTROID_RADIUS, Math.PI / 2, 3 * Math.PI / 2);
             }
         }
 
