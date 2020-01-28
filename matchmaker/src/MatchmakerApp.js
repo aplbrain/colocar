@@ -100,11 +100,11 @@ export default class MatchmakerApp extends Component<any, any> {
 
                 let graphIdA;
                 while (!graphIdA) {
-                    graphIdA = "5e29bef39d07e90008df6652";//window.prompt("Enter first graph id.");
+                    graphIdA = window.prompt("Enter first graph id.");
                 }
                 let graphIdB;
                 while (!graphIdB) {
-                    graphIdB = "5e29c0479d07e90008df667d";//window.prompt("Enter second graph id.");
+                    graphIdB = window.prompt("Enter second graph id.");
                 }
 
                 DB.getGraphsAndVolume(
