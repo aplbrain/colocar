@@ -7,6 +7,9 @@ import CHash from "colocorazon/dist/colorhash";
 import type ImageManager from "./ImageManager";
 import type TraceManager from "./TraceManager";
 
+const HIGHLIGHT_OFFSET_AMOUNT = 5;
+const HIGHLIGHT_COLOR = [255, 50, 100];
+const DEFAULT_COLOR = [255, 255, 0, 200];
 
 export default class Scrollbar {
 
@@ -36,24 +39,41 @@ export default class Scrollbar {
         this.width = 20;
     }
 
-    mouseClicked(): void {}
-    mousePressed(): void {}
+    mouseClicked(): boolean {
+
+    }
+    mousePressed(): void {
+        if (this.p.mouseButton === this.p.RIGHT) {
+            if (this.p.mouseX < this.left + this.width && this.p.mouseY < this.top + this.height) {
+                this.im.setZ(Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height - this.top)));
+                return false;
+            }
+        }
+        return true;
+    }
 
     getEntities() {
         return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
             let c = [150, 200, 50];
-            if (i.type) {
+            let offset = 0;
+            if (i.bookmarked) {
+                c = HIGHLIGHT_COLOR;
+                offset = HIGHLIGHT_OFFSET_AMOUNT;
+            }
+            else if (i.type) {
                 let h = CHash(i.type);
                 c = [h.r, h.g, h.b];
             }
             return {
                 z: i.z,
-                color: c
+                color: c,
+                offset,
             };
         }).concat((this.tm.activeNode ? [{
             z: this.tm.activeNode.z,
-            color: [255, 255, 0, 200]
-        }]: [])));
+            color: DEFAULT_COLOR,
+            offset: HIGHLIGHT_OFFSET_AMOUNT
+        }] : [])));
     }
 
     draw(): void {
@@ -71,7 +91,7 @@ export default class Scrollbar {
             this.p.line(
                 this.left,
                 _z,
-                this.width + this.left,
+                this.width + this.left + e.offset,
                 _z
             );
         });
@@ -79,7 +99,7 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left - HIGHLIGHT_OFFSET_AMOUNT, this.top + this.height * (this.im.currentZ / this.im.nSlices),
             this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
         );
     }

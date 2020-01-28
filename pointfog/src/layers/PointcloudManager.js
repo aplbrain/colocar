@@ -10,6 +10,7 @@ const ACTIVE_NODE_COLOR = { r: 255, g: 255, b: 0 };
 // Default node color
 const DEFAULT_COLOR = { r: 30, g: 240, b: 255 };
 const CENTROID_COLOR = { r: 190, g: 10, b: 10 };
+const BOOKMARKED_COLOR = { r: 255, g: 10, b: 150 };
 
 // Distance in pixels inside of which a node can be selected
 const SELECTION_THRESHOLD = 10;
@@ -54,8 +55,8 @@ export default class TraceManager {
             let newNodeId = uuidv4();
 
             // Normalize relative to the original image.
-            let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
-            let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
+            let x = (this.p.mouseX - this.im.position.x) / this.im.scale;
+            let y = (this.p.mouseY - this.im.position.y) / this.im.scale;
 
             // TODO: Project xyz into DATA space, not p5 space
             let newNode = new NodeMeta({
@@ -113,6 +114,33 @@ export default class TraceManager {
         }
     }
 
+
+    markBookmark(): void {
+        if (this.selectedNode.bookmarked) {
+            this.selectedNode.bookmarked = false;
+        } else {
+            this.selectedNode.bookmarked = true;
+        }
+    }
+
+    popBookmark(): { x: number, y: number, z: number } {
+        let bmarks = this.nodes.reverse().filter(n => n.bookmarked);
+        if (!bmarks.length) {
+            // If you have set no bookmarks, return current XYZ
+            return {
+                x: this.activeNode.x,
+                y: this.activeNode.y,
+                z: this.activeNode.z,
+            };
+        } else {
+            return {
+                x: bmarks[0].x,
+                y: bmarks[0].y,
+                z: bmarks[0].z,
+            };
+        }
+    }
+
     deleteActiveNode(): void {
         if (!this.selectedNode) { return; }
         if (this.selectedNode.protected) { return; }
@@ -150,13 +178,16 @@ export default class TraceManager {
                 let node = this.nodes[j];
                 let diminishingFactor = Math.max(0, 180 - (DIMINISH_RATE * Math.pow(node.z - this.im.currentZ, 2)));
                 let color = DEFAULT_COLOR;
+                if (node.bookmarked) {
+                    color = BOOKMARKED_COLOR;
+                }
                 let transformedNode = this.transformCoords(node.x, node.y);
                 transformedNode.lowConfidence = node.lowConfidence;
                 this.p.fill(color.r, color.g, color.b, diminishingFactor);
-                this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor/255 * 20, diminishingFactor/255 * 20);
+                this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor / 255 * 20, diminishingFactor / 255 * 20);
                 if (transformedNode.lowConfidence) {
                     this.p.fill(255, 255, 255, diminishingFactor);
-                    this.p.arc(transformedNode.x, transformedNode.y, 0.9*diminishingFactor/255 * 20, 0.9*diminishingFactor/255 * 20, Math.PI/2, 3*Math.PI/2);
+                    this.p.arc(transformedNode.x, transformedNode.y, 0.9 * diminishingFactor / 255 * 20, 0.9 * diminishingFactor / 255 * 20, Math.PI / 2, 3 * Math.PI / 2);
                 }
                 if (Math.abs(diminishingFactor) >= 179.5) {
                     this.p.fill(CENTROID_COLOR.r, CENTROID_COLOR.g, CENTROID_COLOR.b, 255);

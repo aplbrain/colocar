@@ -4,6 +4,9 @@ import type { P5Type } from "colocorazon/dist/types/p5Types";
 import type ImageManager from "./ImageManager";
 import type PointcloudManager from "./PointcloudManager";
 
+const HIGHLIGHT_OFFSET_AMOUNT = 5;
+const HIGHLIGHT_COLOR = [255, 50, 100];
+const DEFAULT_COLOR = [0, 150, 200, 40];
 
 export default class Scrollbar {
 
@@ -33,14 +36,23 @@ export default class Scrollbar {
         this.width = 20;
     }
 
-    mouseClicked(): void {}
-    mousePressed(): void {}
+    mouseClicked(): void { }
+    mousePressed(): void {
+        if (this.p.mouseButton === this.p.RIGHT) {
+            if (this.p.mouseX < this.left + this.width && this.p.mouseY < this.top + this.height) {
+                this.im.setZ(Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height - this.top)));
+                return false;
+            }
+        }
+        return true;
+    }
 
     getEntities() {
         return this.pm.nodes.map(i => {
             return {
                 z: i.z,
-                color: [0, 150, 200, 40]
+                color: i.bookmarked ? [...HIGHLIGHT_COLOR, 100] : DEFAULT_COLOR,
+                offset: (!!i.bookmarked) * HIGHLIGHT_OFFSET_AMOUNT
             };
         });
     }
@@ -60,7 +72,7 @@ export default class Scrollbar {
             this.p.line(
                 this.left,
                 _z,
-                this.width + this.left,
+                this.width + this.left + e.offset,
                 _z
             );
         });
@@ -68,7 +80,7 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left - HIGHLIGHT_OFFSET_AMOUNT, this.top + this.height * (this.im.currentZ / this.im.nSlices),
             this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
         );
     }
