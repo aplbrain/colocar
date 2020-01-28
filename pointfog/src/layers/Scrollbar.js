@@ -5,7 +5,8 @@ import type ImageManager from "./ImageManager";
 import type PointcloudManager from "./PointcloudManager";
 
 const HIGHLIGHT_OFFSET_AMOUNT = 5;
-
+const HIGHLIGHT_COLOR = [255, 50, 100];
+const DEFAULT_COLOR = [0, 150, 200, 40];
 
 export default class Scrollbar {
 
@@ -50,7 +51,7 @@ export default class Scrollbar {
         return this.pm.nodes.map(i => {
             return {
                 z: i.z,
-                color: i.bookmarked ? [250, 0, 150, 100] : [0, 150, 200, 40],
+                color: i.bookmarked ? [...HIGHLIGHT_COLOR, 100] : DEFAULT_COLOR,
                 offset: (!!i.bookmarked) * HIGHLIGHT_OFFSET_AMOUNT
             };
         });

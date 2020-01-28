@@ -8,6 +8,8 @@ import type ImageManager from "./ImageManager";
 import type TraceManager from "./TraceManager";
 
 const HIGHLIGHT_OFFSET_AMOUNT = 5;
+const HIGHLIGHT_COLOR = [255, 50, 100];
+const DEFAULT_COLOR = [255, 255, 0, 200];
 
 export default class Scrollbar {
 
@@ -55,7 +57,7 @@ export default class Scrollbar {
             let c = [150, 200, 50];
             let offset = 0;
             if (i.bookmarked) {
-                c = [255, 50, 100];
+                c = HIGHLIGHT_COLOR;
                 offset = HIGHLIGHT_OFFSET_AMOUNT;
             }
             else if (i.type) {
@@ -69,7 +71,7 @@ export default class Scrollbar {
             };
         }).concat((this.tm.activeNode ? [{
             z: this.tm.activeNode.z,
-            color: [255, 255, 0, 200],
+            color: DEFAULT_COLOR,
             offset: HIGHLIGHT_OFFSET_AMOUNT
         }] : [])));
     }
