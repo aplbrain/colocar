@@ -4,6 +4,8 @@ import type { P5Type } from "colocorazon/dist/types/p5Types";
 import type ImageManager from "./ImageManager";
 import type PointcloudManager from "./PointcloudManager";
 
+const HIGHLIGHT_OFFSET_AMOUNT = 5;
+
 
 export default class Scrollbar {
 
@@ -45,12 +47,11 @@ export default class Scrollbar {
     }
 
     getEntities() {
-        let offset = 5;
         return this.pm.nodes.map(i => {
             return {
                 z: i.z,
                 color: i.bookmarked ? [250, 0, 150, 100] : [0, 150, 200, 40],
-                offset: (!!i.bookmarked) * offset
+                offset: (!!i.bookmarked) * HIGHLIGHT_OFFSET_AMOUNT
             };
         });
     }
@@ -78,7 +79,7 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left - 5, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left - HIGHLIGHT_OFFSET_AMOUNT, this.top + this.height * (this.im.currentZ / this.im.nSlices),
             this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
         );
     }

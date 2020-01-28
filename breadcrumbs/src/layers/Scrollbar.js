@@ -41,7 +41,6 @@ export default class Scrollbar {
 
     }
     mousePressed(): void {
-        console.log("it happened.");
         if (this.p.mouseButton === this.p.RIGHT) {
             if (this.p.mouseX < this.left + this.width && this.p.mouseY < this.top + this.height) {
                 this.im.setZ(Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height - this.top)));
@@ -98,7 +97,7 @@ export default class Scrollbar {
         // Draw thumb:
         this.p.stroke(200);
         this.p.line(
-            this.left - 5, this.top + this.height * (this.im.currentZ / this.im.nSlices),
+            this.left - HIGHLIGHT_OFFSET_AMOUNT, this.top + this.height * (this.im.currentZ / this.im.nSlices),
             this.left + this.width, this.top + this.height * (this.im.currentZ / this.im.nSlices)
         );
     }
