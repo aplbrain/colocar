@@ -37,7 +37,7 @@ let DB = new Colocard();
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
-        position:"fixed",
+        position: "fixed",
     },
     qid: {
         userSelect: "text"
@@ -111,16 +111,18 @@ export default class PointfogApp extends Component<any, any> {
         // Create p5 sketch
         let self = this;
         self.sketch = (p: P5Type) => {
-            p.setup = function() {
+            p.setup = function () {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
 
-                canvas.mousePressed(function() {
-                    self.layers.pointcloudManager.mousePressed();
+                canvas.mousePressed(function () {
+                    if (self.layers.scrollbar.mousePressed()) {
+                        self.layers.pointcloudManager.mousePressed();
+                    }
                     self.updateUIStatus();
                 });
 
-                canvas.mouseClicked(function() {
+                canvas.mouseClicked(function () {
                     self.layers.pointcloudManager.mouseClicked();
                     self.updateUIStatus();
                 });
@@ -199,11 +201,11 @@ export default class PointfogApp extends Component<any, any> {
 
             };
 
-            p.windowResized = function() {
+            p.windowResized = function () {
                 p.resizeCanvas(p.windowWidth, p.windowHeight);
             };
 
-            p.keyPressed = function() {
+            p.keyPressed = function () {
                 const aKey = 65;
                 const cKey = 67;
                 const dKey = 68;
@@ -218,60 +220,68 @@ export default class PointfogApp extends Component<any, any> {
                 const leftArrowKey = 37;
                 const rightArrowKey = 39;
                 const plusKey = 187;
+                const exclamationKey = 49;
+                const atSignKey = 50;
                 const minusKey = 189;
                 const escapeKey = 27;
                 const backspaceKey = 8;
                 switch (p.keyCode) {
-                // navigation (move image opposite to camera)
-                case wKey:
-                case upArrowKey:
-                    self.panDown();
-                    break;
-                case sKey:
-                case downArrowKey:
-                    self.panUp();
-                    break;
-                case aKey:
-                case leftArrowKey:
-                    self.panRight();
-                    break;
-                case dKey:
-                case rightArrowKey:
-                    self.panLeft();
-                    break;
-                case qKey:
-                    self.decrementZ();
-                    break;
-                case eKey:
-                    self.incrementZ();
-                    break;
-                // view update
-                case plusKey:
-                    self.scaleUp();
-                    break;
-                case minusKey:
-                    self.scaleDown();
-                    break;
-                case escapeKey:
-                    self.reset();
-                    break;
-                case oKey:
-                    self.toggleOverlay();
-                    break;
-                case tKey:
-                    self.toggleAnnotation();
-                    break;
-                case cKey:
-                    if (self.confidence) {
-                        self.markLowConfidence();
-                    }
-                    break;
-                // deletion
-                case backspaceKey:
-                    self.deleteActiveNode();
-                    break;
-                default:
-                    break;
+                    // navigation (move image opposite to camera)
+                    case wKey:
+                    case upArrowKey:
+                        self.panDown();
+                        break;
+                    case sKey:
+                    case downArrowKey:
+                        self.panUp();
+                        break;
+                    case aKey:
+                    case leftArrowKey:
+                        self.panRight();
+                        break;
+                    case dKey:
+                    case rightArrowKey:
+                        self.panLeft();
+                        break;
+                    case qKey:
+                        self.decrementZ();
+                        break;
+                    case eKey:
+                        self.incrementZ();
+                        break;
+                    // view update
+                    case plusKey:
+                        self.scaleUp();
+                        break;
+                    case minusKey:
+                        self.scaleDown();
+                        break;
+                    case escapeKey:
+                        self.reset();
+                        break;
+                    case oKey:
+                        self.toggleOverlay();
+                        break;
+                    case tKey:
+                        self.toggleAnnotation();
+                        break;
+                    case cKey:
+                        if (self.confidence) {
+                            self.markLowConfidence();
+                        }
+                        break;
+                    case exclamationKey:
+                        self.markBookmark();
+                        break;
+                    case atSignKey:
+                        self.popBookmark();
+                        break;
+                    // deletion
+                    case backspaceKey:
+                        self.deleteActiveNode();
+                        break;
+                    default:
+                        break;
                 }
 
                 self.updateUIStatus();
@@ -290,12 +300,12 @@ export default class PointfogApp extends Component<any, any> {
                 self.updateUIStatus();
             };
 
-            p.mouseMoved = function() {
+            p.mouseMoved = function () {
                 let im = self.layers.imageManager;
                 if (im) {
                     self.setState({
-                        cursorX: (p.mouseX - im.position.x)/im.scale,
-                        cursorY:(p.mouseY - im.position.y)/im.scale
+                        cursorX: (p.mouseX - im.position.x) / im.scale,
+                        cursorY: (p.mouseY - im.position.y) / im.scale
                     });
                 }
             };
@@ -326,7 +336,7 @@ export default class PointfogApp extends Component<any, any> {
                 }
             };
 
-            p.draw = function() {
+            p.draw = function () {
                 p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
@@ -363,24 +373,24 @@ export default class PointfogApp extends Component<any, any> {
 
     scaleUp(): void {
         this.layers.imageManager.scaleUp();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     scaleDown(): void {
         this.layers.imageManager.scaleDown();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
         this.handleMetadataModalClose();
-        this.setState({cursorZ: this.layers.imageManager.currentZ});
+        this.setState({ cursorZ: this.layers.imageManager.currentZ });
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
         this.handleMetadataModalClose();
-        this.setState({cursorZ: this.layers.imageManager.currentZ});
+        this.setState({ cursorZ: this.layers.imageManager.currentZ });
     }
 
     insertStoredNodes() {
@@ -427,6 +437,15 @@ export default class PointfogApp extends Component<any, any> {
 
     markLowConfidence(): void {
         this.layers.pointcloudManager.markLowConfidence();
+    }
+
+    markBookmark(): void {
+        this.layers.pointcloudManager.markBookmark();
+    }
+    popBookmark(): void {
+        // eslint-disable-next-line no-unused-vars
+        let { x, y, z } = this.layers.pointcloudManager.popBookmark();
+        this.layers.imageManager.setZ(z);
     }
 
     deleteActiveNode(): void {
@@ -485,17 +504,17 @@ export default class PointfogApp extends Component<any, any> {
                 let newNode: Node = {};
                 // Rescale the node centroids to align with data-space, not p5 space:
                 let newX = oldNode.x + xBounds[0] + (
-                    (xBounds[1] - xBounds[0])/2
+                    (xBounds[1] - xBounds[0]) / 2
                 );
                 let newY = oldNode.y + yBounds[0] + (
-                    (yBounds[1] - yBounds[0])/2
+                    (yBounds[1] - yBounds[0]) / 2
                 );
                 let newZ = oldNode.z + zBounds[0];
 
                 newNode.author = window.keycloak.profile.username;
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
-                newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
+                newNode.metadata = oldNode.lowConfidence ? { "lowConfidence": true } : {};
                 newNode.namespace = DB.pointfog_name;
                 newNode.type = this.nodeType;
                 newNode.volume = this.volume._id;
@@ -560,7 +579,7 @@ export default class PointfogApp extends Component<any, any> {
 
     getEmptyArtifacts(artifactTags: Array<string>): Object {
         let emptyArtifacts = {};
-        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+        for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             emptyArtifacts[artifactTags[aIndex]] = {};
         }
         return emptyArtifacts;
@@ -569,8 +588,8 @@ export default class PointfogApp extends Component<any, any> {
     render() {
         this.nodeType = this.nodeType || DEFAULT_NODE_TYPE;
         let prompt = this.prompt;
-        let nodeKey = this.nodeType[0]? this.nodeType[0].toUpperCase(): "";
-        let nodeCount = this.layers? this.layers.pointcloudManager.getNodes().length: 0;
+        let nodeKey = this.nodeType[0] ? this.nodeType[0].toUpperCase() : "";
+        let nodeCount = this.layers ? this.layers.pointcloudManager.getNodes().length : 0;
         let chipHTML = [];
         chipHTML.push(
             <div>
@@ -580,7 +599,7 @@ export default class PointfogApp extends Component<any, any> {
                             style={{ margin: "0.5em 0" }}
                             label={`${this.nodeType}: ${nodeCount}`}
                             avatar={
-                                <Avatar style={{ backgroundColor: CHash(this.nodeType, 'hex') }}>{ nodeKey }</Avatar>
+                                <Avatar style={{ backgroundColor: CHash(this.nodeType, 'hex') }}>{nodeKey}</Avatar>
                             }
                         />
                     </Tooltip>
@@ -597,7 +616,7 @@ export default class PointfogApp extends Component<any, any> {
                                 style={{ margin: "0.5em 0" }}
                                 label={"confidence"}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
+                                    <Avatar style={{ backgroundColor: "white" }}>{"C"}</Avatar>
                                 }
                             />
                         </Tooltip>
@@ -659,19 +678,19 @@ export default class PointfogApp extends Component<any, any> {
                                     }
                                 } else {
                                     let noneFlag = true;
-                                    for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
+                                    for (let aIndex = 0; aIndex < emptyArtifacts.length; aIndex++) {
                                         noneFlag &= !this.artifacts[aIndex][newZ];
                                     }
                                     if (noneFlag) {
                                         delete this.artifactImageUrls[newZ];
                                     }
                                 }
-                            }}/>
+                            }} />
                         <span>{artifact}</span>
                     </DialogContent>
                 );
                 if (this.artifacts[artifact][newZ] === true) {
-                    artifactButtonColor =  "secondary";
+                    artifactButtonColor = "secondary";
                 }
             }
             for (let zIndex in this.artifactImageUrls) {
@@ -680,7 +699,7 @@ export default class PointfogApp extends Component<any, any> {
                         key={`artifact_snapshot_${zIndex}`}
                     >
                         <td
-                            style={{"padding": "2%"}}
+                            style={{ "padding": "2%" }}
                         >
                             <img
                                 alt="em-snapshot"
@@ -689,10 +708,10 @@ export default class PointfogApp extends Component<any, any> {
                             />
                         </td>
                         <td
-                            style={{"padding": "2%"}}
+                            style={{ "padding": "2%" }}
                         >
                             z-index: {zIndex}
-                            <br/>
+                            <br />
                             {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
                         </td>
                     </tr>
@@ -709,7 +728,7 @@ export default class PointfogApp extends Component<any, any> {
 
         return (
             <div>
-                <div id={this.p5ID} style={STYLES["p5Container"]}/>
+                <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? <div>
                     <div>
@@ -719,47 +738,47 @@ export default class PointfogApp extends Component<any, any> {
                             top: 0,
                             margin: "2em"
                         }}>
-                            { chipHTML }
+                            {chipHTML}
                             <div style={{ float: "right", fontSize: "1.2em" }}>
                                 <Chip
                                     style={{ margin: "0.5em 0" }}
                                     label={`x: ${xString}; y: ${yString}; z: ${zString}`}
                                 />
                             </div>
-                            <br/>
-                            <div style={{"float": "right"}}>
+                            <br />
+                            <div style={{ "float": "right" }}>
                                 <div style={{ fontSize: "0.9em" }}>
                                     <Button style={{ opacity: 0.9 }}
                                         variant="fab"
                                         mini={true}
-                                        onClick={ this.handleSnackbarOpen }
+                                        onClick={this.handleSnackbarOpen}
                                     >
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                {this.artifactFlag? (
+                                {this.artifactFlag ? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
-                                            color={ artifactButtonColor }
+                                            color={artifactButtonColor}
                                             variant="fab"
                                             mini={true}
-                                            onClick={ this.handleMetadataModalOpen }
+                                            onClick={this.handleMetadataModalOpen}
                                         >
                                             <FeedbackIcon />
                                         </Button>
                                     </div>
-                                ): ""}
-                                {this.artifactFlag? (
+                                ) : ""}
+                                {this.artifactFlag ? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
                                             variant="fab"
                                             mini={true}
-                                            onClick={ this.handleArtifactReportOpen }
+                                            onClick={this.handleArtifactReportOpen}
                                         >
                                             <LibraryBooksIcon />
                                         </Button>
                                     </div>
-                                ): ""}
+                                ) : ""}
                             </div>
                         </div>
 
@@ -795,7 +814,7 @@ export default class PointfogApp extends Component<any, any> {
                             }}
                             action={[
                                 <Button key="undo" color="secondary" size="small" onClick={this.handleSnackbarClose}>
-                                GOT IT
+                                    GOT IT
                                 </Button>
                             ]}
                             message={<div id="message-id">

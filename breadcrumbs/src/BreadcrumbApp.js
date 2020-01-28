@@ -123,7 +123,9 @@ export default class BreadcrumbApp extends Component<any, any> {
                 canvas.parent(self.p5ID);
 
                 canvas.mousePressed(function() {
-                    self.layers.traceManager.mousePressed();
+                    if (self.layers.scrollbar.mousePressed()) {
+                        self.layers.traceManager.mousePressed();
+                    }
                     self.updateUIStatus();
                 });
 
@@ -152,7 +154,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                     self.artifactFlag = instructions.artifact;
                     self.artifactTags = instructions.artifactTags || DEFAULT_ARTIFACT_TAGS;
-                    self.confidence = instructions.confidence || false;  
+                    self.confidence = instructions.confidence || false;
                     self.graphId = instructions.graph._id;
                     self.nodeTypes = instructions.type || DEFAULT_NODE_TYPES;
                     self.prompt = instructions.prompt;
@@ -369,7 +371,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         this.handleArtifactReportClose = this.handleArtifactReportClose.bind(this);
         this.handleArtifactReportOpen = this.handleArtifactReportOpen.bind(this);
-        
+
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     }
