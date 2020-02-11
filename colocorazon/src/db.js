@@ -85,22 +85,6 @@ class Colocard implements Database {
         throw reason;
     }
 
-
-    getNextQuestion(user: string, type: string) {
-        let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
-            headers: this.headers,
-            method: "GET"
-        });
-        let pendingPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "pending"}&sort=-priority`, {
-            headers: this.headers,
-            method: "GET"
-        });
-        return Promise.all(
-            [openPromise, pendingPromise]
-        ).then(resList => this._onQuestionSuccess(user, resList)
-        ).catch(err => this._onException(err));
-    }
-
     getNextQuestion(user: string, type: string) {
         let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
             headers: this.headers,
@@ -117,6 +101,7 @@ class Colocard implements Database {
             "matchmaker": this._onQuestionSuccess.bind(this),
             "nazca": this._onQuestionSuccessNazca.bind(this),
             "macchiato": this._onQuestionSuccessMacchiato.bind(this),
+            "pointfog": this._onQuestionSuccessPointfog.bind(this),
         }[type])(user, resList)
         ).catch(err => this._onException(err));
     }
@@ -209,6 +194,40 @@ class Colocard implements Database {
                 });
             });
             return fullQuestionPromise;
+        });
+        return questionPromise;
+    }
+
+    _onQuestionSuccessPointfog(user: string, resList: Array<Response>): Promise<Question> {
+        let jsonList = resList.map(res => res.json());
+        let questionPromise = Promise.all(jsonList).then(questionsList => {
+            let openQuestions: Array<Question> = questionsList[0];
+            let pendingQuestions: Array<Question> = questionsList[1];
+            let question;
+            if (openQuestions.length > 0) {
+                question = openQuestions[0];
+            } else {
+                if (pendingQuestions.length > 0) {
+                    question = pendingQuestions[0];
+                } else {
+                    throw new Error("you don't have any open or pending questions - ask an admin");
+                }
+            }
+            if (question.assignee !== user) {
+                throw new Error("this question is assigned to a different user - ask an admin");
+            }
+            let volume = question.volume;
+            let splitUri = volume.uri.split("/");
+            let nUri = splitUri.length;
+            volume.collection = splitUri[nUri - 3];
+            volume.experiment = splitUri[nUri - 2];
+            volume.channel = splitUri[nUri - 1];
+            return this._setOpenStatus(question).then(() => {
+                return {
+                    question,
+                    volume
+                };
+            });
         });
         return questionPromise;
     }

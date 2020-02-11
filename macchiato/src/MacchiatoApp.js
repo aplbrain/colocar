@@ -19,7 +19,8 @@ import "./MacchiatoApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Colocard({ namespace: "macchiato" });
+const APP_NAMESPACE = "macchiato";
+let DB = new Colocard({ namespace: APP_NAMESPACE });
 
 const XY_RADIUS = 200;
 const Z_RADIUS = 13;
@@ -113,7 +114,7 @@ export default class MacchiatoApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.namespace
+                    APP_NAMESPACE
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");

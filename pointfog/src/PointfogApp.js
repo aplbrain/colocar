@@ -4,8 +4,8 @@ import React, { Component } from "react";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
 import CHash from "colocorazon/dist/colorhash";
+import { Colocard } from "colocorazon/dist/db";
 
-import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
@@ -32,7 +32,8 @@ import "./PointfogApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Colocard();
+const APP_NAMESPACE = "pointfog";
+let DB = new Colocard({ namespace: APP_NAMESPACE });
 
 const STYLES = {
     p5Container: {
@@ -135,7 +136,7 @@ export default class PointfogApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.pointfog_name
+                    APP_NAMESPACE
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
@@ -515,7 +516,7 @@ export default class PointfogApp extends Component<any, any> {
                 newNode.coordinate = [newX, newY, newZ];
                 newNode.created = oldNode.created;
                 newNode.metadata = oldNode.lowConfidence ? { "lowConfidence": true } : {};
-                newNode.namespace = DB.pointfog_name;
+                newNode.namespace = APP_NAMESPACE;
                 newNode.type = this.nodeType;
                 newNode.volume = this.volume._id;
 

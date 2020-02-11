@@ -19,7 +19,9 @@ import "./MatchmakerApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Colocard();
+const APP_NAMESPACE = "matchmaker";
+
+let DB = new Colocard({ namespace: APP_NAMESPACE });
 
 const STYLES = {
     p5Container: {
@@ -377,7 +379,7 @@ export default class MatchmakerApp extends Component<any, any> {
             newNode.y = newY;
             newNode.z = newZ;
             newNode.created = oldNode.created;
-            newNode.namespace = DB.matchmaker_name;
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.lowConfidence = oldNode.metadata ? oldNode.metadata.lowConfidence : false;
             newNode.id = oldNode.id || uuidv4();
@@ -411,7 +413,7 @@ export default class MatchmakerApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
-            newNode.namespace = DB.matchmaker_name;
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
