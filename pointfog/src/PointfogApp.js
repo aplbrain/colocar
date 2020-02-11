@@ -5,11 +5,11 @@ import React, { Component } from "react";
 import type { P5Type } from "colocorazon/dist/types/p5";
 import CHash from "colocorazon/dist/colorhash";
 import { Colocard } from "colocorazon/dist/db";
+import Scrollbar from "colocorazon/dist/layers/Scrollbar";
 
 import ImageManager from "./layers/ImageManager";
 import PointcloudManager from "./layers/PointcloudManager";
 import Crosshairs from "./layers/Crosshairs";
-import Scrollbar from "./layers/Scrollbar";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -175,7 +175,7 @@ export default class PointfogApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        pointcloudManager: self.layers.pointcloudManager,
+                        entityLayers: [self.layers.pointcloudManager],
                     });
 
                     // Set the order in which to render the layers. Removing layers
