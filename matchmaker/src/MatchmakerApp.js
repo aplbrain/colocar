@@ -8,9 +8,9 @@ import uuidv4 from "uuid/v4";
 import type { P5Type } from "colocorazon/dist/types/p5Types";
 
 import CHash from "colocorazon/dist/colorhash";
+import { Colocard } from "colocorazon/dist/db";
 
 
-import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
