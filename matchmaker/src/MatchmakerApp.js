@@ -104,7 +104,6 @@ export default class MatchmakerApp extends Component<any, any> {
                 let graphIdB;
 
                 if (getParams.length === 2) {
-                    console.log(getParams);
                     graphIdA = getParams[0];
                     graphIdB = getParams[1];
                 }
