@@ -6,8 +6,8 @@ import uuidv4 from "uuid/v4";
 
 
 import type { P5Type } from "colocorazon/dist/types/p5";
+import { Colocard } from "colocorazon/dist/db";
 
-import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import Scrollbar from "./layers/Scrollbar";
@@ -22,21 +22,23 @@ import localForage from "localforage";
 import "./NazcaApp.css";
 
 let p5: P5Type = window.p5;
+const APP_NAMESPACE = "nazca";
 
-let DB = new Colocard();
+let DB = new Colocard({ namespace: APP_NAMESPACE });
 
 const CANDIDATE_LEGEND_COLOR = "rgb(255, 192, 0)";
-const CANDIDATE_NODE_COLOR = {"r": 255, "g": 192, "b": 0};
-const CANDIDATE_EDGE_COLOR = {"r": 255, "g": 128, "b": 0};
+const CANDIDATE_NODE_COLOR = { "r": 255, "g": 192, "b": 0 };
+const CANDIDATE_EDGE_COLOR = { "r": 255, "g": 128, "b": 0 };
 
 const CONTEXT_LEGEND_COLOR = "rgb(200, 90, 200)";
-const CONTEXT_NODE_COLOR = {"r": 200, "g": 90, "b": 200};
-const CONTEXT_EDGE_COLOR = {"r": 170, "g": 60, "b": 170};
+const CONTEXT_NODE_COLOR = { "r": 200, "g": 90, "b": 200 };
+const CONTEXT_EDGE_COLOR = { "r": 170, "g": 60, "b": 170 };
+
 
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
-        position:"fixed",
+        position: "fixed",
     },
     controlContainer: {
         position: "fixed",
@@ -118,17 +120,17 @@ export default class NazcaApp extends Component<any, any> {
         // Create p5 sketch
         let self = this;
         self.sketch = (p: P5Type) => {
-            p.setup = function() {
+            p.setup = function () {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
                 self.ghostLayer = p.createGraphics(p.width, p.height);
 
-                canvas.mouseClicked(function() {
+                canvas.mouseClicked(function () {
                     self.layers.traceManagerCandidate.mouseClicked();
                     self.updateUIStatus();
                 });
-                
-                canvas.mousePressed(function() {
+
+                canvas.mousePressed(function () {
                     self.layers.traceManagerCandidate.mousePressed();
                     self.updateUIStatus();
                 });
@@ -139,7 +141,7 @@ export default class NazcaApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.nazca_name
+                    APP_NAMESPACE
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
@@ -213,11 +215,11 @@ export default class NazcaApp extends Component<any, any> {
 
             };
 
-            p.windowResized = function() {
+            p.windowResized = function () {
                 p.resizeCanvas(p.windowWidth, p.windowHeight);
             };
 
-            p.keyPressed = function() {
+            p.keyPressed = function () {
                 const aKey = 65;
                 const bKey = 66;
                 const dKey = 68;
@@ -238,64 +240,64 @@ export default class NazcaApp extends Component<any, any> {
                 const minusKey = 189;
                 const escapeKey = 27;
                 switch (p.keyCode) {
-                // decision logic
-                case bKey:
-                case yKey:
-                    self.submitGraphDecision("yes");
-                    break;
-                case nKey:
-                    self.submitGraphDecision("no");
-                    break;
-                case mKey:
-                    self.submitGraphDecision("maybe");
-                    break;
-                // navigation (move image opposite to camera)
-                case wKey:
-                case upArrowKey:
-                    self.panDown();
-                    break;
-                case sKey:
-                case downArrowKey:
-                    self.panUp();
-                    break;
-                case aKey:
-                case leftArrowKey:
-                    self.panRight();
-                    break;
-                case dKey:
-                case rightArrowKey:
-                    self.panLeft();
-                    break;
-                case qKey:
-                    self.decrementZ();
-                    break;
-                case eKey:
-                    self.incrementZ();
-                    break;
-                // view update
-                case plusKey:
-                    self.scaleUp();
-                    break;
-                case minusKey:
-                    self.scaleDown();
-                    break;
-                case escapeKey:
-                    self.reset();
-                    break;
-                case hKey:
-                    self.stopHinting();
-                    break;
-                case tKey:
-                    self.toggleTraceVisibility();
-                    break;
-                default:
-                    break;
+                    // decision logic
+                    case bKey:
+                    case yKey:
+                        self.submitGraphDecision("yes");
+                        break;
+                    case nKey:
+                        self.submitGraphDecision("no");
+                        break;
+                    case mKey:
+                        self.submitGraphDecision("maybe");
+                        break;
+                    // navigation (move image opposite to camera)
+                    case wKey:
+                    case upArrowKey:
+                        self.panDown();
+                        break;
+                    case sKey:
+                    case downArrowKey:
+                        self.panUp();
+                        break;
+                    case aKey:
+                    case leftArrowKey:
+                        self.panRight();
+                        break;
+                    case dKey:
+                    case rightArrowKey:
+                        self.panLeft();
+                        break;
+                    case qKey:
+                        self.decrementZ();
+                        break;
+                    case eKey:
+                        self.incrementZ();
+                        break;
+                    // view update
+                    case plusKey:
+                        self.scaleUp();
+                        break;
+                    case minusKey:
+                        self.scaleDown();
+                        break;
+                    case escapeKey:
+                        self.reset();
+                        break;
+                    case hKey:
+                        self.stopHinting();
+                        break;
+                    case tKey:
+                        self.toggleTraceVisibility();
+                        break;
+                    default:
+                        break;
                 }
 
                 self.updateUIStatus();
             };
 
-            p.mouseDragged = function() {
+            p.mouseDragged = function () {
                 if (p.mouseButton === p.RIGHT) {
                     // Only drag the image if mouse is in the image.
                     if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
@@ -307,7 +309,7 @@ export default class NazcaApp extends Component<any, any> {
                 }
             };
 
-            p.mouseWheel = function(e) {
+            p.mouseWheel = function (e) {
                 let delta = 0;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                     delta = e.deltaX;
@@ -330,7 +332,7 @@ export default class NazcaApp extends Component<any, any> {
                 }
             };
 
-            p.draw = function() {
+            p.draw = function () {
                 p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
@@ -365,22 +367,22 @@ export default class NazcaApp extends Component<any, any> {
 
     scaleUp(): void {
         this.layers.imageManager.scaleUp();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     scaleDown(): void {
         this.layers.imageManager.scaleDown();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({ currentZ: this.layers.imageManager.currentZ });
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({ currentZ: this.layers.imageManager.currentZ });
     }
 
     reset(): void {
@@ -430,7 +432,7 @@ export default class NazcaApp extends Component<any, any> {
             newNode.y = newY;
             newNode.z = newZ;
             newNode.created = oldNode.created;
-            newNode.namespace = DB.nazca_name;
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id || uuidv4();
             newNode.volume = this.volume._id;
@@ -463,7 +465,7 @@ export default class NazcaApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
-            newNode.namespace = DB.nazca_name;
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
@@ -523,7 +525,7 @@ export default class NazcaApp extends Component<any, any> {
     render() {
         return (
             <div>
-                <div id={this.p5ID} style={STYLES["p5Container"]}/>
+                <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
                     <table>
@@ -534,9 +536,9 @@ export default class NazcaApp extends Component<any, any> {
                                 </td>
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.scaleDown()}>-</button>
+                                        <button onClick={() => this.scaleDown()}>-</button>
                                         {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>this.scaleUp()}>+</button>
+                                        <button onClick={() => this.scaleUp()}>+</button>
                                     </div>
                                 </td>
                             </tr>
@@ -546,9 +548,9 @@ export default class NazcaApp extends Component<any, any> {
                                 </td>
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.decrementZ()}>-</button>
+                                        <button onClick={() => this.decrementZ()}>-</button>
                                         {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
-                                        <button onClick={()=>this.incrementZ()}>+</button>
+                                        <button onClick={() => this.incrementZ()}>+</button>
                                     </div>
                                 </td>
                             </tr>
@@ -587,7 +589,7 @@ export default class NazcaApp extends Component<any, any> {
                             </tr>
                             <tr>
                                 <td colSpan={2}>
-                                    <button onClick={()=>this.reset()}>Reset viewport</button>
+                                    <button onClick={() => this.reset()}>Reset viewport</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -595,13 +597,13 @@ export default class NazcaApp extends Component<any, any> {
 
                     <Snackbar
                         open={this.state.snackbarOpen}
-                        onClose={()=>this.handleSnackbarClose()}
+                        onClose={() => this.handleSnackbarClose()}
                         ContentProps={{
                             "aria-describedby": "message-id"
                         }}
                         action={[
-                            <Button key="undo" color="secondary" size="small" onClick={()=>this.handleSnackbarClose()}>
-                            GOT IT
+                            <Button key="undo" color="secondary" size="small" onClick={() => this.handleSnackbarClose()}>
+                                GOT IT
                             </Button>
                         ]}
                         message={<div id="message-id">

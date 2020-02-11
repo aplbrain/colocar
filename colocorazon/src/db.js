@@ -85,6 +85,22 @@ class Colocard implements Database {
         throw reason;
     }
 
+
+    getNextQuestion(user: string, type: string) {
+        let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
+            headers: this.headers,
+            method: "GET"
+        });
+        let pendingPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "pending"}&sort=-priority`, {
+            headers: this.headers,
+            method: "GET"
+        });
+        return Promise.all(
+            [openPromise, pendingPromise]
+        ).then(resList => this._onQuestionSuccess(user, resList)
+        ).catch(err => this._onException(err));
+    }
+
     getNextQuestion(user: string, type: string) {
         let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
             headers: this.headers,
@@ -99,9 +115,60 @@ class Colocard implements Database {
         ).then(resList => ({
             "breadcrumbs": this._onQuestionSuccess.bind(this),
             "matchmaker": this._onQuestionSuccess.bind(this),
+            "nazca": this._onQuestionSuccessNazca.bind(this),
             "macchiato": this._onQuestionSuccessMacchiato.bind(this),
         }[type])(user, resList)
         ).catch(err => this._onException(err));
+    }
+
+    _onQuestionSuccessNazca(user: string, resList: Array<Response>): Promise<Question> {
+        let jsonList = resList.map(res => res.json());
+        let questionPromise = Promise.all(jsonList).then(questionsList => {
+            let openQuestions: Array<Question> = questionsList[0];
+            let pendingQuestions: Array<Question> = questionsList[1];
+            let question;
+            if (openQuestions.length > 0) {
+                question = openQuestions[0];
+            } else {
+                if (pendingQuestions.length > 0) {
+                    question = pendingQuestions[0];
+                } else {
+                    throw new Error("you don't have any open or pending questions - ask an admin");
+                }
+            }
+            if (question.assignee !== user) {
+                throw new Error("this question is assigned to a different user - ask an admin");
+            }
+            let volume = question.volume;
+            let splitUri = volume.uri.split('/');
+            let nUri = splitUri.length;
+            volume.collection = splitUri[nUri - 3];
+            volume.experiment = splitUri[nUri - 2];
+            volume.channel = splitUri[nUri - 1];
+            let candidateId = question.instructions.candidate;
+            let candidatePromise = fetch(`${this.url}/graphs/${candidateId}`, {
+                headers: this.headers
+            });
+            let contextId = question.instructions.context;
+            let contextPromise = fetch(`${this.url}/graphs/${contextId}`, {
+                headers: this.headers
+            });
+            let graphPromises = Promise
+                .all([candidatePromise, contextPromise])
+                .then((resList: Array<Response>) => {
+                    let jsonList = resList.map(res => res.json());
+                    return Promise.all(jsonList);
+                });
+            let fullQuestionPromise = graphPromises.then((graphList: any) => {
+                question.instructions.candidate = graphList[0];
+                question.instructions.context = graphList[1];
+                return this._setOpenStatus(question).then(() => {
+                    return { question, volume };
+                });
+            });
+            return fullQuestionPromise;
+        });
+        return questionPromise;
     }
 
     _onQuestionSuccessMacchiato(user: string, resList: Array<Response>): Promise<Question> {
@@ -265,6 +332,31 @@ class Colocard implements Database {
         */
 
         return fetch(`${this.url}/nodes/${nodeId}/decisions`, {
+            headers: this.headers,
+            method: "PATCH",
+            body: JSON.stringify({
+                author: author,
+                decision: decision
+            })
+        }).then(() => {
+            return "completed";
+        }).catch(reason => {
+            Log.error(reason);
+            return "errored";
+        });
+    }
+
+    postGraphDecision(decision: string, author: string, graphId: string): Promise<string> {
+        /*
+        Post a graph decision to the colocard API.
+
+        Arguments:
+        graph (Object): The graph to post. Should be fully
+        well-formed graph object
+
+        */
+
+        return fetch(`${this.url}/graphs/${graphId}/decisions`, {
             headers: this.headers,
             method: "PATCH",
             body: JSON.stringify({
