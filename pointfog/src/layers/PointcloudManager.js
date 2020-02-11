@@ -42,6 +42,10 @@ export default class TraceManager {
         return this.nodes;
     }
 
+    getEntitiesForScrollbar() {
+        return this.getNodes();
+    }
+
     addNode(newNodeId: string, newNode: NodeMeta): NodeMeta {
         // Verify that the node IDs line up
         newNode.id = newNodeId;

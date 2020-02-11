@@ -1,13 +1,15 @@
 // @flow
 
-import type { P5Type } from "colocorazon/dist/types/p5";
+import type { P5Type } from "../types/p5";
+import CHash from "../colorhash";
 
-import CHash from "colocorazon/dist/colorhash";
+// import type ImageManager from "./ImageManager";
+// import type TraceManager from "./TraceManager";
 
-import type ImageManager from "./ImageManager";
-import type TraceManager from "./TraceManager";
+type ImageManager = {};
+type TraceManager = {};
 
-const HIGHLIGHT_OFFSET_AMOUNT = 5;
+const HIGHLIGHT_OFFSET_AMOUNT = 10;
 const HIGHLIGHT_COLOR = [255, 50, 100];
 const DEFAULT_COLOR = [255, 255, 0, 200];
 
@@ -15,7 +17,7 @@ export default class Scrollbar {
 
     p: any;
     im: ImageManager;
-    tm: TraceManager;
+    entityLayers: Object[];
     visible: boolean;
 
     left: number;
@@ -27,11 +29,13 @@ export default class Scrollbar {
     constructor(opts: {
         p: P5Type,
         imageManager: ImageManager,
-        traceManager: TraceManager
+        entityLayers: Object[]
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
-        this.tm = opts.traceManager;
+        this.entityLayers = opts.entityLayers;
+
+        this.getEntities = this.getEntities.bind(this);
 
         this.left = 20;
         this.top = 30;
@@ -39,13 +43,12 @@ export default class Scrollbar {
         this.width = 20;
     }
 
-    mouseClicked(): boolean {
-
-    }
-    mousePressed(): void {
+    mousePressed(): boolean {
         if (this.p.mouseButton === this.p.RIGHT) {
             if (this.p.mouseX < this.left + this.width && this.p.mouseY < this.top + this.height) {
-                this.im.setZ(Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height - this.top)));
+                this.im.setZ(
+                    Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height))
+                );
                 return false;
             }
         }
@@ -53,11 +56,19 @@ export default class Scrollbar {
     }
 
     getEntities() {
-        return (this.tm.g.nodes().map(i => this.tm.g.node(i)).map(i => {
+        let entities = [];
+        this.entityLayers.forEach(layer => {
+            entities = entities.concat(layer.getEntitiesForScrollbar());
+        });
+        return entities.map((i: { active?: boolean }) => {
             let c = [150, 200, 50];
             let offset = 0;
             if (i.bookmarked) {
                 c = HIGHLIGHT_COLOR;
+                offset = HIGHLIGHT_OFFSET_AMOUNT;
+            }
+            if (i.active) {
+                c = DEFAULT_COLOR;
                 offset = HIGHLIGHT_OFFSET_AMOUNT;
             }
             else if (i.type) {
@@ -69,11 +80,7 @@ export default class Scrollbar {
                 color: c,
                 offset,
             };
-        }).concat((this.tm.activeNode ? [{
-            z: this.tm.activeNode.z,
-            color: DEFAULT_COLOR,
-            offset: HIGHLIGHT_OFFSET_AMOUNT
-        }] : [])));
+        });
     }
 
     draw(): void {

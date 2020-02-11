@@ -7,11 +7,11 @@ import uuidv4 from "uuid/v4";
 import type { P5Type } from "colocorazon/dist/types/p5";
 import CHash from "colocorazon/dist/colorhash";
 import { Colocard } from "colocorazon/dist/db";
+import Scrollbar from "colocorazon/dist/layers/Scrollbar";
 
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import BorderHighlight from "./layers/BorderHighlight";
-import Scrollbar from "./layers/Scrollbar";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -189,7 +189,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManager,
+                        entityLayers: [self.layers.traceManager],
                     });
 
                     // Set the order in which to render the layers. Removing layers
