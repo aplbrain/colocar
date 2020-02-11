@@ -9,11 +9,10 @@ import type { P5Type } from "colocorazon/dist/types/p5Types";
 
 import CHash from "colocorazon/dist/colorhash";
 import { Colocard } from "colocorazon/dist/db";
-
+import Scrollbar from "colocorazon/dist/layers/Scrollbar";
 
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
-import Scrollbar from "./layers/Scrollbar";
 
 import "./MatchmakerApp.css";
 
@@ -151,8 +150,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManagerA: self.layers.traceManagerA,
-                        traceManagerB: self.layers.traceManagerB
+                        entityLayers: [self.layers.traceManagerA, self.layers.traceManagerB]
                     });
 
                     // Set the order in which to render the layers. Removing layers

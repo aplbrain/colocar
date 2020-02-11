@@ -82,6 +82,10 @@ export default class TraceManager {
         this.visibility = !this.visibility;
     }
 
+    getEntitiesForScrollbar() {
+        return this.g.nodes().map(i => this.g.node(i)).concat({ ...this.activeNode, active: true });
+    }
+
     mousePressed(): void {
         // If right click, select a node under the cursor:
         if (this.p.mouseButton === this.p.RIGHT) {
