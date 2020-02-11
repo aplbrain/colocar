@@ -6,8 +6,8 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
 import CHash from "colocorazon/dist/colorhash";
+import { Colocard } from "colocorazon/dist/db";
 
-import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
 import BorderHighlight from "./layers/BorderHighlight";
@@ -39,7 +39,7 @@ let DB = new Colocard();
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
-        position:"fixed",
+        position: "fixed",
     },
     qid: {
         userSelect: "text"
@@ -70,6 +70,8 @@ const DEFAULT_ARTIFACT_TAGS = [
     "imaging",
     "stained"
 ];
+
+const APP_NAMESPACE = "breadcrumbs";
 
 export default class BreadcrumbApp extends Component<any, any> {
 
@@ -118,18 +120,18 @@ export default class BreadcrumbApp extends Component<any, any> {
         // Create p5 sketch
         let self = this;
         self.sketch = (p: P5Type) => {
-            p.setup = function() {
+            p.setup = function () {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
 
-                canvas.mousePressed(function() {
+                canvas.mousePressed(function () {
                     if (self.layers.scrollbar.mousePressed()) {
                         self.layers.traceManager.mousePressed();
                     }
                     self.updateUIStatus();
                 });
 
-                canvas.mouseClicked(function() {
+                canvas.mouseClicked(function () {
                     self.layers.traceManager.mouseClicked();
                     self.updateUIStatus();
                 });
@@ -142,7 +144,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.breadcrumbs_name
+                    APP_NAMESPACE
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
@@ -216,11 +218,11 @@ export default class BreadcrumbApp extends Component<any, any> {
 
             };
 
-            p.windowResized = function() {
+            p.windowResized = function () {
                 p.resizeCanvas(p.windowWidth, p.windowHeight);
             };
 
-            p.keyPressed = function() {
+            p.keyPressed = function () {
 
                 // Check the instruction-specified keys first. Note that this
                 // has the potential to break functionality if the assigning
@@ -248,67 +250,67 @@ export default class BreadcrumbApp extends Component<any, any> {
                 const atSignKey = 50;
                 const backspaceKey = 8;
                 switch (p.keyCode) {
-                // navigation (move image opposite to camera)
-                case upArrowKey:
-                    self.panDown();
-                    break;
-                case downArrowKey:
-                    self.panUp();
-                    break;
-                case leftArrowKey:
-                    self.panRight();
-                    break;
-                case rightArrowKey:
-                    self.panLeft();
-                    break;
-                case qKey:
-                    self.decrementZ();
-                    break;
-                case eKey:
-                    self.incrementZ();
-                    break;
-                // view update
-                case plusKey:
-                    self.scaleUp();
-                    break;
-                case minusKey:
-                    self.scaleDown();
-                    break;
-                case escapeKey:
-                    self.reset();
-                    break;
-                case hKey:
-                    self.stopHinting();
-                    break;
-                case oKey:
-                    self.toggleOverlay();
-                    break;
-                case tKey:
-                    self.toggleAnnotation();
-                    break;
-                case cKey:
-                    if (self.confidence) {
-                        self.markLowConfidence();
-                    }
-                    break;
-                case exclamationKey:
-                    self.markBookmark();
-                    break;
-                case atSignKey:
-                    self.popBookmark();
-                    break;
-                // deletion
-                case backspaceKey:
-                    self.deleteActiveNode();
-                    break;
-                default:
-                    break;
+                    // navigation (move image opposite to camera)
+                    case upArrowKey:
+                        self.panDown();
+                        break;
+                    case downArrowKey:
+                        self.panUp();
+                        break;
+                    case leftArrowKey:
+                        self.panRight();
+                        break;
+                    case rightArrowKey:
+                        self.panLeft();
+                        break;
+                    case qKey:
+                        self.decrementZ();
+                        break;
+                    case eKey:
+                        self.incrementZ();
+                        break;
+                    // view update
+                    case plusKey:
+                        self.scaleUp();
+                        break;
+                    case minusKey:
+                        self.scaleDown();
+                        break;
+                    case escapeKey:
+                        self.reset();
+                        break;
+                    case hKey:
+                        self.stopHinting();
+                        break;
+                    case oKey:
+                        self.toggleOverlay();
+                        break;
+                    case tKey:
+                        self.toggleAnnotation();
+                        break;
+                    case cKey:
+                        if (self.confidence) {
+                            self.markLowConfidence();
+                        }
+                        break;
+                    case exclamationKey:
+                        self.markBookmark();
+                        break;
+                    case atSignKey:
+                        self.popBookmark();
+                        break;
+                    // deletion
+                    case backspaceKey:
+                        self.deleteActiveNode();
+                        break;
+                    default:
+                        break;
                 }
 
                 self.updateUIStatus();
             };
 
-            p.mouseDragged = function() {
+            p.mouseDragged = function () {
                 if (p.mouseButton === p.RIGHT) {
                     // Only drag the image if mouse is in the image.
                     if (self.layers.imageManager.imageCollision(p.mouseX, p.mouseY)) {
@@ -321,17 +323,17 @@ export default class BreadcrumbApp extends Component<any, any> {
                 self.updateUIStatus();
             };
 
-            p.mouseMoved = function() {
+            p.mouseMoved = function () {
                 let im = self.layers.imageManager;
                 if (im) {
                     self.setState({
-                        cursorX: (p.mouseX - im.position.x)/im.scale,
-                        cursorY:(p.mouseY - im.position.y)/im.scale
+                        cursorX: (p.mouseX - im.position.x) / im.scale,
+                        cursorY: (p.mouseY - im.position.y) / im.scale
                     });
                 }
             };
 
-            p.mouseWheel = function(e) {
+            p.mouseWheel = function (e) {
                 let delta = 0;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                     delta = e.deltaX;
@@ -357,7 +359,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 }
             };
 
-            p.draw = function() {
+            p.draw = function () {
                 p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
@@ -401,24 +403,24 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     scaleUp(): void {
         this.layers.imageManager.scaleUp();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     scaleDown(): void {
         this.layers.imageManager.scaleDown();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
         this.handleMetadataModalClose();
-        this.setState({cursorZ: this.layers.imageManager.currentZ});
+        this.setState({ cursorZ: this.layers.imageManager.currentZ });
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
         this.handleMetadataModalClose();
-        this.setState({cursorZ: this.layers.imageManager.currentZ});
+        this.setState({ cursorZ: this.layers.imageManager.currentZ });
     }
 
     reset(): void {
@@ -455,7 +457,7 @@ export default class BreadcrumbApp extends Component<any, any> {
     }
     popBookmark(): void {
         // eslint-disable-next-line no-unused-vars
-        let {x, y, z} = this.layers.traceManager.popBookmark();
+        let { x, y, z } = this.layers.traceManager.popBookmark();
         this.layers.imageManager.setZ(z);
     }
 
@@ -541,7 +543,7 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.y = newY;
             newNode.z = newZ;
             newNode.created = oldNode.created;
-            newNode.namespace = DB.breadcrumbs_name;
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id || uuidv4();
             newNode.volume = this.volume._id;
@@ -574,8 +576,8 @@ export default class BreadcrumbApp extends Component<any, any> {
             newNode.author = oldNode.author || window.keycloak.profile.username;
             newNode.coordinate = [newX, newY, newZ];
             newNode.created = oldNode.created;
-            newNode.metadata = oldNode.lowConfidence? {"lowConfidence": true}: {};
-            newNode.namespace = DB.breadcrumbs_name;
+            newNode.metadata = oldNode.lowConfidence ? { "lowConfidence": true } : {};
+            newNode.namespace = APP_NAMESPACE;
             newNode.type = oldNode.type;
             newNode.id = oldNode.id;
             newNode.volume = this.volume._id;
@@ -669,7 +671,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
     getEmptyArtifacts(artifactTags: Array<string>): Object {
         let emptyArtifacts = {};
-        for (let aIndex=0; aIndex < artifactTags.length; aIndex++) {
+        for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
             emptyArtifacts[artifactTags[aIndex]] = {};
         }
         return emptyArtifacts;
@@ -678,8 +680,8 @@ export default class BreadcrumbApp extends Component<any, any> {
     render() {
         let chipHTML = [];
         this.nodeTypes = this.nodeTypes || DEFAULT_NODE_TYPES;
-        let graph = this.layers? this.layers.traceManager.exportGraph(): null;
-        let nodes = graph? graph.nodes().map(n => graph.node(n)): [];
+        let graph = this.layers ? this.layers.traceManager.exportGraph() : null;
+        let nodes = graph ? graph.nodes().map(n => graph.node(n)) : [];
         for (let nIndex = 0; nIndex < this.nodeTypes.length; nIndex++) {
             let n = this.nodeTypes[nIndex];
             let count = nodes.filter(node => node.type === n.name).length;
@@ -691,7 +693,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 style={{ margin: "0.5em 0" }}
                                 label={`${n.name}: ${count}`}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: CHash(n.name, 'hex') }}>{ n.key.toUpperCase() }</Avatar>
+                                    <Avatar style={{ backgroundColor: CHash(n.name, 'hex') }}>{n.key.toUpperCase()}</Avatar>
                                 }
                             />
                         </Tooltip>
@@ -708,7 +710,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                                 style={{ margin: "0.5em 0" }}
                                 label={"confidence"}
                                 avatar={
-                                    <Avatar style={{ backgroundColor: "white" }}>{ "C" }</Avatar>
+                                    <Avatar style={{ backgroundColor: "white" }}>{"C"}</Avatar>
                                 }
                             />
                         </Tooltip>
@@ -770,19 +772,19 @@ export default class BreadcrumbApp extends Component<any, any> {
                                     }
                                 } else {
                                     let noneFlag = true;
-                                    for (let aIndex=0; aIndex < emptyArtifacts.length; aIndex++) {
+                                    for (let aIndex = 0; aIndex < emptyArtifacts.length; aIndex++) {
                                         noneFlag &= !this.artifacts[aIndex][newZ];
                                     }
                                     if (noneFlag) {
                                         delete this.artifactImageUrls[newZ];
                                     }
                                 }
-                            }}/>
+                            }} />
                         <span>{artifact}</span>
                     </DialogContent>
                 );
                 if (this.artifacts[artifact][newZ] === true) {
-                    artifactButtonColor =  "secondary";
+                    artifactButtonColor = "secondary";
                 }
             }
             for (let zIndex in this.artifactImageUrls) {
@@ -791,7 +793,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                         key={`artifact_snapshot_${zIndex}`}
                     >
                         <td
-                            style={{"padding": "2%"}}
+                            style={{ "padding": "2%" }}
                         >
                             <img
                                 alt="em-snapshot"
@@ -800,10 +802,10 @@ export default class BreadcrumbApp extends Component<any, any> {
                             />
                         </td>
                         <td
-                            style={{"padding": "2%"}}
+                            style={{ "padding": "2%" }}
                         >
                             z-index: {zIndex}
-                            <br/>
+                            <br />
                             {this.artifactTags.filter(aTag => this.artifacts[aTag][zIndex]).join("/")}
                         </td>
                     </tr>
@@ -820,7 +822,7 @@ export default class BreadcrumbApp extends Component<any, any> {
 
         return (
             <div>
-                <div id={this.p5ID} style={STYLES["p5Container"]}/>
+                <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? <div>
                     <div>
@@ -830,8 +832,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                             top: 0,
                             margin: "2em"
                         }}>
-                            { chipHTML }
-                            <div style={{"position": "relative"}}>
+                            {chipHTML}
+                            <div style={{ "position": "relative" }}>
                                 <div style={{ float: "right", fontSize: "1.2em" }}>
                                     <Chip
                                         style={{ margin: "0.5em 0" }}
@@ -839,39 +841,39 @@ export default class BreadcrumbApp extends Component<any, any> {
                                     />
                                 </div>
                             </div>
-                            <div style={{"float": "right"}}>
+                            <div style={{ "float": "right" }}>
                                 <div style={{ fontSize: "0.9em", marginBottom: "0.25em" }}>
                                     <Button style={{ opacity: 0.9 }}
                                         variant="fab"
                                         mini={true}
-                                        onClick={ this.handleSnackbarOpen }
+                                        onClick={this.handleSnackbarOpen}
                                     >
                                         <InfoIcon />
                                     </Button>
                                 </div>
-                                {this.artifactFlag? (
+                                {this.artifactFlag ? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
-                                            color={ artifactButtonColor }
+                                            color={artifactButtonColor}
                                             variant="fab"
                                             mini={true}
-                                            onClick={ this.handleMetadataModalOpen }
+                                            onClick={this.handleMetadataModalOpen}
                                         >
                                             <FeedbackIcon />
                                         </Button>
                                     </div>
-                                ): ""}
-                                {this.artifactFlag? (
+                                ) : ""}
+                                {this.artifactFlag ? (
                                     <div style={{ fontSize: "0.9em" }}>
                                         <Button style={{ opacity: 0.9 }}
                                             variant="fab"
                                             mini={true}
-                                            onClick={ this.handleArtifactReportOpen }
+                                            onClick={this.handleArtifactReportOpen}
                                         >
                                             <LibraryBooksIcon />
                                         </Button>
                                     </div>
-                                ): ""}
+                                ) : ""}
                             </div>
                         </div>
 
@@ -907,11 +909,11 @@ export default class BreadcrumbApp extends Component<any, any> {
                             }}
                             action={[
                                 <Button key="undo" color="secondary" size="small" onClick={this.handleSnackbarClose}>
-                                GOT IT
+                                    GOT IT
                                 </Button>
                             ]}
                             message={<div id="message-id">
-                                <div>{ this.prompt }</div>
+                                <div>{this.prompt}</div>
                                 <div>Task ID: {this.questionId}</div>
                             </div>}
                         />

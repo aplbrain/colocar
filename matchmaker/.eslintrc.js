@@ -14,9 +14,9 @@ module.exports = {
     ],
     "rules": {
         "no-undef": 0,
-        "indent": [ "error", 4 ],
-        "linebreak-style": [ "error", "unix" ],
-        "semi": [ "error", "always" ],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "linebreak-style": ["error", "unix"],
+        "semi": ["error", "always"],
         "no-console": 0,
     },
     "parserOptions": {
