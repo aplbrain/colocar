@@ -7,10 +7,10 @@ import uuidv4 from "uuid/v4";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
 import { Colocard } from "colocorazon/dist/db";
+import Scrollbar from "colocorazon/dist/layers/Scrollbar";
 
 import ImageManager from "./layers/ImageManager";
 import TraceManager from "./layers/TraceManager";
-import Scrollbar from "./layers/Scrollbar";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -187,7 +187,7 @@ export default class NazcaApp extends Component<any, any> {
                     self.layers["scrollbar"] = new Scrollbar({
                         p,
                         imageManager: self.layers.imageManager,
-                        traceManager: self.layers.traceManagerCandidate
+                        entityLayers: [self.layers.traceManagerCandidate, self.layers.traceManagerContext]
                     });
 
                     // Set the order in which to render the layers. Removing layers

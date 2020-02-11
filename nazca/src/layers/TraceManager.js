@@ -82,6 +82,11 @@ export default class TraceManager {
         }
     }
 
+
+    getEntitiesForScrollbar() {
+        return this.g.nodes().map(i => this.g.node(i)).concat({ ...this.activeNode, active: true });
+    }
+
     stopHinting(): void {
         this.drawHinting = false;
     }
@@ -190,8 +195,8 @@ export default class TraceManager {
             let newNodeId = uuidv4();
 
             // Normalize relative to the original image.
-            let x = (this.p.mouseX - this.im.position.x)/this.im.scale;
-            let y = (this.p.mouseY - this.im.position.y)/this.im.scale;
+            let x = (this.p.mouseX - this.im.position.x) / this.im.scale;
+            let y = (this.p.mouseY - this.im.position.y) / this.im.scale;
 
             // TODO: Project xyz into DATA space, not p5 space
             let newNode = new NodeMeta({
@@ -227,7 +232,7 @@ export default class TraceManager {
         }
     }
 
-    popBookmark(): {x: number, y: number, z: number} {
+    popBookmark(): { x: number, y: number, z: number } {
         let nodes = this.g.nodes().map(nodeId => this.g.node(nodeId));
         let bmarks = nodes.reverse().filter(n => n.bookmarked);
         if (!bmarks.length) {
@@ -338,8 +343,8 @@ export default class TraceManager {
         }
 
         // Draw edges
-        for (let {v,w} of this.g.edges().map(({v, w}) => {
-            return {v: this.g.node(v), w: this.g.node(w)};
+        for (let { v, w } of this.g.edges().map(({ v, w }) => {
+            return { v: this.g.node(v), w: this.g.node(w) };
         })) {
             let nodePosU = this.transformCoords(v.x, v.y);
             let nodePosV = this.transformCoords(w.x, w.y);
