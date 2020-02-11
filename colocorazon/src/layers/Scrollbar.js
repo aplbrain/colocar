@@ -9,7 +9,7 @@ import CHash from "../colorhash";
 type ImageManager = {};
 type TraceManager = {};
 
-const HIGHLIGHT_OFFSET_AMOUNT = 5;
+const HIGHLIGHT_OFFSET_AMOUNT = 10;
 const HIGHLIGHT_COLOR = [255, 50, 100];
 const DEFAULT_COLOR = [255, 255, 0, 200];
 
