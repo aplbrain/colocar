@@ -107,7 +107,7 @@ export default class MatchmakerApp extends Component<any, any> {
                     graphIdB = window.prompt("Enter second graph id.");
                 }
 
-                DB.getGraphsAndVolume(
+                DB.getTwoGraphsAndVolume(
                     graphIdA,
                     graphIdB
                 ).then((res: { graphA: Object, graphB: Object, volume: Object }) => {

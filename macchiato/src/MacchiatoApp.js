@@ -3,8 +3,8 @@
 import React, { Component } from "react";
 
 import type { P5Type } from "colocorazon/dist/types/p5";
+import { Colocard } from "colocorazon/dist/db";
 
-import { Colocard } from "./db";
 import ImageManager from "./layers/ImageManager";
 import SynapseManager from "./layers/SynapseManager";
 import Scrollbar from "./layers/Scrollbar";
@@ -19,7 +19,7 @@ import "./MacchiatoApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Colocard();
+let DB = new Colocard({ namespace: "macchiato" });
 
 const XY_RADIUS = 200;
 const Z_RADIUS = 13;
@@ -28,7 +28,7 @@ const BATCH_SIZE = 1;
 const STYLES = {
     p5Container: {
         backgroundColor: "#808080",
-        position:"fixed",
+        position: "fixed",
     },
     controlContainer: {
         position: "fixed",
@@ -103,7 +103,7 @@ export default class MacchiatoApp extends Component<any, any> {
         // Create p5 sketch
         let self = this;
         self.sketch = (p: P5Type) => {
-            p.setup = function() {
+            p.setup = function () {
                 let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
                 canvas.parent(self.p5ID);
 
@@ -113,7 +113,7 @@ export default class MacchiatoApp extends Component<any, any> {
 
                 DB.getNextQuestion(
                     window.keycloak.profile.username,
-                    DB.macchiatoAppName
+                    DB.namespace
                 ).then((res: { question: Object, volume: Object }) => {
                     if (!res || !res.question) {
                         throw new Error("failed to fetch question");
@@ -165,11 +165,11 @@ export default class MacchiatoApp extends Component<any, any> {
                         let lowerOffset = self.volume.bounds[0][coordIx] - lowerLimits[coordIx];
                         let upperOffset = self.volume.bounds[1][coordIx] - upperLimits[coordIx];
                         if (lowerOffset < 0) {
-                            node.coordinate[coordIx] += lowerOffset/2;
+                            node.coordinate[coordIx] += lowerOffset / 2;
                             self.volume.bounds[0][coordIx] = lowerLimits[coordIx];
                         }
                         else if (upperOffset > 0) {
-                            node.coordinate[coordIx] += upperOffset/2;
+                            node.coordinate[coordIx] += upperOffset / 2;
                             self.volume.bounds[1][coordIx] = upperLimits[coordIx];
                         }
                     }
@@ -213,11 +213,11 @@ export default class MacchiatoApp extends Component<any, any> {
 
             };
 
-            p.windowResized = function() {
+            p.windowResized = function () {
                 p.resizeCanvas(p.windowWidth, p.windowHeight);
             };
 
-            p.keyPressed = function() {
+            p.keyPressed = function () {
                 // Navigation
                 const aKey = 65;
                 const eKey = 69;
@@ -243,61 +243,61 @@ export default class MacchiatoApp extends Component<any, any> {
                 const minusKey = 189;
                 const escapeKey = 27;
                 switch (p.keyCode) {
-                // decision logic
-                case bKey:
-                case yKey:
-                    self.submitNodeDecision("yes");
-                    break;
-                case nKey:
-                    self.submitNodeDecision("no");
-                    break;
-                case mKey:
-                    self.submitNodeDecision("maybe");
-                    break;
-                // navigation (move image opposite to camera)
-                case wKey:
-                case upArrowKey:
-                    self.panDown();
-                    break;
-                case sKey:
-                case downArrowKey:
-                    self.panUp();
-                    break;
-                case aKey:
-                case leftArrowKey:
-                    self.panRight();
-                    break;
-                case dKey:
-                case rightArrowKey:
-                    self.panLeft();
-                    break;
-                case qKey:
-                    self.decrementZ();
-                    break;
-                case eKey:
-                    self.incrementZ();
-                    break;
-                // view update
-                case plusKey:
-                    self.scaleUp();
-                    break;
-                case minusKey:
-                    self.scaleDown();
-                    break;
-                case escapeKey:
-                    self.reset();
-                    break;
-                case tKey:
-                    self.toggleSynapseVisibility();
-                    break;
-                default:
-                    break;
+                    // decision logic
+                    case bKey:
+                    case yKey:
+                        self.submitNodeDecision("yes");
+                        break;
+                    case nKey:
+                        self.submitNodeDecision("no");
+                        break;
+                    case mKey:
+                        self.submitNodeDecision("maybe");
+                        break;
+                    // navigation (move image opposite to camera)
+                    case wKey:
+                    case upArrowKey:
+                        self.panDown();
+                        break;
+                    case sKey:
+                    case downArrowKey:
+                        self.panUp();
+                        break;
+                    case aKey:
+                    case leftArrowKey:
+                        self.panRight();
+                        break;
+                    case dKey:
+                    case rightArrowKey:
+                        self.panLeft();
+                        break;
+                    case qKey:
+                        self.decrementZ();
+                        break;
+                    case eKey:
+                        self.incrementZ();
+                        break;
+                    // view update
+                    case plusKey:
+                        self.scaleUp();
+                        break;
+                    case minusKey:
+                        self.scaleDown();
+                        break;
+                    case escapeKey:
+                        self.reset();
+                        break;
+                    case tKey:
+                        self.toggleSynapseVisibility();
+                        break;
+                    default:
+                        break;
                 }
 
                 self.updateUIStatus();
             };
 
-            p.mouseDragged = function() {
+            p.mouseDragged = function () {
                 if (p.mouseButton === p.RIGHT) {
                     let dX = p.pmouseX - p.mouseX;
                     let dY = p.pmouseY - p.mouseY;
@@ -306,7 +306,7 @@ export default class MacchiatoApp extends Component<any, any> {
                 }
             };
 
-            p.mouseWheel = function(e) {
+            p.mouseWheel = function (e) {
                 let delta = 0;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                     delta = e.deltaX;
@@ -329,7 +329,7 @@ export default class MacchiatoApp extends Component<any, any> {
                 }
             };
 
-            p.draw = function() {
+            p.draw = function () {
                 p.clear();
                 // Draw every layer, in order:
                 for (let layer of self.renderOrder) {
@@ -339,7 +339,7 @@ export default class MacchiatoApp extends Component<any, any> {
         };
     }
 
-    async getCoordinateFrameBounds(volume:Object): Object {
+    async getCoordinateFrameBounds(volume: Object): Object {
         let experimentEndpoint = `https://api.theboss.io/v1/collection/${volume.collection}/experiment/${volume.experiment}`;
         let experimentData = await fetch(experimentEndpoint, {
             headers: DB.headers,
@@ -378,22 +378,22 @@ export default class MacchiatoApp extends Component<any, any> {
 
     scaleUp(): void {
         this.layers.imageManager.scaleUp();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     scaleDown(): void {
         this.layers.imageManager.scaleDown();
-        this.setState({scale: this.layers.imageManager.scale});
+        this.setState({ scale: this.layers.imageManager.scale });
     }
 
     incrementZ(): void {
         this.layers.imageManager.incrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({ currentZ: this.layers.imageManager.currentZ });
     }
 
     decrementZ(): void {
         this.layers.imageManager.decrementZ();
-        this.setState({currentZ: this.layers.imageManager.currentZ});
+        this.setState({ currentZ: this.layers.imageManager.currentZ });
     }
 
     reset(): void {
@@ -455,7 +455,7 @@ export default class MacchiatoApp extends Component<any, any> {
     render() {
         return (
             <div>
-                <div id={this.p5ID} style={STYLES["p5Container"]}/>
+                <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
 
@@ -467,9 +467,9 @@ export default class MacchiatoApp extends Component<any, any> {
                                 </td>
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.scaleDown()}>-</button>
+                                        <button onClick={() => this.scaleDown()}>-</button>
                                         {Math.round(100 * this.state.scale)}%
-                                        <button onClick={()=>this.scaleUp()}>+</button>
+                                        <button onClick={() => this.scaleUp()}>+</button>
                                     </div>
                                 </td>
                             </tr>
@@ -479,9 +479,9 @@ export default class MacchiatoApp extends Component<any, any> {
                                 </td>
                                 <td>
                                     <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={()=>this.decrementZ()}>-</button>
+                                        <button onClick={() => this.decrementZ()}>-</button>
                                         {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
-                                        <button onClick={()=>this.incrementZ()}>+</button>
+                                        <button onClick={() => this.incrementZ()}>+</button>
                                     </div>
                                 </td>
                             </tr>
@@ -496,7 +496,7 @@ export default class MacchiatoApp extends Component<any, any> {
                             </tr>
                             <tr>
                                 <td colSpan={2}>
-                                    <button onClick={()=>this.reset()}>Reset viewport</button>
+                                    <button onClick={() => this.reset()}>Reset viewport</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -504,13 +504,13 @@ export default class MacchiatoApp extends Component<any, any> {
 
                     <Snackbar
                         open={this.state.snackbarOpen}
-                        onClose={()=>this.handleSnackbarClose()}
+                        onClose={() => this.handleSnackbarClose()}
                         ContentProps={{
                             "aria-describedby": "message-id"
                         }}
                         action={[
-                            <Button key="undo" color="secondary" size="small" onClick={()=>this.handleSnackbarClose()}>
-                            GOT IT
+                            <Button key="undo" color="secondary" size="small" onClick={() => this.handleSnackbarClose()}>
+                                GOT IT
                             </Button>
                         ]}
                         message={<div id="message-id">
