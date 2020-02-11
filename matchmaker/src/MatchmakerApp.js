@@ -99,11 +99,19 @@ export default class MatchmakerApp extends Component<any, any> {
                 self.layers = {};
                 self.renderOrder = [];
 
+                let getParams = window.location.search.split("&").map(i => i.split('=')[1]);
                 let graphIdA;
+                let graphIdB;
+
+                if (getParams.length === 2) {
+                    console.log(getParams);
+                    graphIdA = getParams[0];
+                    graphIdB = getParams[1];
+                }
+
                 while (!graphIdA) {
                     graphIdA = window.prompt("Enter first graph id.");
                 }
-                let graphIdB;
                 while (!graphIdB) {
                     graphIdB = window.prompt("Enter second graph id.");
                 }
