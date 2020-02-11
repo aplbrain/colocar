@@ -46,7 +46,9 @@ export default class Scrollbar {
     mousePressed(): boolean {
         if (this.p.mouseButton === this.p.RIGHT) {
             if (this.p.mouseX < this.left + this.width && this.p.mouseY < this.top + this.height) {
-                this.im.setZ(Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height - this.top)));
+                this.im.setZ(
+                    Math.round(this.im.nSlices * (this.p.mouseY - this.top) / (this.height))
+                );
                 return false;
             }
         }
