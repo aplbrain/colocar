@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import * as graphlib from "graphlib";
 import uuidv4 from "uuid/v4";
 
+import Chip from "@material-ui/core/Chip";
+import Avatar from "@material-ui/core/Avatar";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import type { P5Type } from "colocorazon/dist/types/p5Types";
 
@@ -33,7 +36,7 @@ const STYLES = {
         right: "15px",
         padding: "15px 15px 0 15px",
         userSelect: "none",
-        backgroundColor: "#FFF",
+        // backgroundColor: "#FFF",
     },
     controlRow: {
         marginBottom: '15px',
@@ -71,7 +74,10 @@ export default class MatchmakerApp extends Component<any, any> {
     state: {
         ready?: boolean,
         scale?: number,
-        currentZ?: number
+        currentZ?: number,
+        cursorX: number,
+        cursorY: number,
+        cursorZ: number,
     };
 
     volume: Object;
@@ -188,6 +194,16 @@ export default class MatchmakerApp extends Component<any, any> {
 
             p.windowResized = function () {
                 p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+
+            p.mouseMoved = function () {
+                let im = self.layers.imageManager;
+                if (im) {
+                    self.setState({
+                        cursorX: (p.mouseX - im.position.x) / im.scale,
+                        cursorY: (p.mouseY - im.position.y) / im.scale
+                    });
+                }
             };
 
             p.keyPressed = function () {
@@ -436,96 +452,84 @@ export default class MatchmakerApp extends Component<any, any> {
     }
 
     render() {
+        let oldX = this.state.cursorX;
+        let oldY = this.state.cursorY;
+        let oldZ = this.state.currentZ;
+        let newX = 0;
+        let newY = 0;
+        let newZ = 0;
+
+        if (this.volume && this.volume.bounds) {
+            let xBounds = [this.volume.bounds[0][0], this.volume.bounds[1][0]];
+            let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
+            let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
+
+            newX = Math.floor(oldX + xBounds[0] + (
+                (xBounds[1] - xBounds[0]) / 2
+            ));
+            newY = Math.floor(oldY + yBounds[0] + (
+                (yBounds[1] - yBounds[0]) / 2
+            ));
+            newZ = oldZ + zBounds[0];
+        }
+
+        let xString = String(newX).padStart(5, "0");
+        let yString = String(newY).padStart(5, "0");
+        let zString = String(newZ).padStart(5, "0");
         return (
             <div>
                 <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? <div style={STYLES["controlContainer"]}>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Zoom</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={() => this.scaleDown()}>-</button>
-                                        {Math.round(100 * this.state.scale)}%
-                                        <button onClick={() => this.scaleUp()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Layer</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        <button onClick={() => this.decrementZ()}>-</button>
-                                        {this.state.currentZ} / {this.layers.imageManager.nSlices - 1}
-                                        <button onClick={() => this.incrementZ()}>+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style={STYLES["controlLabel"]}>Nodes</div>
-                                </td>
-                                <td>
-                                    <div style={STYLES["controlToolInline"]}>
-                                        {this.state.nodeCount}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <small style={STYLES["qid"]}>
-                                        <code>
-                                            {this.questionId || ""}
-                                        </code>
-                                    </small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <div style={STYLES["graphLegendA"]}>
-                                        {this.layers.traceManagerA.g.author}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <div style={STYLES["graphLegendB"]}>
-                                        {this.layers.traceManagerB.g.author}
-                                    </div>
-                                </td>
-                            </tr>
-                            {
-                                this.state.nodeTypes.map(type => (
-                                    <tr key={type}>
-                                        <td colSpan={2}>
-                                            <div>
-                                                <div style={{
-                                                    display: "inline-block",
-                                                    backgroundColor: CHash(type, 'hex'),
-                                                    color: CHash(type, 'hex'),
-                                                    width: "1em",
-                                                    height: "1em",
-                                                    borderRadius: "0.5em"
-                                                }}>.</div>
-                                                {type}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
-                            <tr>
-                                <td colSpan={2}>
-                                    <button onClick={() => this.reset()}>Reset viewport</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div style={{ float: "right", width: "100%" }}>
+                        <Tooltip title={this.layers.traceManagerA.g.author}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={this.layers.traceManagerA.g.author}
+                                avatar={
+                                    <Avatar style={STYLES["graphLegendA"]}></Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                    <br />
+                    <div style={{ float: "right", width: "100%" }}>
+                        <Tooltip title={this.layers.traceManagerB.g.author}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={this.layers.traceManagerB.g.author}
+                                avatar={
+                                    <Avatar style={STYLES["graphLegendB"]}></Avatar>
+                                }
+                            />
+                        </Tooltip>
+                    </div>
+                    <br />
+                    {
+                        this.state.nodeTypes.map(type => (
+                            <div key={type}>
+                                <div style={{ float: "right", width: "100%" }}>
+                                    <Tooltip title={type}>
+                                        <Chip
+                                            style={{ margin: "0.5em 0" }}
+                                            label={`${type}`}
+                                            avatar={
+                                                <Avatar style={{ backgroundColor: CHash(type, 'hex') }}>{type[0].toUpperCase()}</Avatar>
+                                            }
+                                        />
+                                    </Tooltip>
+                                </div>
+                            </div>
+                        ))
+                    }
+                    <div style={{ "position": "relative" }}>
+                        <div style={{ float: "right", fontSize: "1.2em" }}>
+                            <Chip
+                                style={{ margin: "0.5em 0" }}
+                                label={`x: ${xString}; y: ${yString}; z: ${zString}`}
+                            />
+                        </div>
+                    </div>
 
                 </div> : null}
             </div>
