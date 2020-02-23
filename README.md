@@ -14,6 +14,33 @@ These are primarily used through deployment to Amazon Web Services (AWS), but th
 ### Preamble: colocorazon
 First, one must build the shared libraries, found in colocorazon. This can be done by cd-ing into colocorazon and running `yarn && yarn build`. This will transpile the shared libraries into browser-friendly, old-timey JavaScript.
 
+```shell
+cd colocorazon
+yarn run build
+```
+
+Then, for example:
+
+```shell
+cd ../breadcrumbs
+yarn add ../colocorazon
+```
+
+You can also directly link the build like so:
+
+```shell
+cd colocorazon
+yarn run build
+yarn link
+```
+
+```shell
+cd pointfog
+yarn link colocorazon
+```
+
+Changes to the colocorazon build will now immediately take effect in the link-downstreams. (So... exercise caution if doing this for a production deploy!)
+
 ### Amble: installing dependencies
 Next, the apps require pulling modules into their node_modules. At present, this can be done by cd-ing into the app directory and running `yarn`.
 
