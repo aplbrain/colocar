@@ -17,7 +17,9 @@ export default class ImageManager {
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;
-    position: {x: number, y: number};
+    position: { x: number, y: number };
+
+    game: { score: number };
 
     // Expects an array of image URIs to be loaded
     constructor(opts: {p: P5Type, volume: Object, batchSize: number}): void {
@@ -30,6 +32,17 @@ export default class ImageManager {
         this.loadAllImages(opts.volume, opts.batchSize);
         this.readiness = new Array(this.nSlices);
         this.currentZ = Math.floor((this.nSlices) / 2); // Starts in the middle
+
+        this.game = {
+            score: 0,
+            ball: {
+                x: this.position.x,
+                y: 0,
+                vx: 0,
+                vy: 0
+            },
+            paddleRadius: 70
+        };
     }
 
     // Loads in all the images.
@@ -273,28 +286,39 @@ export default class ImageManager {
                 this.imageHeight,
             );
         } else {
-            // Image not loaded yet. Filler image.
-            this.p.stroke(255, 0, 0);
-            this.p.fill(255);
-
-            this.p.rectMode(this.p.CENTER);
-            this.p.rect(
-                this.position.x,
-                this.position.y,
-                500 * this.scale,
-                500 * this.scale,
-            );
-
-            let offset = 250 * this.scale;
-            this.p.line(this.position.x + offset, this.position.y + offset, this.position.x - offset, this.position.y - offset);
-            this.p.line(this.position.x - offset, this.position.y + offset, this.position.x + offset, this.position.y - offset);
+            // Image not loaded yet.
 
             this.p.fill(0);
-            this.p.noStroke();
-            this.p.strokeWeight(4);
-            this.p.textSize(24);
-            this.p.textAlign(this.p.CENTER, this.p.CENTER);
-            this.p.text("Loading...", this.position.x, this.position.y);
+            this.p.stroke(0);
+            this.p.rect(this.p.mouseX - this.game.paddleRadius, this.position.y, this.game.paddleRadius * 2, 10);
+
+            this.game.ball.y += this.game.ball.vy;
+            this.game.ball.x += this.game.ball.vx;
+
+            if (this.game.ball.x < 0 || this.game.ball.x > this.p.width) {
+                this.game.ball.vx *= -1;
+            }
+
+            this.game.ball.vy += .6;
+            this.p.ellipse(this.game.ball.x, this.game.ball.y, 20, 20);
+
+            if (Math.abs(this.game.ball.x - this.p.mouseX) < this.game.paddleRadius && Math.abs(this.game.ball.y - this.position.y) < 20) {
+                this.game.ball.y = this.p.min(this.game.ball.y, this.position.y - 30);
+                this.game.ball.vy = -10;
+                this.game.ball.vx = this.p.constrain(this.game.ball.x - this.p.mouseX, -20, 20);
+                this.game.score++;
+                this.game.paddleRadius -= 5;
+            }
+
+            if (this.game.ball.y > this.position.y + 100) {
+                this.game.score = 0;
+                this.game.paddleRadius = 75;
+                this.game.ball.y = 0;
+                this.game.ball.vy = 0;
+            }
+
+            this.p.textSize(30);
+            this.p.text(`${this.game.score}`, this.position.x, this.position.y + 150);
         }
     }
 }
