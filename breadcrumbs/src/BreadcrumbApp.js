@@ -34,7 +34,9 @@ import "./BreadcrumbApp.css";
 
 let p5: P5Type = window.p5;
 
-let DB = new Colocard();
+let DB = new Colocard({
+    namespace: "breadcrumbs"
+});
 
 const STYLES = {
     p5Container: {
