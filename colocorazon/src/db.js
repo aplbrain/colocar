@@ -85,6 +85,31 @@ class Colocard implements Database {
         throw reason;
     }
 
+    postNodes(nodes: Array<Node>): Promise<string> {
+        /*
+        Post a list of nodes to the colocard API.
+        Arguments:
+            nodes (Array<Node>): The nodes to post. Should each be fully
+                well-formed node object
+        */
+        let nodePromises = nodes.map(node => {
+            return fetch(`${this.url}/nodes`, {
+                headers: this.headers,
+                method: "POST",
+                body: JSON.stringify(node)
+            });
+        });
+        return Promise.all(
+            nodePromises
+        ).then(() => {
+            return "completed";
+        }).catch(reason => {
+            Log.error(reason);
+            return "errored";
+        });
+    }
+
+
     getNextQuestion(user: string, type: string) {
         let openPromise = fetch(`${this.url}/questions?q={"active": true, "assignee": "${user}", "namespace": "${type}", "status": "open"}`, {
             headers: this.headers,
