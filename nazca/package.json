@@ -10,7 +10,7 @@
     "graphlib": "^2.1.5",
     "hoek": "^4.2.1",
     "localforage": "^1.7.2",
-    "npm": "^6.14.5",
+    "npm": "^6.14.6",
     "react": "^16.2.0",
     "react-dom": "^16.13.1",
     "react-scripts": "1.1.0",
