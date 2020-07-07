@@ -8,7 +8,7 @@
     "colocorazon": "../colocorazon",
     "flow": "^0.2.3",
     "js-yaml": "^3.13.1",
-    "npm": "^6.13.4",
+    "npm": "^6.14.6",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0",
