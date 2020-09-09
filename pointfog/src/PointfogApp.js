@@ -216,6 +216,7 @@ export default class PointfogApp extends Component<any, any> {
                 const sKey = 83;
                 const tKey = 84;
                 const wKey = 87;
+                const xKey = 88;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -277,10 +278,10 @@ export default class PointfogApp extends Component<any, any> {
                     case atSignKey:
                         self.popBookmark();
                         break;
-                    // deletion
+                    case xKey:
                     case backspaceKey:
                         self.deleteActiveNode();
-                        break;
+                        return false;
                     default:
                         break;
                 }
