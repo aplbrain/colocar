@@ -241,6 +241,7 @@ export default class BreadcrumbApp extends Component<any, any> {
                 const oKey = 79;
                 const qKey = 81;
                 const tKey = 84;
+                const xKey = 88;
                 const upArrowKey = 38;
                 const downArrowKey = 40;
                 const leftArrowKey = 37;
@@ -302,9 +303,10 @@ export default class BreadcrumbApp extends Component<any, any> {
                         self.popBookmark();
                         break;
                     // deletion
+                    case xKey:
                     case backspaceKey:
                         self.deleteActiveNode();
-                        break;
+                        return false;
                     default:
                         break;
                 }
