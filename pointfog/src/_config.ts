@@ -1,6 +1,6 @@
 import _build_info from "./_build_info";
 
-window._build_info = _build_info;
+// window._build_info = _build_info; // @ts-ignore
 
 const Config = {
 
