@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 
-import { P5Type } from "colocorazon/dist/types/p5";
+// import { P5Type } from "colocorazon/dist/types/p5";
+type P5Type = any;
+// @ts-ignore
 import CHash from "colocorazon/dist/colorhash";
+// @ts-ignore
 import { Colocard } from "colocorazon/dist/db";
+// @ts-ignore
 import Scrollbar from "colocorazon/dist/layers/Scrollbar";
 
 import ImageManager from "./layers/ImageManager";
@@ -28,6 +32,7 @@ import localForage from "localforage";
 
 import "./PointfogApp.css";
 
+// @ts-ignore
 let p5: P5Type = window.p5;
 
 const APP_NAMESPACE = "pointfog";
@@ -66,34 +71,41 @@ const DEFAULT_ARTIFACT_TAGS = [
 ];
 
 export default class PointfogApp extends Component<any, any> {
-    artifacts: Object;
-    artifactImageUrls: Object;
+    artifacts: any;
+    artifactImageUrls: any;
+    // @ts-ignore
     artifactFlag: boolean;
+    // @ts-ignore
     artifactTags: Array<string>;
-    canvas: Object;
+    canvas: any;
+    // @ts-ignore
     confidence: boolean;
-    layers: Object;
+    layers: any;
+    // @ts-ignore
     nodeType: string;
     p5ID: string;
+    // @ts-ignore
     prompt: string;
+    // @ts-ignore
     questionId: string;
     sketch: any;
+    // @ts-ignore
     renderOrder: Array<string>;
-    volume: Object;
+    volume: any;
 
     state: {
         artifactModalOpen: boolean;
         artifactReportOpen: boolean;
         cursorX: number;
         cursorY: number;
-        cursorZ?: number;
+        cursorZ: number;
         nodeCount: number;
         ready?: boolean;
         saveInProgress: boolean;
         scale?: number;
     };
 
-    constructor(props: Object) {
+    constructor(props: any) {
         super(props);
 
         this.p5ID = "p5-container";
@@ -102,6 +114,7 @@ export default class PointfogApp extends Component<any, any> {
             artifactReportOpen: false,
             cursorX: 0,
             cursorY: 0,
+            cursorZ: 0,
             nodeCount: 0,
             saveInProgress: false,
         };
@@ -132,10 +145,11 @@ export default class PointfogApp extends Component<any, any> {
                 self.renderOrder = [];
 
                 DB.getNextQuestion(
+                    // @ts-ignore
                     window.keycloak.profile.username,
                     APP_NAMESPACE
                 )
-                    .then((res: { question: Object; volume: Object }) => {
+                    .then((res: { question: any; volume: any }) => {
                         if (!res || !res.question) {
                             throw new Error("failed to fetch question");
                         }
@@ -201,7 +215,7 @@ export default class PointfogApp extends Component<any, any> {
 
                         self.insertStoredNodes();
                     })
-                    .catch((err) => alert(err));
+                    .catch((err: any) => alert(err));
             };
 
             p.windowResized = function () {
@@ -323,7 +337,7 @@ export default class PointfogApp extends Component<any, any> {
                 }
             };
 
-            p.mouseWheel = function (e) {
+            p.mouseWheel = function (e: WheelEvent) {
                 let delta = 0;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                     delta = e.deltaX;
@@ -418,12 +432,12 @@ export default class PointfogApp extends Component<any, any> {
         });
         localForage
             .getItem(`pointfogStorage-${this.questionId}`)
-            .then((storedData) => {
+            .then((storedData: any) => {
                 let emptyArtifacts = this.getEmptyArtifacts(this.artifactTags);
                 this.artifacts = storedData.artifacts || emptyArtifacts;
                 this.artifactImageUrls = storedData.artifactImageUrls || {};
                 let storedNodes = storedData.nodes || [];
-                storedNodes.forEach((node) => {
+                storedNodes.forEach((node: any) => {
                     this.layers.pointcloudManager.addNode(node.id, node);
                 });
                 this.layers.pointcloudManager.selectedNode = storedNodes.slice(
@@ -523,27 +537,37 @@ export default class PointfogApp extends Component<any, any> {
             let yBounds = [this.volume.bounds[0][1], this.volume.bounds[1][1]];
             let zBounds = [this.volume.bounds[0][2], this.volume.bounds[1][2]];
             let nodes = this.layers.pointcloudManager.getNodes();
-            let transformedNodes = nodes.map((oldNode) => {
-                let newNode: Node = {};
-                // Rescale the node centroids to align with data-space, not p5 space:
-                let newX =
-                    oldNode.x + xBounds[0] + (xBounds[1] - xBounds[0]) / 2;
-                let newY =
-                    oldNode.y + yBounds[0] + (yBounds[1] - yBounds[0]) / 2;
-                let newZ = oldNode.z + zBounds[0];
+            let transformedNodes = nodes.map(
+                (oldNode: { x: number; y: number; z: number }) => {
+                    // @ts-ignore
+                    let newNode: { x: number; y: number; z: number } = {};
+                    // Rescale the node centroids to align with data-space, not p5 space:
+                    let newX =
+                        oldNode.x + xBounds[0] + (xBounds[1] - xBounds[0]) / 2;
+                    let newY =
+                        oldNode.y + yBounds[0] + (yBounds[1] - yBounds[0]) / 2;
+                    let newZ = oldNode.z + zBounds[0];
 
-                newNode.author = window.keycloak.profile.username;
-                newNode.coordinate = [newX, newY, newZ];
-                newNode.created = oldNode.created;
-                newNode.metadata = oldNode.lowConfidence
-                    ? { lowConfidence: true }
-                    : {};
-                newNode.namespace = APP_NAMESPACE;
-                newNode.type = this.nodeType;
-                newNode.volume = this.volume._id;
+                    // @ts-ignore
+                    newNode.author = window.keycloak.profile.username;
+                    // @ts-ignore
+                    newNode.coordinate = [newX, newY, newZ];
+                    // @ts-ignore
+                    newNode.created = oldNode.created;
+                    // @ts-ignore
+                    newNode.metadata = oldNode.lowConfidence
+                        ? { lowConfidence: true }
+                        : {};
+                    // @ts-ignore
+                    newNode.namespace = APP_NAMESPACE;
+                    // @ts-ignore
+                    newNode.type = this.nodeType;
+                    // @ts-ignore
+                    newNode.volume = this.volume._id;
 
-                return newNode;
-            });
+                    return newNode;
+                }
+            );
             let nodePromise = DB.postNodes(transformedNodes);
             let artifactPromise = DB.postArtifacts(
                 this.questionId,
@@ -604,9 +628,10 @@ export default class PointfogApp extends Component<any, any> {
         this.setState({ snackbarOpen: true });
     }
 
-    getEmptyArtifacts(artifactTags: Array<string>): Object {
+    getEmptyArtifacts(artifactTags: Array<string>): any {
         let emptyArtifacts = {};
         for (let aIndex = 0; aIndex < artifactTags.length; aIndex++) {
+            // @ts-ignore
             emptyArtifacts[artifactTags[aIndex]] = {};
         }
         return emptyArtifacts;
@@ -712,7 +737,7 @@ export default class PointfogApp extends Component<any, any> {
                     <DialogContent key={`artifact_${artifact}`}>
                         <Checkbox
                             checked={this.artifacts[artifact][newZ]}
-                            onChange={(event: Object, checked: boolean) => {
+                            onChange={(event: any, checked: boolean) => {
                                 this.artifacts[artifact][newZ] = checked;
                                 if (checked === true) {
                                     if (!(newZ in this.artifactImageUrls)) {
@@ -730,9 +755,9 @@ export default class PointfogApp extends Component<any, any> {
                                         aIndex < emptyArtifacts.length;
                                         aIndex++
                                     ) {
-                                        noneFlag &= !this.artifacts[aIndex][
-                                            newZ
-                                        ];
+                                        noneFlag =
+                                            noneFlag &&
+                                            !this.artifacts[aIndex][newZ];
                                     }
                                     if (noneFlag) {
                                         delete this.artifactImageUrls[newZ];
@@ -776,6 +801,7 @@ export default class PointfogApp extends Component<any, any> {
 
         return (
             <div>
+                {/* @ts-ignore */}
                 <div id={this.p5ID} style={STYLES["p5Container"]} />
 
                 {this.state.ready ? (
@@ -817,6 +843,7 @@ export default class PointfogApp extends Component<any, any> {
                                         <div style={{ fontSize: "0.9em" }}>
                                             <Button
                                                 style={{ opacity: 0.9 }}
+                                                /* @ts-ignore */
                                                 color={artifactButtonColor}
                                                 variant="fab"
                                                 mini={true}
@@ -875,6 +902,7 @@ export default class PointfogApp extends Component<any, any> {
                             </Dialog>
 
                             <Snackbar
+                                /* @ts-ignore */
                                 open={this.state.snackbarOpen}
                                 onClose={this.handleSnackbarClose}
                                 ContentProps={{
@@ -901,6 +929,7 @@ export default class PointfogApp extends Component<any, any> {
                             <Button
                                 variant="fab"
                                 color="secondary"
+                                /* @ts-ignore */
                                 style={STYLES["save"]}
                                 onClick={() => this.saveNodes()}
                                 disabled={this.state.saveInProgress}
@@ -910,6 +939,7 @@ export default class PointfogApp extends Component<any, any> {
                             <Button
                                 variant="fab"
                                 color="primary"
+                                /* @ts-ignore */
                                 style={STYLES["submit"]}
                                 onClick={() => this.submitNodes()}
                                 disabled={this.state.saveInProgress}

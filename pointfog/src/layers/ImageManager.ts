@@ -18,26 +18,34 @@ export default class ImageManager {
     imageHeight: number;
     nSlices: number;
     images: Array<P5Image>;
+    imageURIs: Array<string>;
     readiness: Array<boolean>;
     currentZ: number;
     scale: number;
     position: { x: number; y: number; };
 
     // Expects an array of image URIs to be loaded
-    constructor(opts: { p: P5Type; volume: Object; batchSize: number; }): void {
+    constructor(opts: { p: P5Type; volume: any; batchSize: number; }) {
         this.p = opts.p;
         this.scale = 1;
         panIncrement = Math.min(this.p.canvas.width, this.p.canvas.height) * .01;
         let centerPoint = this.getCenter();
         this.position = { x: centerPoint.x, y: centerPoint.y };
         this.batchSize = opts.batchSize;
+
+        this.nSlices = 0;
+        this.imageWidth = 0;
+        this.imageHeight = 0;
+        this.images = [];
+        this.imageURIs = [];
+
         this.loadAllImages(opts.volume, opts.batchSize);
         this.readiness = new Array(this.nSlices);
         this.currentZ = Math.floor(this.nSlices / 2); // Starts in the middle
     }
 
     // Loads in all the images.
-    loadAllImages(volume: Object, batchSize: number): void {
+    loadAllImages(volume: any, batchSize: number): void {
         let xBounds = [volume.bounds[0][0], volume.bounds[1][0]];
         let yBounds = [volume.bounds[0][1], volume.bounds[1][1]];
         let zBounds = [volume.bounds[0][2], volume.bounds[1][2]];
@@ -63,6 +71,7 @@ export default class ImageManager {
                     this.readiness[subIx] = true;
                 }
             }, (err: Error) => { Log.error(err); }, {
+                // @ts-ignore
                 Authorization: `Bearer ${window.keycloak.token}`,
                 Accept: "image/jpeg"
             });
@@ -81,6 +90,7 @@ export default class ImageManager {
             this.images[bottomIndexToLoad] = this.p.loadImage(this.imageURIs[bottomIndexToLoad], () => {
                 this.readiness[bottomIndexToLoad] = true;
             }, (err: Error) => { Log.error(err); }, {
+                // @ts-ignore
                 Authorization: `Bearer ${window.keycloak.token}`,
                 Accept: 'image/jpeg'
             });
@@ -91,6 +101,7 @@ export default class ImageManager {
             if (topIndexToLoad < this.nSlices) {
                 this.images[topIndexToLoad] = this.p.loadImage(this.imageURIs[topIndexToLoad], () => {
                     this.readiness[topIndexToLoad] = true;
+                    // @ts-ignore
                 }, (err: Error) => { Log.error(err); }, { Authorization: `Bearer ${window.keycloak.token}` });
             }
         }
@@ -199,7 +210,7 @@ export default class ImageManager {
         this.setY(centerPoint.y);
     }
 
-    // Returns an object of the EDGES of the image.
+    // Returns an any of the EDGES of the image.
     getBoundingRect(): { right: number; left: number; bottom: number; top: number; } {
         // right vertical boundary
         let right = this.position.x + this.imageWidth / 2 * this.scale;

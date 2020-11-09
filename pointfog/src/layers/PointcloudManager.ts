@@ -28,7 +28,10 @@ export default class TraceManager {
     p: P5Type;
     im: ImageManager;
     visible: boolean;
+    // @ts-ignore
     selectedNode: NodeMeta;
+    // @ts-ignore
+    activeNode: NodeMeta;
     nodes: Array<NodeMeta>;
 
     constructor(opts: {
@@ -67,14 +70,16 @@ export default class TraceManager {
             let y = (this.p.mouseY - this.im.position.y) / this.im.scale;
 
             // TODO: Project xyz into DATA space, not p5 space
-            let newNode = new NodeMeta({
+            let newNode = {
                 x,
                 y,
                 z: this.im.currentZ,
                 //!!!TEMP
                 // TODO
-                id: newNodeId
-            });
+                id: newNodeId,
+                lowConfidence: false,
+                created: Date.now(),
+            };
 
             this.selectedNode = this.addNode(newNodeId, newNode);
         }
@@ -85,11 +90,14 @@ export default class TraceManager {
             // Get the closest node and set it as active:
             // TODO: Filter in here
             let closeNodes = this.nodes.filter(n => Math.abs(n.z - this.im.currentZ) < SELECTION_RADIUS_Z).filter(n => {
+                // @ts-ignore
                 n = this.transformCoords(n.x, n.y);
                 return Math.sqrt(Math.pow(this.p.mouseX - n.x, 2) + Math.pow(this.p.mouseY - n.y, 2)) < SELECTION_THRESHOLD;
             });
             closeNodes.sort((n, m) => {
+                // @ts-ignore
                 n = this.transformCoords(n.x, n.y);
+                // @ts-ignore
                 m = this.transformCoords(m.x, m.y);
                 let ndist = Math.pow(this.p.mouseX - n.x, 2) + Math.pow(this.p.mouseY - n.y, 2);
                 let mdist = Math.pow(this.p.mouseX - m.x, 2) + Math.pow(this.p.mouseY - m.y, 2);
@@ -144,6 +152,7 @@ export default class TraceManager {
 
         // Delete from nodesByLayer
         this.nodes = this.nodes.filter(node => node.id !== this.selectedNode.id);
+        // @ts-ignore
         this.selectedNode = null;
     }
 
@@ -178,7 +187,8 @@ export default class TraceManager {
                 if (node.bookmarked) {
                     color = BOOKMARKED_COLOR;
                 }
-                let transformedNode = this.transformCoords(node.x, node.y);
+                // @ts-ignore
+                let transformedNode: NodeMeta = this.transformCoords(node.x, node.y);
                 transformedNode.lowConfidence = node.lowConfidence;
                 this.p.fill(color.r, color.g, color.b, diminishingFactor);
                 this.p.ellipse(transformedNode.x, transformedNode.y, diminishingFactor / 255 * 20, diminishingFactor / 255 * 20);
@@ -205,28 +215,14 @@ export default class TraceManager {
 }
 
 // Thin wrapper for node information.
-class NodeMeta {
+interface NodeMeta {
 
-    id: string;
+    id?: string;
     x: number;
     y: number;
     z: number;
-    lowConfidence: boolean | null | undefined;
-    created: number | null | undefined;
-
-    constructor(opts: {
-        x: number;
-        y: number;
-        z: number;
-        created?: number;
-        lowConfidence?: boolean;
-        id?: string;
-    }) {
-        this.x = opts.x;
-        this.y = opts.y;
-        this.z = opts.z;
-        this.lowConfidence = opts.lowConfidence || false;
-        this.created = opts.created || Date.now();
-        this.id = opts.id || uuidv4();
-    }
+    lowConfidence?: boolean | null | undefined;
+    created?: number | null | undefined;
+    protected?: boolean | null | undefined;
+    bookmarked?: boolean | null | undefined;
 }
