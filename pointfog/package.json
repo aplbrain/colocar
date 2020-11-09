@@ -5,6 +5,10 @@
   "dependencies": {
     "@material-ui/core": "^3.0.2",
     "@material-ui/icons": "^3.0.1",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.14.6",
+    "@types/react": "^16.9.56",
+    "@types/react-dom": "^16.9.9",
     "colocorazon": "../colocorazon",
     "cryptiles": "4.1.2",
     "flow": "^0.2.3",
@@ -28,6 +32,7 @@
     "babel-eslint": "^8.2.2",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-react": "^7.7.0",
-    "flow-bin": "^0.64.0"
+    "flow-bin": "^0.64.0",
+    "typescript": "^4.0.5"
   }
 }
