@@ -507,7 +507,10 @@ export default class BreadcrumbApp extends Component<any, any> {
         let artifacts = this.artifacts;
         let artifactImageUrls = this.artifactImageUrls;
         let graphStr = graphlib.json.write(this.layers.traceManager.g);
-        let activeNodeId = this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id;
+        let activeNodeId = this.layers.traceManager.activeNode ? (
+            // fallback in case there is no active node (see #260)
+            this.layers.traceManager.activeNode.id || this.layers.traceManager.activeNode._id
+        ) : undefined;
         localForage.setItem(
             `breadcrumbsStorage-${this.questionId}`,
             {
