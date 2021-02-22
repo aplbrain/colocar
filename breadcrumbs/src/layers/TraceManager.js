@@ -37,6 +37,7 @@ export default class TraceManager {
     g: any;
     im: ImageManager;
     activeNode: NodeMeta;
+    _allowDisconnected: boolean;
 
     drawHinting: boolean;
     visibility: boolean;
@@ -46,6 +47,7 @@ export default class TraceManager {
         p: P5Type,
         imageManager: ImageManager,
         startingGraph: Object,
+        allowDisconnected: boolean
     }) {
         this.p = opts.p;
         this.im = opts.imageManager;
@@ -56,6 +58,7 @@ export default class TraceManager {
         window.tm = this;
         this.drawHinting = false;
         this.visibility = true;
+        this._allowDisconnected = opts.allowDisconnected || true;
     }
 
     exportGraph(): Object {
@@ -163,6 +166,9 @@ export default class TraceManager {
                 w: newNode.id
             };
             this.g.setEdge(newEdge);
+            this.activeNode = newNode;
+        } else if (this._allowDisconnected) {
+            this.g.setNode(newNode.id, newNode);
             this.activeNode = newNode;
         }
     }

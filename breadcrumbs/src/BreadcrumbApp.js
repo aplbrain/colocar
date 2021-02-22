@@ -185,7 +185,8 @@ export default class BreadcrumbApp extends Component<any, any> {
                     self.layers["traceManager"] = new TraceManager({
                         p,
                         imageManager: self.layers.imageManager,
-                        startingGraph: null
+                        startingGraph: null,
+                        allowDisconnected: res.question.instructions.allowDisconnected
                     });
 
                     self.layers["scrollbar"] = new Scrollbar({
