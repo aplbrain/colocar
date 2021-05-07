@@ -9,12 +9,12 @@
     "cryptiles": "4.1.2",
     "flow": "^0.2.3",
     "graphlib": "^2.1.5",
-    "js-yaml": "^3.13.1",
-    "localforage": "^1.7.2",
+    "js-yaml": "^4.1.0",
+    "localforage": "^1.9.0",
     "npm": "^6.14.6",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts": "1.1.0",
+    "react-scripts": "4.0.3",
     "uuid": "^3.2.1"
   },
   "scripts": {
