@@ -341,6 +341,7 @@ export default class PointfogApp extends Component<any, any> {
             p.draw = function () {
                 p.clear();
                 // Draw every layer, in order:
+                // eslint-disable-next-line no-unused-vars
                 for (let layer of self.renderOrder) {
                     self.layers[layer].draw();
                 }
@@ -695,6 +696,7 @@ export default class PointfogApp extends Component<any, any> {
                     artifactButtonColor = "secondary";
                 }
             }
+            // eslint-disable-next-line no-unused-vars
             for (let zIndex in this.artifactImageUrls) {
                 artifactSnapshots.push(
                     <tr
