@@ -35,7 +35,7 @@ jobs:
 
             - name: Install dependencies
               working-directory: ${{ matrix.project }}
-              run: yarn install --frozen-lockfile
+              run: yarn install
 
             - name: Run ESLint
               working-directory: ${{ matrix.project }}
@@ -69,7 +69,7 @@ jobs:
 
             - name: Install dependencies
               working-directory: ${{ matrix.project }}
-              run: yarn install --frozen-lockfile
+              run: yarn install
 
             - name: Build
               working-directory: ${{ matrix.project }}
