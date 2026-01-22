@@ -308,11 +308,6 @@ class Colocard implements Database {
         return statusPromise;
     }
 
-    _onException(reason: Error) {
-        Log.error(reason);
-        throw reason;
-    }
-
     postGraph(author: string, parent: string, structure: Object, volume: string): Promise<string> {
         /*
         Post a graph to the colocard API.
